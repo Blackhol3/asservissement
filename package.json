@@ -1,0 +1,51 @@
+{
+  "name": "asservissement",
+  "version": "0.0.0",
+  "license": "MIT",
+  "author": "Amaury Dalla Monta",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "test": "ng test",
+    "lint": "ng lint",
+    "e2e": "ng e2e"
+  },
+  "dependencies": {
+    "@angular/animations": "12.x",
+    "@angular/cdk": "12.x",
+    "@angular/common": "12.x",
+    "@angular/compiler": "12.x",
+    "@angular/core": "12.x",
+    "@angular/forms": "12.x",
+    "@angular/material": "12.x",
+    "@angular/platform-browser": "12.x",
+    "@angular/platform-browser-dynamic": "12.x",
+    "@angular/router": "12.x",
+    "deepmerge": "^4.2.2",
+    "rxjs": "7.x",
+    "tslib": "^2.3.1",
+    "zone.js": "~0.11.4"
+  },
+  "devDependencies": {
+    "@angular-devkit/build-angular": "12.x",
+    "@angular/cli": "12.x",
+    "@angular/compiler-cli": "12.x",
+    "@types/jasmine": "^3.8.2",
+    "@types/node": "^12.20.19",
+    "codelyzer": "^6.0.2",
+    "highcharts": "9.x",
+    "jasmine-core": "^3.8.0",
+    "jasmine-spec-reporter": "7.x",
+    "karma": "^6.3.4",
+    "karma-chrome-launcher": "~3.1.0",
+    "karma-coverage": "~2.0.3",
+    "karma-firefox-launcher": "^2.1.1",
+    "karma-jasmine": "~4.0.0",
+    "karma-jasmine-html-reporter": "^1.7.0",
+    "protractor": "~7.0.0",
+    "ts-node": "10.x",
+    "tslint": "~6.1.0",
+    "typescript": "^4.3.5"
+  }
+}
