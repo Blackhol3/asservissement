@@ -23,6 +23,7 @@
     "@angular/platform-browser-dynamic": "15.0.2",
     "@angular/router": "15.0.2",
     "deepmerge": "^4.2.2",
+    "highcharts": "^10.3.2",
     "rxjs": "7.5.7",
     "tslib": "^2.3.1",
     "zone.js": "~0.11.4"
@@ -33,7 +34,6 @@
     "@angular/compiler-cli": "15.0.2",
     "@types/jasmine": "^3.8.2",
     "@types/node": "^12.20.19",
-    "highcharts": "9.x",
     "jasmine-core": "^3.8.0",
     "jasmine-spec-reporter": "7.x",
     "karma": "^6.3.4",

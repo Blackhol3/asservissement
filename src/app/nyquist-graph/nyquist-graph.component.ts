@@ -3,9 +3,7 @@ import { TransferFunction } from '../transfer-function';
 import { FrequentialResponseCalculator } from '../frequential-response-calculator';
 import * as Chart from '../chart';
 import * as deepmerge from 'deepmerge';
-
-import type * as Highcharts from 'highcharts';
-import type {} from 'highcharts/modules/annotations';
+import * as Highcharts from 'highcharts';
 
 enum Data {
 	Real,
@@ -68,7 +66,7 @@ export class NyquistGraphComponent implements OnChanges, AfterViewInit {
 	constructor() {}
 	
 	ngAfterViewInit(): void {
-		this.chart = window.Highcharts.chart(this.chartElement!.nativeElement, deepmerge.all([Chart.options, this.options]));
+		this.chart = Highcharts.chart(this.chartElement!.nativeElement, deepmerge.all([Chart.options, this.options]));
 		this.update();
 		new ResizeObserver(() => this.chart!.reflow()).observe(this.chartElement!.nativeElement);
 	}

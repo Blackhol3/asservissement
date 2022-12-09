@@ -5,10 +5,6 @@ import { TimeGraphComponent } from './time-graph.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import * as Highcharts from 'highcharts';
-import HighchartsMore from 'highcharts/highcharts-more';
-import HighchartsAnnotation from 'highcharts/modules/annotations';
-HighchartsMore(Highcharts);
-HighchartsAnnotation(Highcharts);
 
 describe('TimeGraphComponent', () => {
   let component: TimeGraphComponent;

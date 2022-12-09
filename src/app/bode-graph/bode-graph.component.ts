@@ -3,9 +3,7 @@ import { TransferFunction } from '../transfer-function';
 import { FrequentialResponseCalculator } from '../frequential-response-calculator';
 import * as Chart from '../chart';
 import * as deepmerge from 'deepmerge';
-
-import type * as Highcharts from 'highcharts';
-import type {} from 'highcharts/modules/annotations';
+import * as Highcharts from 'highcharts';
 
 enum Data {
 	Real,
@@ -119,8 +117,8 @@ export class BodeGraphComponent implements OnChanges, AfterViewInit {
 	constructor() {}
 	
 	ngAfterViewInit(): void {
-		this.chartGain = window.Highcharts.chart(this.chartGainElement!.nativeElement, deepmerge.all([Chart.options, this.optionsCommon, this.optionsGain]));
-		this.chartPhase = window.Highcharts.chart(this.chartPhaseElement!.nativeElement, deepmerge.all([Chart.options, this.optionsCommon, this.optionsPhase]));
+		this.chartGain = Highcharts.chart(this.chartGainElement!.nativeElement, deepmerge.all([Chart.options, this.optionsCommon, this.optionsGain]));
+		this.chartPhase = Highcharts.chart(this.chartPhaseElement!.nativeElement, deepmerge.all([Chart.options, this.optionsCommon, this.optionsPhase]));
 		
 		Chart.synchronize([this.chartGain, this.chartPhase]);
 		this.update();

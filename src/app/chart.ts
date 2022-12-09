@@ -1,4 +1,4 @@
-import type * as Highcharts from 'highcharts';
+import * as Highcharts from 'highcharts';
 
 export const colors = [
 	'#1f77b4',

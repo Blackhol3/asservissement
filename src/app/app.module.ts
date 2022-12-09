@@ -30,6 +30,14 @@ import { ExplicitGridDirective } from './explicit-grid.directive';
 import { SimpleElementComponent } from './simple-element/simple-element.component';
 import { NyquistGraphComponent } from './nyquist-graph/nyquist-graph.component';
 
+import * as Highcharts from 'highcharts';
+import HighchartsMore from 'highcharts/highcharts-more';
+import HighchartsAnnotation from 'highcharts/modules/annotations';
+import Exporting from 'highcharts/modules/exporting';
+HighchartsMore(Highcharts);
+HighchartsAnnotation(Highcharts);
+Exporting(Highcharts);
+
 @NgModule({
 	declarations: [
 		AppComponent,
