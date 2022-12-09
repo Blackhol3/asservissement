@@ -15,7 +15,7 @@ enum Data {
 @Component({
 	selector: 'app-black-nichols-graph',
 	templateUrl: './black-nichols-graph.component.html',
-	styleUrls: ['./black-nichols-graph.component.less'],
+	styleUrls: ['./black-nichols-graph.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BlackNicholsGraphComponent implements OnChanges, AfterViewInit {

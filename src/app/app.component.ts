@@ -18,7 +18,7 @@ import { PhaseLeadCompensator } from './simple-element/phase-lead-compensator';
 @Component({
 	selector: 'app-root',
 	templateUrl: './app.component.html',
-	styleUrls: ['./app.component.less'],
+	styleUrls: ['./app.component.scss'],
 	animations: [
 		trigger('items', [
 			transition(':enter', [

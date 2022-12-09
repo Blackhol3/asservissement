@@ -19,7 +19,7 @@ enum Data {
 @Component({
 	selector: 'app-time-graph',
 	templateUrl: './time-graph.component.html',
-	styleUrls: ['./time-graph.component.less'],
+	styleUrls: ['./time-graph.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TimeGraphComponent implements OnChanges, AfterViewInit {

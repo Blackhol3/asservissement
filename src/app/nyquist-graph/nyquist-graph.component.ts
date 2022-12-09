@@ -15,7 +15,7 @@ enum Data {
 @Component({
 	selector: 'app-nyquist-graph',
 	templateUrl: './nyquist-graph.component.html',
-	styleUrls: ['./nyquist-graph.component.less'],
+	styleUrls: ['./nyquist-graph.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NyquistGraphComponent implements OnChanges, AfterViewInit {

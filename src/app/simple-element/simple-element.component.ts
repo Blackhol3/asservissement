@@ -4,7 +4,7 @@ import { SimpleElement } from './simple-element'
 @Component({
 	selector: 'app-simple-element',
 	templateUrl: './simple-element.component.html',
-	styleUrls: ['./simple-element.component.less']
+	styleUrls: ['./simple-element.component.scss']
 })
 export class SimpleElementComponent {
 	@Input() simpleElement?: SimpleElement;

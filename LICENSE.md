@@ -31,9 +31,9 @@ under terms different from the above license. This third party software is
 described as follows:
 
 ## [MIT License](https://choosealicense.com/licenses/mit/)
->[Angular](https://github.com/angular/angular), Copyright (c) 2021 Google LLC
->[deepmerge](https://github.com/angular/angular), Copyright (c) 2012 James Halliday, Josh Duff, and other contributors
->[zone.js](https://github.com/angular/zone.js/), Copyright (c) 2010-2020 Google LLC
+>[Angular](https://github.com/angular/angular), Copyright (c) 2021 Google LLC<br />
+>[deepmerge](https://github.com/angular/angular), Copyright (c) 2012 James Halliday, Josh Duff, and other contributors<br />
+>[zone.js](https://github.com/angular/zone.js/), Copyright (c) 2010-2020 Google LLC<br />
 
 ```
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -56,7 +56,7 @@ THE SOFTWARE.
 ```
 
 ## [Zero-Clause BSD](https://opensource.org/licenses/0BSD)
->[tslib](https://github.com/microsoft/tslib), Copyright (c) Microsoft Corporation
+>[tslib](https://github.com/microsoft/tslib), Copyright (c) Microsoft Corporation<br />
 
 ```
 Permission to use, copy, modify, and/or distribute this software for any
@@ -72,8 +72,8 @@ PERFORMANCE OF THIS SOFTWARE.
 ```
 
 ## [Apache License 2.0](https://choosealicense.com/licenses/apache-2.0/)
->[MathJax](https://github.com/mathjax/MathJax-src), Copyright (c) 2009-2021 MathJax and contributors
->[rxjs](https://github.com/ReactiveX/rxjs), Copyright (c) 2015-2018 Google, Inc., Netflix, Inc., Microsoft Corp. and contributors
+>[MathJax](https://github.com/mathjax/MathJax-src), Copyright (c) 2009-2021 MathJax and contributors<br />
+>[rxjs](https://github.com/ReactiveX/rxjs), Copyright (c) 2015-2018 Google, Inc., Netflix, Inc., Microsoft Corp. and contributors<br />
 
 ```
                                Apache License

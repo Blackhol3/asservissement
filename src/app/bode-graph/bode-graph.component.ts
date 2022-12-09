@@ -16,7 +16,7 @@ enum Data {
 @Component({
 	selector: 'app-bode-graph',
 	templateUrl: './bode-graph.component.html',
-	styleUrls: ['./bode-graph.component.less'],
+	styleUrls: ['./bode-graph.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BodeGraphComponent implements OnChanges, AfterViewInit {

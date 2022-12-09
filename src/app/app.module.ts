@@ -16,7 +16,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatRadioModule } from '@angular/material/radio';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -41,7 +40,7 @@ import { NyquistGraphComponent } from './nyquist-graph/nyquist-graph.component';
 		BlackNicholsGraphComponent,
 		BodeGraphComponent,
 		TimeGraphComponent,
-  NyquistGraphComponent,
+  		NyquistGraphComponent,
 	],
 	imports: [
 		BrowserModule,
@@ -57,7 +56,6 @@ import { NyquistGraphComponent } from './nyquist-graph/nyquist-graph.component';
 		MatIconModule,
 		MatInputModule,
 		MatMenuModule,
-		MatRadioModule,
 		MatSidenavModule,
 		MatSnackBarModule,
 		MatToolbarModule,

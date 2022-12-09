@@ -5,7 +5,7 @@ import { LoopType, GraphType, InputType, VisualizationType } from '../common-typ
 @Component({
 	selector: 'app-graph',
 	templateUrl: './graph.component.html',
-	styleUrls: ['./graph.component.less']
+	styleUrls: ['./graph.component.scss']
 })
 export class GraphComponent implements OnChanges {
 	@Input('transferFunction') transferFunctionOpenLoop: TransferFunction = new TransferFunction();

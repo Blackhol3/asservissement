@@ -12,28 +12,27 @@
     "e2e": "ng e2e"
   },
   "dependencies": {
-    "@angular/animations": "12.x",
-    "@angular/cdk": "12.x",
-    "@angular/common": "12.x",
-    "@angular/compiler": "12.x",
-    "@angular/core": "12.x",
-    "@angular/forms": "12.x",
-    "@angular/material": "12.x",
-    "@angular/platform-browser": "12.x",
-    "@angular/platform-browser-dynamic": "12.x",
-    "@angular/router": "12.x",
+    "@angular/animations": "15.0.2",
+    "@angular/cdk": "15.0.1",
+    "@angular/common": "15.0.2",
+    "@angular/compiler": "15.0.2",
+    "@angular/core": "15.0.2",
+    "@angular/forms": "15.0.2",
+    "@angular/material": "15.0.1",
+    "@angular/platform-browser": "15.0.2",
+    "@angular/platform-browser-dynamic": "15.0.2",
+    "@angular/router": "15.0.2",
     "deepmerge": "^4.2.2",
-    "rxjs": "7.x",
+    "rxjs": "7.5.7",
     "tslib": "^2.3.1",
     "zone.js": "~0.11.4"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "12.x",
-    "@angular/cli": "12.x",
-    "@angular/compiler-cli": "12.x",
+    "@angular-devkit/build-angular": "15.0.2",
+    "@angular/cli": "15.0.2",
+    "@angular/compiler-cli": "15.0.2",
     "@types/jasmine": "^3.8.2",
     "@types/node": "^12.20.19",
-    "codelyzer": "^6.0.2",
     "highcharts": "9.x",
     "jasmine-core": "^3.8.0",
     "jasmine-spec-reporter": "7.x",
@@ -46,6 +45,6 @@
     "protractor": "~7.0.0",
     "ts-node": "10.x",
     "tslint": "~6.1.0",
-    "typescript": "^4.3.5"
+    "typescript": "^4.8.4"
   }
 }

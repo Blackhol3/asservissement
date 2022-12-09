@@ -5,7 +5,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatRadioModule } from '@angular/material/radio';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
@@ -20,7 +19,6 @@ describe('AppComponent', () => {
 		  MatCardModule,
 		  MatCheckboxModule,
 		  MatMenuModule,
-		  MatRadioModule,
 		  MatSidenavModule,
 		  MatToolbarModule,
 	  ],
