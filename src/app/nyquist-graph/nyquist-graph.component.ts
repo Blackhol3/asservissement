@@ -33,6 +33,7 @@ export class NyquistGraphComponent implements OnChanges, AfterViewInit {
 				name: 'Réponse',
 				color: Chart.colors[1],
 				lineWidth: 2,
+				turboThreshold: 0,
 			},
 		],
 		xAxis: {
@@ -66,6 +67,7 @@ export class NyquistGraphComponent implements OnChanges, AfterViewInit {
 
 				return [
 					`<span style="color:${this.point.color}">\u25CF</span> <span style="font-size:10px;">${this.series.name}</span>`,
+					`Pulsation : <b>${Chart.formatFrequency((this.point as any).w)}</b>`,
 					`Réel : <b>${formatter.format(this.x as number)}</b>`,
 					`Imaginaire : <b>${formatter.format(this.y as number)}</b>`,
 				].join('<br />');
@@ -90,7 +92,7 @@ export class NyquistGraphComponent implements OnChanges, AfterViewInit {
 		}
 		
 		const response = this.frequentialResponseCalculator.getCartesianResponse(this.wMin, this.wMax, nbPoints);
-		this.setLineData(Data.Real, response.reals, response.imaginaries);
+		this.setLineData(Data.Real, response.reals, response.imaginaries, response.ws);
 		this.chart.redraw(animate);
 	}
 	
@@ -147,9 +149,9 @@ export class NyquistGraphComponent implements OnChanges, AfterViewInit {
 		}
 	}
 	
-	setLineData(dataType: Data, x: number[], y: number[]): void {
+	setLineData(dataType: Data, x: number[], y: number[], w: number[]): void {
 		if (this.chart!.series[dataType].visible) {
-			this.chart!.series[dataType].setData(x.map((value, index) => [value, y[index]]), false);
+			this.chart!.series[dataType].setData(x.map((_, index) => ({x: x[index], y: y[index], w: w[index]})), false);
 		}
 	}
 	

@@ -77,18 +77,14 @@ export class BodeGraphComponent implements OnChanges, AfterViewInit {
 		},
 		tooltip: {
 			formatter: function() {
-				const xAxisFormatter = new Intl.NumberFormat(undefined, {
-					notation: 'scientific',
-					maximumSignificantDigits: 3,
-				});
-				const yAxisFormatter = new Intl.NumberFormat(undefined, {
+				const formatter = new Intl.NumberFormat(undefined, {
 					minimumFractionDigits: 2,
 					maximumFractionDigits: 2,
 				});
 
 				return [
-					`<span style="font-size:10px">${xAxisFormatter.format(this.x as number).toLocaleLowerCase().replace('e0', '')} rad/s</span>`,
-					`<span style="color:${this.point.color}">\u25CF</span> ${this.series.name} : <b>${yAxisFormatter.format(this.y as number)} ${this.series.chart.options.tooltip!.valueSuffix}</b>`,
+					`<span style="font-size:10px">${Chart.formatFrequency(this.x as number)}</span>`,
+					`<span style="color:${this.point.color}">\u25CF</span> ${this.series.name} : <b>${formatter.format(this.y as number)} ${this.series.chart.options.tooltip!.valueSuffix}</b>`,
 				].join('<br />');
 			},
 		},

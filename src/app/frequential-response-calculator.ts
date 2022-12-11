@@ -50,12 +50,13 @@ export class FrequentialResponseCalculator {
 	getPolarResponse(wMin: number, wMax: number, nbPoints: number): {ws: number[], gains: number[], phases: number[]} {
 		const wLogMin = Math.log10(wMin);
 		const wLogMax = Math.log10(wMax);
+		const wLogStep = (wLogMax - wLogMin)/(nbPoints - 1);
 		
 		const ws: number[] = [];
 		const gains: number[] = [];
 		const phases: number[] = [];
 		
-		for (let wLog = wLogMin; wLog < wLogMax; wLog += (wLogMax - wLogMin)/(nbPoints - 1)) {
+		for (let wLog = wLogMin; wLog < wLogMax; wLog += wLogStep) {
 			const w = Math.pow(10, wLog);
 			
 			let complexValue = this.expandedTransferFunction.numerator.getComplexValue(w);

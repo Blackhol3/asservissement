@@ -120,3 +120,16 @@ export function synchronize(charts: Highcharts.Chart[]) {
 		chart.update(options, false);
 	}
 }
+
+const frequencyFormatter = new Intl.NumberFormat(undefined, {
+	notation: 'scientific',
+	maximumSignificantDigits: 3,
+});
+export function formatFrequency(frequency: number): string {
+	const result = frequencyFormatter.format(frequency);
+	return (
+		result.includes('E0') 
+		? result.replace('E0', '') + ' rad/s'
+		: result.replace('E', '⋅10<tspan style="font-size:0.8em" dy="-0.5em">') +'</tspan><tspan dy="0.5em"> rad/s</tspan>'
+	);
+}

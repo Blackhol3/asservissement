@@ -32,6 +32,7 @@ export class BlackNicholsGraphComponent implements OnChanges, AfterViewInit {
 				type: 'scatter',
 				name: 'Réponse',
 				color: Chart.colors[1],
+				turboThreshold: 0,
 			},
 		],
 		xAxis: {
@@ -78,6 +79,7 @@ export class BlackNicholsGraphComponent implements OnChanges, AfterViewInit {
 
 				return [
 					`<span style="color:${this.point.color}">\u25CF</span> <span style="font-size:10px;">${this.series.name}</span>`,
+					`Pulsation : <b>${Chart.formatFrequency((this.point as any).w)}</b>`,
 					`Phase : <b>${formatter.format(this.x as number)} °</b>`,
 					`Gain : <b>${formatter.format(this.y as number)} dB</b>`,
 				].join('<br />');
@@ -99,13 +101,13 @@ export class BlackNicholsGraphComponent implements OnChanges, AfterViewInit {
 		}
 		
 		const response = this.frequentialResponseCalculator.getPolarResponse(this.wMin, this.wMax, nbPoints);
-		this.setLineData(Data.Real, response.phases, response.gains);
+		this.setLineData(Data.Real, response.phases, response.gains, response.ws);
 		this.chart.redraw(animate);
 	}
 	
-	setLineData(dataType: Data, x: number[], y: number[]	): void {
+	setLineData(dataType: Data, x: number[], y: number[], w: number[]): void {
 		if (this.chart!.series[dataType].visible) {
-			this.chart!.series[dataType].setData(x.map((value, index) => [value, y[index]]), false);
+			this.chart!.series[dataType].setData(x.map((_, index) => ({x: x[index], y: y[index], w: w[index]})), false);
 		}
 	}
 	
