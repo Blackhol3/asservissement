@@ -9,7 +9,6 @@ enum Data {
 	Real,
 }
 
-/** @todo Erreur avec le span pour les pulsations < 1 */
 @Component({
 	selector: 'app-black-nichols-graph',
 	templateUrl: './black-nichols-graph.component.html',
@@ -71,7 +70,18 @@ export class BlackNicholsGraphComponent implements OnChanges, AfterViewInit {
 			},
 		},
 		tooltip: {
-			pointFormat: 'Gain: <b>{point.y} dB</b><br/>Phase: <b>{point.x} °</b><br/>',
+			formatter: function() {
+				const formatter = new Intl.NumberFormat(undefined, {
+					minimumFractionDigits: 2,
+					maximumFractionDigits: 2,
+				});
+
+				return [
+					`<span style="color:${this.point.color}">\u25CF</span> <span style="font-size:10px;">${this.series.name}</span>`,
+					`Phase : <b>${formatter.format(this.x as number)} °</b>`,
+					`Gain : <b>${formatter.format(this.y as number)} dB</b>`,
+				].join('<br />');
+			},
 		},
 	};
 	

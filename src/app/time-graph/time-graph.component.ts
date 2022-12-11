@@ -98,6 +98,19 @@ export class TimeGraphComponent implements OnChanges, AfterViewInit {
 			min: 0,
 			max: 2,
 		},
+		tooltip: {
+			formatter: function() {
+				const formatter = new Intl.NumberFormat(undefined, {
+					minimumFractionDigits: 3,
+					maximumFractionDigits: 3,
+				});
+
+				return [
+					`<span style="font-size:10px">${formatter.format(this.x as number)} s</span>`,
+					`<span style="color:${this.point.color}">\u25CF</span> ${this.series.name} : <b>${formatter.format(this.y as number)}</b>`,
+				].join('<br />');
+			},
+		},
 		plotOptions: {
 			series: {
 				events : {

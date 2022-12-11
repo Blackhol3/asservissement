@@ -30,6 +30,10 @@ mat-toolbar {
 	.mat-mdc-menu-trigger {
 		width: 100%;
 	}
+
+	.mat-drawer-inner-container {
+		overflow-x: hidden;
+	}
 }
 
 .mdc-list-item__primary-text {

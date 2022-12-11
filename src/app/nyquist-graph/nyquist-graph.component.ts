@@ -9,7 +9,6 @@ enum Data {
 	Real,
 }
 
-/** @todo Erreur avec le span pour les pulsations < 1 */
 @Component({
 	selector: 'app-nyquist-graph',
 	templateUrl: './nyquist-graph.component.html',
@@ -59,7 +58,18 @@ export class NyquistGraphComponent implements OnChanges, AfterViewInit {
 			},
 		},
 		tooltip: {
-			pointFormat: 'Réel: <b>{point.x}</b><br/>Imaginaire: <b>{point.y}</b><br/>',
+			formatter: function() {
+				const formatter = new Intl.NumberFormat(undefined, {
+					minimumSignificantDigits: 3,
+					maximumSignificantDigits: 3,
+				});
+
+				return [
+					`<span style="color:${this.point.color}">\u25CF</span> <span style="font-size:10px;">${this.series.name}</span>`,
+					`Réel : <b>${formatter.format(this.x as number)}</b>`,
+					`Imaginaire : <b>${formatter.format(this.y as number)}</b>`,
+				].join('<br />');
+			},
 		},
 	};
 	
@@ -68,7 +78,10 @@ export class NyquistGraphComponent implements OnChanges, AfterViewInit {
 	ngAfterViewInit(): void {
 		this.chart = Highcharts.chart(this.chartElement!.nativeElement, deepmerge.all([Chart.options, this.options]));
 		this.update();
-		new ResizeObserver(() => this.chart!.reflow()).observe(this.chartElement!.nativeElement);
+		new ResizeObserver(() => {
+			this.updateAxes();
+			this.chart!.reflow();
+		}).observe(this.chartElement!.nativeElement);
 	}
 	
 	update(animate = true, nbPoints = 1001): void {
@@ -82,9 +95,13 @@ export class NyquistGraphComponent implements OnChanges, AfterViewInit {
 	}
 	
 	updateAxes(): void {
+		if (this.chart === undefined) {
+			return;
+		}
+
 		const axis = {
-			x: this.chart!.xAxis[0],
-			y: this.chart!.yAxis[0],
+			x: this.chart.xAxis[0],
+			y: this.chart.yAxis[0],
 		};
 		
 		const lengthInPixels = {

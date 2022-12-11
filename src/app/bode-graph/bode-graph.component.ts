@@ -10,7 +10,6 @@ enum Data {
 	Asymptotic,
 }
 
-/** @todo Erreur avec le span pour les pulsations < 1 */
 @Component({
 	selector: 'app-bode-graph',
 	templateUrl: './bode-graph.component.html',
@@ -46,7 +45,7 @@ export class BodeGraphComponent implements OnChanges, AfterViewInit {
 				enableMouseTracking: false,
 			},
 			{
-				data: [[-1e6, 0], [1e6, 0]],
+				data: [[1e-12, 0], [1e12, 0]],
 				type: 'line',
 				color: 'rgba(0, 0, 0, 0)',
 				showInLegend: false,
@@ -76,6 +75,23 @@ export class BodeGraphComponent implements OnChanges, AfterViewInit {
 				},
 			},
 		},
+		tooltip: {
+			formatter: function() {
+				const xAxisFormatter = new Intl.NumberFormat(undefined, {
+					notation: 'scientific',
+					maximumSignificantDigits: 3,
+				});
+				const yAxisFormatter = new Intl.NumberFormat(undefined, {
+					minimumFractionDigits: 2,
+					maximumFractionDigits: 2,
+				});
+
+				return [
+					`<span style="font-size:10px">${xAxisFormatter.format(this.x as number).toLocaleLowerCase().replace('e0', '')} rad/s</span>`,
+					`<span style="color:${this.point.color}">\u25CF</span> ${this.series.name} : <b>${yAxisFormatter.format(this.y as number)} ${this.series.chart.options.tooltip!.valueSuffix}</b>`,
+				].join('<br />');
+			},
+		},
 	};
 	
 	optionsGain: Highcharts.Options = {
@@ -92,7 +108,7 @@ export class BodeGraphComponent implements OnChanges, AfterViewInit {
 			title: {text : 'Gain (dB)'},
 		},
 		tooltip: {
-			valueSuffix: ' dB',
+			valueSuffix: 'dB',
 		},
 	};
 	
@@ -110,7 +126,7 @@ export class BodeGraphComponent implements OnChanges, AfterViewInit {
 			minorGridLineWidth: 1,
 		},
 		tooltip: {
-			valueSuffix: ' °',
+			valueSuffix: '°',
 		},
 	};
 	

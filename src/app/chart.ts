@@ -15,8 +15,18 @@ export const options: Highcharts.Options = {
 			enabled: true,
 			type: 'xy',
 		},
-		zoomType: 'xy',
+		zooming: {
+			type: 'xy',
+		},
 		spacing: [5, 20, 5, 10],
+		events: {
+			fullscreenClose: function (this: any) {
+				this.update({chart: {backgroundColor: 'transparent'}});
+			},
+			fullscreenOpen: function (this: any) {
+				this.update({chart: {backgroundColor: '#FAFAFA'}});
+			},
+		}
 	},
 	title: {
 		text: undefined,
@@ -26,10 +36,6 @@ export const options: Highcharts.Options = {
 	},
 	credits: {
 		enabled: false,
-	},
-	tooltip: {
-		valueDecimals: 3,
-		/** @todo À corriger avec chiffres significatifs */
 	},
 	plotOptions: {
 		series: {
@@ -49,8 +55,16 @@ export const options: Highcharts.Options = {
 };
 
 /** @link https://www.highcharts.com/demo/synchronized-charts */
+/** @link https://www.highcharts.com/forum/viewtopic.php?t=35134 */
 export function synchronize(charts: Highcharts.Chart[]) {
-	function eventListener(event: any): void {
+	function leaveEventListener(event: any): void {
+		for (let chart of charts) {
+			chart.tooltip.hide();
+			chart.xAxis[0].hideCrosshair();
+		}
+	}
+	
+	function moveEventListener(event: any): void {
 		for (let chart of charts) {
 			let normalizedEvent = chart.pointer.normalize(event);
 			let point = chart.series[0].searchPoint(event, true);
@@ -63,7 +77,6 @@ export function synchronize(charts: Highcharts.Chart[]) {
 	
 	function highlight(point: Highcharts.Point, event: Highcharts.PointerEventObject): void {
 		event = point.series.chart.pointer.normalize(event);
-		/** @todo Fait apparaître un marqueur sur les courbes liées, mais engendre un bug lors du zoom */ // point.onMouseOver();
 	    point.series.chart.tooltip.refresh(point);
 	    point.series.chart.xAxis[0].drawCrosshair(event, point);
 	}
@@ -86,21 +99,22 @@ export function synchronize(charts: Highcharts.Chart[]) {
 		}
 	}
 	
-	let eventTypes = ['mousemove', 'touchmove', 'touchstart'];
+	let moveEventTypes = ['mousemove', 'touchmove', 'touchstart'];
 	for (let chart of charts) {
-		for (let eventType of eventTypes) {
+		chart.container.addEventListener('mouseleave', leaveEventListener);
+		for (let moveEventType of moveEventTypes) {
 		    chart.container.addEventListener(
-		        eventType,
-		        eventListener
+		        moveEventType,
+		        moveEventListener
 			);
 		}
 		
 		let options: Highcharts.Options = {
 			xAxis: {
 				events: {
-					setExtremes: getSyncExtremes(chart)
+					setExtremes: getSyncExtremes(chart),
 				},
-			}
+			},
 		};
 		
 		chart.update(options, false);
