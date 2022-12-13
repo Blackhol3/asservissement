@@ -8,6 +8,21 @@ import * as Highcharts from 'highcharts';
 enum Data {
 	Real,
 	Asymptotic,
+	StabilityMargins,
+}
+
+type GainMargin = {frequency: number, gain: number} | null;
+type PhaseMargin = {frequency: number, phase: number} | null;
+
+const wExtremeMin = 1e-12;
+const wExtremeMax = 1e12;
+
+function zeroLinearInterpolation(x0: number, y0: number, x1: number, y1: number): number {
+	return x0 - y0 * (x1 - x0) / (y1 - y0);
+}
+
+function linearInterpolation(x0: number, y0: number, x1: number, y1: number, xInterp: number): number {
+	return y0 + (xInterp - x0) * (y1 - y0) / (x1 - x0);
 }
 
 @Component({
@@ -45,7 +60,15 @@ export class BodeGraphComponent implements OnChanges, AfterViewInit {
 				enableMouseTracking: false,
 			},
 			{
-				data: [[1e-12, 0], [1e12, 0]],
+				data: [],
+				type: 'line',
+				name: 'Marges de stabilité',
+				color: Chart.colors[2],
+				lineWidth: 1,
+				visible: false
+			},
+			{
+				data: [[wExtremeMin, 0], [wExtremeMax, 0]],
 				type: 'line',
 				color: 'rgba(0, 0, 0, 0)',
 				showInLegend: false,
@@ -108,7 +131,7 @@ export class BodeGraphComponent implements OnChanges, AfterViewInit {
 		},
 	};
 	
-	optionsPhase: Highcharts.Options  = {
+	optionsPhase: Highcharts.Options = {
 		legend: {
 			enabled: false,
 		},
@@ -125,12 +148,15 @@ export class BodeGraphComponent implements OnChanges, AfterViewInit {
 			valueSuffix: '°',
 		},
 	};
-	
+
 	constructor() {}
 	
 	ngAfterViewInit(): void {
 		this.chartGain = Highcharts.chart(this.chartGainElement!.nativeElement, deepmerge.all([Chart.options, this.optionsCommon, this.optionsGain]));
 		this.chartPhase = Highcharts.chart(this.chartPhaseElement!.nativeElement, deepmerge.all([Chart.options, this.optionsCommon, this.optionsPhase]));
+
+		this.chartGain.series[Data.StabilityMargins].setData([[wExtremeMin, 0], [wExtremeMax, 0]], false);
+		this.chartPhase.series[Data.StabilityMargins].setData([[wExtremeMin, -180], [wExtremeMax, -180]], false);
 		
 		Chart.synchronize([this.chartGain, this.chartPhase]);
 		this.update();
@@ -156,9 +182,164 @@ export class BodeGraphComponent implements OnChanges, AfterViewInit {
 		
 		this.setLineData(this.chartGain, Data.Asymptotic, asymptoticResponse.ws, asymptoticResponse.gains);
 		this.setLineData(this.chartPhase, Data.Asymptotic, asymptoticResponse.ws, asymptoticResponse.phases);
-		
+
+		this.chartGain.removeAnnotation('Marge de gain');
+		this.chartGain.removeAnnotation('Marge de phase');
+		this.chartPhase.removeAnnotation('Marge de gain');
+		this.chartPhase.removeAnnotation('Marge de phase');
+		if (this.chartGain.series[Data.StabilityMargins].visible) {
+			let gainMargin: GainMargin = null;
+			let phaseMargin: PhaseMargin = null;
+			for (let i = 1; i < response.ws.length; ++i) {
+				if (Math.sign(response.phases[i - 1] + 180) != Math.sign(response.phases[i] + 180) && (gainMargin === null || response.gains[i] > gainMargin.gain)) {
+					const w = zeroLinearInterpolation(response.ws[i - 1], response.phases[i - 1] + 180, response.ws[i], response.phases[i] + 180)
+					gainMargin = {
+						frequency: w,
+						gain: linearInterpolation(response.ws[i - 1], response.gains[i - 1], response.ws[i], response.gains[i], w),
+					};
+				}
+
+				if (Math.sign(response.gains[i - 1]) != Math.sign(response.gains[i]) && (phaseMargin === null || response.phases[i] < phaseMargin.phase)) {
+					const w = zeroLinearInterpolation(response.ws[i - 1], response.gains[i - 1], response.ws[i], response.gains[i])
+					phaseMargin = {
+						frequency: w,
+						phase: linearInterpolation(response.ws[i - 1], response.phases[i - 1], response.ws[i], response.phases[i], w),
+					};
+				}
+			}
+
+			this.addGainMarginAnnotation(gainMargin);
+			this.addPhaseMarginAnnotation(phaseMargin);
+		}
+
 		this.chartGain.redraw(animate);
 		this.chartPhase.redraw(animate);
+	}
+
+	addGainMarginAnnotation(gainMargin: GainMargin): void {
+		if (gainMargin === null) {
+			return;
+		}
+
+		this.chartGain!.addAnnotation({
+			id: 'Marge de gain',
+			draggable: '',
+			shapeOptions: {
+				type: 'path',
+				stroke: Chart.colors[2],
+				fill: Chart.colors[2],
+			},
+			shapes: [
+				{
+					dashStyle: 'LongDashDot',
+					points: [
+						{x: gainMargin.frequency, y: -1e6, xAxis: 0, yAxis: 0},
+						{x: gainMargin.frequency, y: gainMargin.gain, xAxis: 0, yAxis: 0},
+					],
+				}, {
+					strokeWidth: 3,
+					points: [
+						{x: gainMargin.frequency, y: gainMargin.gain, xAxis: 0, yAxis: 0},
+						{x: gainMargin.frequency, y: 0, xAxis: 0, yAxis: 0},
+					],
+				}, {
+					points: [
+						{x: gainMargin.frequency, y: gainMargin.gain, xAxis: 0, yAxis: 0},
+						{x: gainMargin.frequency, y: 0, xAxis: 0, yAxis: 0},
+					],
+					markerEnd: 'arrow'
+				}
+			],
+			labels: [{
+				point: {x: gainMargin.frequency, y: gainMargin.gain / 2, xAxis: 0, yAxis: 0},
+				text: new Intl.NumberFormat(undefined, {
+					minimumFractionDigits: 2,
+					maximumFractionDigits: 2,
+					signDisplay: 'always',
+				}).format(-gainMargin.gain) + ' dB',
+				align: 'left',
+				verticalAlign: 'middle',
+				x: 10,
+				y: 0,
+			}],
+		});
+
+		this.chartPhase!.addAnnotation({
+			id: 'Marge de gain',
+			draggable: '',
+			shapes: [{
+				type: 'path',
+				stroke: Chart.colors[2],
+				dashStyle: 'LongDashDot',
+				points: [
+					{x: gainMargin.frequency, y: -180, xAxis: 0, yAxis: 0},
+					{x: gainMargin.frequency, y: +1e6, xAxis: 0, yAxis: 0},
+				],
+			}],
+		});
+	}
+
+	addPhaseMarginAnnotation(phaseMargin: PhaseMargin): void {
+		if (phaseMargin === null) {
+			return;
+		}
+
+		this.chartGain!.addAnnotation({
+			id: 'Marge de phase',
+			draggable: '',
+			shapes: [{
+				type: 'path',
+				stroke: Chart.colors[2],
+				dashStyle: 'LongDashDot',
+				points: [
+					{x: phaseMargin.frequency, y: 0, xAxis: 0, yAxis: 0},
+					{x: phaseMargin.frequency, y: -1e6, xAxis: 0, yAxis: 0},
+				],
+			}],
+		});
+
+		this.chartPhase!.addAnnotation({
+			id: 'Marge de phase',
+			draggable: '',
+			shapeOptions: {
+				type: 'path',
+				stroke: Chart.colors[2],
+				fill: Chart.colors[2],
+			},
+			shapes: [
+				{
+					dashStyle: 'LongDashDot',
+					points: [
+						{x: phaseMargin.frequency, y: 1e6, xAxis: 0, yAxis: 0},
+						{x: phaseMargin.frequency, y: phaseMargin.phase, xAxis: 0, yAxis: 0},
+					],
+				}, {
+					strokeWidth: 3,
+					points: [
+						{x: phaseMargin.frequency, y: -180, xAxis: 0, yAxis: 0},
+						{x: phaseMargin.frequency, y: phaseMargin.phase, xAxis: 0, yAxis: 0},
+					],
+				}, {
+					points: [
+						{x: phaseMargin.frequency, y: -180, xAxis: 0, yAxis: 0},
+						{x: phaseMargin.frequency, y: phaseMargin.phase, xAxis: 0, yAxis: 0},
+					],
+					markerEnd: 'arrow'
+				}
+			],
+			labels: [{
+				point: {x: phaseMargin.frequency, y: (phaseMargin.phase - 180) / 2, xAxis: 0, yAxis: 0},
+				text: new Intl.NumberFormat(undefined, {
+					minimumFractionDigits: 2,
+					maximumFractionDigits: 2,
+					signDisplay: 'always',
+				}).format(phaseMargin.phase + 180) + ' °',
+				align: 'left',
+				verticalAlign: 'middle',
+				x: 10,
+				y: 0,
+			}],
+		});
 	}
 	
 	setLineData(chart: Highcharts.Chart, dataType: Data, x: number[], y: number[]): void {
