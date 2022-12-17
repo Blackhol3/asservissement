@@ -1,6 +1,6 @@
 import { Component, OnChanges, Input, ChangeDetectionStrategy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { TransferFunction } from '../transfer-function';
-import { FrequentialResponseCalculator } from '../frequential-response-calculator';
+import { FrequentialResponseCalculator, GainMargin, PhaseMargin } from '../frequential-response-calculator';
 import * as Chart from '../chart';
 import * as deepmerge from 'deepmerge';
 import * as Highcharts from 'highcharts';
@@ -11,19 +11,8 @@ enum Data {
 	StabilityMargins,
 }
 
-type GainMargin = {frequency: number, gain: number} | null;
-type PhaseMargin = {frequency: number, phase: number} | null;
-
 const wExtremeMin = 1e-12;
 const wExtremeMax = 1e12;
-
-function zeroLinearInterpolation(x0: number, y0: number, x1: number, y1: number): number {
-	return x0 - y0 * (x1 - x0) / (y1 - y0);
-}
-
-function linearInterpolation(x0: number, y0: number, x1: number, y1: number, xInterp: number): number {
-	return y0 + (xInterp - x0) * (y1 - y0) / (x1 - x0);
-}
 
 @Component({
 	selector: 'app-bode-graph',
@@ -188,28 +177,8 @@ export class BodeGraphComponent implements OnChanges, AfterViewInit {
 		this.chartPhase.removeAnnotation('Marge de gain');
 		this.chartPhase.removeAnnotation('Marge de phase');
 		if (this.chartGain.series[Data.StabilityMargins].visible) {
-			let gainMargin: GainMargin = null;
-			let phaseMargin: PhaseMargin = null;
-			for (let i = 1; i < response.ws.length; ++i) {
-				if (Math.sign(response.phases[i - 1] + 180) != Math.sign(response.phases[i] + 180) && (gainMargin === null || response.gains[i] > gainMargin.gain)) {
-					const w = zeroLinearInterpolation(response.ws[i - 1], response.phases[i - 1] + 180, response.ws[i], response.phases[i] + 180)
-					gainMargin = {
-						frequency: w,
-						gain: linearInterpolation(response.ws[i - 1], response.gains[i - 1], response.ws[i], response.gains[i], w),
-					};
-				}
-
-				if (Math.sign(response.gains[i - 1]) != Math.sign(response.gains[i]) && (phaseMargin === null || response.phases[i] < phaseMargin.phase)) {
-					const w = zeroLinearInterpolation(response.ws[i - 1], response.gains[i - 1], response.ws[i], response.gains[i])
-					phaseMargin = {
-						frequency: w,
-						phase: linearInterpolation(response.ws[i - 1], response.phases[i - 1], response.ws[i], response.phases[i], w),
-					};
-				}
-			}
-
-			this.addGainMarginAnnotation(gainMargin);
-			this.addPhaseMarginAnnotation(phaseMargin);
+			this.addGainMarginAnnotation(this.frequentialResponseCalculator.getGainMargin(response));
+			this.addPhaseMarginAnnotation(this.frequentialResponseCalculator.getPhaseMargin(response));
 		}
 
 		this.chartGain.redraw(animate);

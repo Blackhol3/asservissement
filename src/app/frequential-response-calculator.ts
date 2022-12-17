@@ -17,6 +17,17 @@ function unwrap(list: number[], step = 180): number[] {
 	});
 }
 
+function zeroLinearInterpolation(x0: number, y0: number, x1: number, y1: number): number {
+	return x0 - y0 * (x1 - x0) / (y1 - y0);
+}
+
+function linearInterpolation(x0: number, y0: number, x1: number, y1: number, xInterp: number): number {
+	return y0 + (xInterp - x0) * (y1 - y0) / (x1 - x0);
+}
+
+export type GainMargin = {frequency: number, gain: number} | null;
+export type PhaseMargin = {frequency: number, phase: number} | null;
+
 export class FrequentialResponseCalculator {
 	private transferFunction: TransferFunction;
 	private expandedTransferFunction: TransferFunction;
@@ -158,5 +169,37 @@ export class FrequentialResponseCalculator {
 			gains: gains,
 			phases: phases,
 		};
+	}
+
+	getGainMargin(polarResponse: {ws: number[], gains: number[], phases: number[]}): GainMargin {
+		let gainMargin: GainMargin = null;
+		
+		for (let i = 1; i < polarResponse.ws.length; ++i) {
+			if (Math.sign(polarResponse.phases[i - 1] + 180) != Math.sign(polarResponse.phases[i] + 180) && (gainMargin === null || polarResponse.gains[i] > gainMargin.gain)) {
+				const w = zeroLinearInterpolation(polarResponse.ws[i - 1], polarResponse.phases[i - 1] + 180, polarResponse.ws[i], polarResponse.phases[i] + 180)
+				gainMargin = {
+					frequency: w,
+					gain: linearInterpolation(polarResponse.ws[i - 1], polarResponse.gains[i - 1], polarResponse.ws[i], polarResponse.gains[i], w),
+				};
+			}
+		}
+
+		return gainMargin;
+	}
+
+	getPhaseMargin(polarResponse: {ws: number[], gains: number[], phases: number[]}): PhaseMargin {
+		let phaseMargin: PhaseMargin = null;
+		
+		for (let i = 1; i < polarResponse.ws.length; ++i) {
+			if (Math.sign(polarResponse.gains[i - 1]) != Math.sign(polarResponse.gains[i]) && (phaseMargin === null || polarResponse.phases[i] < phaseMargin.phase)) {
+				const w = zeroLinearInterpolation(polarResponse.ws[i - 1], polarResponse.gains[i - 1], polarResponse.ws[i], polarResponse.gains[i])
+				phaseMargin = {
+					frequency: w,
+					phase: linearInterpolation(polarResponse.ws[i - 1], polarResponse.phases[i - 1], polarResponse.ws[i], polarResponse.phases[i], w),
+				};
+			}
+		}
+
+		return phaseMargin;
 	}
 }
