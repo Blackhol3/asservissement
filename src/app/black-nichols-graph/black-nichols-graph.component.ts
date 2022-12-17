@@ -1,12 +1,13 @@
 import { Component, OnChanges, Input, ChangeDetectionStrategy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { TransferFunction } from '../transfer-function';
-import { FrequentialResponseCalculator } from '../frequential-response-calculator';
+import { FrequentialResponseCalculator, GainMargin, PhaseMargin } from '../frequential-response-calculator';
 import * as Chart from '../chart';
 import * as deepmerge from 'deepmerge';
 import * as Highcharts from 'highcharts';
 
 enum Data {
 	Real,
+	StabilityMargins,
 }
 
 @Component({
@@ -33,6 +34,20 @@ export class BlackNicholsGraphComponent implements OnChanges, AfterViewInit {
 				name: 'Réponse',
 				color: Chart.colors[1],
 				turboThreshold: 0,
+			},
+			{
+				data: [[-180, 0]],
+				type: 'line',
+				name: 'Marges de stabilité',
+				color: Chart.colors[2],
+				enableMouseTracking: false,
+				marker: {
+					enabled: true,
+					symbol: 'plus',
+					lineColor: undefined,
+					lineWidth: 2,
+				},
+				visible: false
 			},
 		],
 		xAxis: {
@@ -102,7 +117,101 @@ export class BlackNicholsGraphComponent implements OnChanges, AfterViewInit {
 		
 		const response = this.frequentialResponseCalculator.getPolarResponse(this.wMin, this.wMax, nbPoints);
 		this.setLineData(Data.Real, response.phases, response.gains, response.ws);
+
+		this.chart.removeAnnotation('Marge de gain');
+		this.chart.removeAnnotation('Marge de phase');
+		if (this.chart.series[Data.StabilityMargins].visible) {
+			this.addGainMarginAnnotation(this.frequentialResponseCalculator.getGainMargin(response));
+			this.addPhaseMarginAnnotation(this.frequentialResponseCalculator.getPhaseMargin(response));
+		}
+
 		this.chart.redraw(animate);
+	}
+
+	addGainMarginAnnotation(gainMargin: GainMargin): void {
+		if (gainMargin === null) {
+			return;
+		}
+
+		this.chart!.addAnnotation({
+			id: 'Marge de gain',
+			draggable: '',
+			shapeOptions: {
+				type: 'path',
+				stroke: Chart.colors[2],
+				fill: Chart.colors[2],
+			},
+			shapes: [
+				{
+					strokeWidth: 3,
+					points: [
+						{x: -180, y: gainMargin.gain, xAxis: 0, yAxis: 0},
+						{x: -180, y: 0, xAxis: 0, yAxis: 0},
+					],
+				}, {
+					points: [
+						{x: -180, y: gainMargin.gain, xAxis: 0, yAxis: 0},
+						{x: -180, y: 0, xAxis: 0, yAxis: 0},
+					],
+					markerEnd: 'arrow'
+				},
+			],
+			labels: [{
+				point: {x: -180, y: gainMargin.gain / 2, xAxis: 0, yAxis: 0},
+				text: new Intl.NumberFormat(undefined, {
+					minimumFractionDigits: 2,
+					maximumFractionDigits: 2,
+					signDisplay: 'always',
+				}).format(-gainMargin.gain) + ' dB',
+				align: -gainMargin.gain > 0 ? 'right' : 'left',
+				verticalAlign: 'middle',
+				x: -gainMargin.gain > 0 ? -10 : 10,
+				y: 0,
+			}],
+		});
+	}
+
+	addPhaseMarginAnnotation(phaseMargin: PhaseMargin): void {
+		if (phaseMargin === null) {
+			return;
+		}
+
+		this.chart!.addAnnotation({
+			id: 'Marge de phase',
+			draggable: '',
+			shapeOptions: {
+				type: 'path',
+				stroke: Chart.colors[2],
+				fill: Chart.colors[2],
+			},
+			shapes: [
+				{
+					strokeWidth: 3,
+					points: [
+						{x: -180, y: 0, xAxis: 0, yAxis: 0},
+						{x: phaseMargin.phase, y: 0, xAxis: 0, yAxis: 0},
+					],
+				}, {
+					points: [
+						{x: -180, y: 0, xAxis: 0, yAxis: 0},
+						{x: phaseMargin.phase, y: 0, xAxis: 0, yAxis: 0},
+					],
+					markerEnd: 'arrow'
+				},
+			],
+			labels: [{
+				point: {x: (phaseMargin.phase - 180) / 2, y: 0, xAxis: 0, yAxis: 0},
+				text: new Intl.NumberFormat(undefined, {
+					minimumFractionDigits: 2,
+					maximumFractionDigits: 2,
+					signDisplay: 'always',
+				}).format(phaseMargin.phase + 180) + ' °',
+				align: 'center',
+				verticalAlign: (phaseMargin.phase + 180) > 0 ? 'bottom' : 'top',
+				x: 0,
+				y: (phaseMargin.phase + 180) > 0 ? -10 : 10,
+			}],
+		});
 	}
 	
 	setLineData(dataType: Data, x: number[], y: number[], w: number[]): void {

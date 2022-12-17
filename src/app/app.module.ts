@@ -38,6 +38,10 @@ HighchartsMore(Highcharts);
 HighchartsAnnotation(Highcharts);
 Exporting(Highcharts);
 
+Highcharts.SVGRenderer.prototype.symbols.plus = function (x: number, y: number, w: number, h: number) {
+    return ['M', x + w/2, y, 'v', h, 'm', -w/2, -h/2, 'h', w, 'z'];
+};
+
 @NgModule({
 	declarations: [
 		AppComponent,
