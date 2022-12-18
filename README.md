@@ -1,11 +1,14 @@
+*Read this in another language: [English](README.en.md).*
 ## Introduction
-*Asservissement* is an application and a library to study [transfer function](https://en.wikipedia.org/wiki/Transfer_function), both in open-loop and closed-loop, by plotting various diagrams:
-- time response, with diverse inputs (impulse, step, ramp, …);
-- frequency response (Bode, Black – Nichols, Nyquist, …).
+*Asservissement* est une application et une bibliothèque pour l'étude des [fonctions de transfert](https://fr.wikipedia.org/wiki/Fonction_de_transfert), en boucle ouverte et en boucle fermée, via le tracé de différents diagrammes :
+- la réponse temporelle, pour diverses entrées (impulsion, échelon, rampe, …) ;
+- la réponse fréquentielle (Bode, Black – Nichols, Nyquist, …).
 
-Several indicators (initial tangent, response time, stability margins, …) can also be displayed.
+Plusieurs indicateurs (tangente à l'origine, temps de réponse, marges de stabilité, …) peuvent également être affichés.
 
-It is mainly intendend to be used for teachers and students in a [Classe Préparatoire aux Grandes Ecoles (CPGE)](https://fr.wikipedia.org/wiki/Classe_pr%C3%A9paratoire_aux_grandes_%C3%A9coles).
+Elle est principalement destinée aux enseignants et aux étudiants de [Classe Préparatoire aux Grandes Ecoles (CPGE)](https://fr.wikipedia.org/wiki/Classe_pr%C3%A9paratoire_aux_grandes_%C3%A9coles).
 
-## License
-*Asservissement* is released to the public for free under the terms of the MIT License. Since the application relies on [Highcharts](https://www.highcharts.com/), it requires a valid Highcharts license for commercial use. The *Asservissement* license neither provides nor implies a license for Highcharts. See [LICENSE.md](LICENSE.md) for the full text of the license and the licenses of *Asservissement*'s third-party dependencies. [LICENSE.md](LICENSE.md) should be distributed alongside any assemblies that use *Asservissement* in source or compiled form.
+## Licence
+*Asservissement* est distribué au public gratuitement sous les termes de la licence MIT. Voir [LICENSE.md](LICENSE.md) pour le texte complet de la licence. [LICENSE.md](LICENSE.md) doit être distribué avec tout programme qui utilise *Asservissement* sous la forme source ou compilée.
+
+Comme l'application dépend de [Highcharts](https://www.highcharts.com/), son utilisation nécessite une licence Highcharts valide pour un usage commercial. La licence d'*Asservissement* ne fournit ni n'implique une licence pour Highcharts.
