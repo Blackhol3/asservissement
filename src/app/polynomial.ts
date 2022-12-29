@@ -1,5 +1,5 @@
 export class Polynomial {
-	constructor(private _coefficients: number[] = []) {
+	constructor(private readonly _coefficients: number[] = []) {
 		if (this._coefficients.length === 0) {
 			this._coefficients = [0];
 		}

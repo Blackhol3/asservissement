@@ -139,6 +139,8 @@ export class TimeGraphComponent implements OnChanges, AfterViewInit {
 		
 		const tMin = this.tMin;
 		const tMax = this.tMax;
+		const dtMin = (tMax - tMin)/(nbPoints - 1);
+		dt = Math.min(dt, dtMin);
 		
 		const recursiveTransferFunction = this.transferFunction.getRecursiveTransferFunction(dt);
 		
@@ -168,7 +170,7 @@ export class TimeGraphComponent implements OnChanges, AfterViewInit {
 				output -= output_memory[order - 1] * value;
 			});
 			
-			if (t >= tMin && (ts.length === 0 || t >= ts[ts.length - 1] + (tMax - tMin)/nbPoints)) {
+			if (t >= tMin && (ts.length === 0 || t >= ts[ts.length - 1] + dtMin)) {
 				ts.push(t);
 				inputs.push(input);
 				outputs.push(output);
