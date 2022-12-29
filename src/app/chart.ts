@@ -1,11 +1,12 @@
 import * as Highcharts from 'highcharts';
 
-export const colors = [
-	'#1f77b4',
-	'#ff7f0e',
-	'#2ca02c',
-	'#d62728',
-];
+export const colors = {
+	input: '#1f77b4',
+	output: '#ff7f0e',
+	rapidity: '#2ca02c',
+	asymptotic: '#d62728',
+	stability: '#9467bd',
+};
 
 export const options: Highcharts.Options = {
 	chart: {

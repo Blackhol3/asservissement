@@ -32,14 +32,14 @@ export class BlackNicholsGraphComponent implements OnChanges, AfterViewInit {
 				data: [],
 				type: 'scatter',
 				name: 'Réponse',
-				color: Chart.colors[1],
+				color: Chart.colors.output,
 				turboThreshold: 0,
 			},
 			{
 				data: [[-180, 0]],
 				type: 'line',
 				name: 'Marges de stabilité',
-				color: Chart.colors[2],
+				color: Chart.colors.stability,
 				enableMouseTracking: false,
 				marker: {
 					enabled: true,
@@ -138,8 +138,8 @@ export class BlackNicholsGraphComponent implements OnChanges, AfterViewInit {
 			draggable: '',
 			shapeOptions: {
 				type: 'path',
-				stroke: Chart.colors[2],
-				fill: Chart.colors[2],
+				stroke: Chart.colors.stability,
+				fill: Chart.colors.stability,
 			},
 			shapes: [
 				{
@@ -181,8 +181,8 @@ export class BlackNicholsGraphComponent implements OnChanges, AfterViewInit {
 			draggable: '',
 			shapeOptions: {
 				type: 'path',
-				stroke: Chart.colors[2],
-				fill: Chart.colors[2],
+				stroke: Chart.colors.stability,
+				fill: Chart.colors.stability,
 			},
 			shapes: [
 				{

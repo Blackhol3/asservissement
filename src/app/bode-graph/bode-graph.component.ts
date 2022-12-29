@@ -39,20 +39,20 @@ export class BodeGraphComponent implements OnChanges, AfterViewInit {
 				data: [],
 				type: 'line',
 				name: 'Réponse',
-				color: Chart.colors[1],
+				color: Chart.colors.output,
 			},
 			{
 				data: [],
 				type: 'line',
 				name: 'Réponse asymptotique',
-				color: Chart.colors[3],
+				color: Chart.colors.asymptotic,
 				enableMouseTracking: false,
 			},
 			{
 				data: [],
 				type: 'line',
 				name: 'Marges de stabilité',
-				color: Chart.colors[2],
+				color: Chart.colors.stability,
 				lineWidth: 1,
 				visible: false
 			},
@@ -195,8 +195,8 @@ export class BodeGraphComponent implements OnChanges, AfterViewInit {
 			draggable: '',
 			shapeOptions: {
 				type: 'path',
-				stroke: Chart.colors[2],
-				fill: Chart.colors[2],
+				stroke: Chart.colors.stability,
+				fill: Chart.colors.stability,
 			},
 			shapes: [
 				{
@@ -238,7 +238,7 @@ export class BodeGraphComponent implements OnChanges, AfterViewInit {
 			draggable: '',
 			shapes: [{
 				type: 'path',
-				stroke: Chart.colors[2],
+				stroke: Chart.colors.stability,
 				dashStyle: 'LongDashDot',
 				points: [
 					{x: gainMargin.frequency, y: -180, xAxis: 0, yAxis: 0},
@@ -258,7 +258,7 @@ export class BodeGraphComponent implements OnChanges, AfterViewInit {
 			draggable: '',
 			shapes: [{
 				type: 'path',
-				stroke: Chart.colors[2],
+				stroke: Chart.colors.stability,
 				dashStyle: 'LongDashDot',
 				points: [
 					{x: phaseMargin.frequency, y: 0, xAxis: 0, yAxis: 0},
@@ -272,8 +272,8 @@ export class BodeGraphComponent implements OnChanges, AfterViewInit {
 			draggable: '',
 			shapeOptions: {
 				type: 'path',
-				stroke: Chart.colors[2],
-				fill: Chart.colors[2],
+				stroke: Chart.colors.stability,
+				fill: Chart.colors.stability,
 			},
 			shapes: [
 				{

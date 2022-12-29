@@ -33,7 +33,7 @@ export class NyquistGraphComponent implements OnChanges, AfterViewInit {
 				data: [],
 				type: 'scatter',
 				name: 'Réponse',
-				color: Chart.colors[1],
+				color: Chart.colors.output,
 				lineWidth: 2,
 				turboThreshold: 0,
 			},
@@ -41,7 +41,7 @@ export class NyquistGraphComponent implements OnChanges, AfterViewInit {
 				data: [[0, 0]],
 				type: 'line',
 				name: 'Marges de stabilité',
-				color: Chart.colors[2],
+				color: Chart.colors.stability,
 				enableMouseTracking: false,
 				marker: {
 					enabled: true,
@@ -127,7 +127,7 @@ export class NyquistGraphComponent implements OnChanges, AfterViewInit {
 				radius,
 			).attr({
 				fill: 'none',
-				stroke: Chart.colors[2],
+				stroke: Chart.colors.stability,
 				'stroke-width': 1,
 				'stroke-dasharray': [8, 3, 1, 3].join(','),
 			}).add(this.stabilityMarginsGroup);
@@ -152,8 +152,8 @@ export class NyquistGraphComponent implements OnChanges, AfterViewInit {
 			draggable: '',
 			shapeOptions: {
 				type: 'path',
-				stroke: Chart.colors[2],
-				fill: Chart.colors[2],
+				stroke: Chart.colors.stability,
+				fill: Chart.colors.stability,
 			},
 			shapes: [
 				{
@@ -201,7 +201,7 @@ export class NyquistGraphComponent implements OnChanges, AfterViewInit {
 				this.chart.xAxis[0].toPixels(Math.cos(phaseRadians), false), this.chart.yAxis[0].toPixels(Math.sin(phaseRadians), false),
 		] as const).attr({
 			fill: 'none',
-			stroke: Chart.colors[2],
+			stroke: Chart.colors.stability,
 			'stroke-width': 3,
 		}).add(this.stabilityMarginsGroup);
 
@@ -210,8 +210,8 @@ export class NyquistGraphComponent implements OnChanges, AfterViewInit {
 			draggable: '',
 			shapes: [{
 				type: 'path',
-				stroke: Chart.colors[2],
-				fill: Chart.colors[2],
+				stroke: Chart.colors.stability,
+				fill: Chart.colors.stability,
 				points: [
 					{x: Math.cos(phaseRadians * (phaseMargin.phase + 180 > 0 ? 1.001 : 0.999)), y: Math.sin(phaseRadians * (phaseMargin.phase + 180 > 0 ? 1.001 : 0.999)), xAxis: 0, yAxis: 0},
 					{x: Math.cos(phaseRadians), y: Math.sin(phaseRadians), xAxis: 0, yAxis: 0},
