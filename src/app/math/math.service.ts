@@ -24,8 +24,8 @@ declare global {
 export class MathService {
   private signal: Subject<void>;
   private mathJax: MathJaxConfig = {
-    source: "https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-svg.min.js",
-    integrity: "sha512-K90Mc/rYzO+mxOtUsnp8quUB+3T9o5L0QIk6C9O5eJ3juahzkWz751FnYs7BHtHkkNV4YLe8kvYGgK/oSHln1g==",
+    source: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js",
+    integrity: "sha512-si8sZ9hrLKf+1QHOzVXtT6F9GH5yK4VeeZ4pm0LOBFriwiXFL6Pu6+VMArzgh1sDJb5gKyktGtN0rMT16k1/cQ==",
     id: "MathJaxScript"
   };
   

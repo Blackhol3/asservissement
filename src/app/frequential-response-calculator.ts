@@ -144,7 +144,8 @@ export class FrequentialResponseCalculator {
 			phases.push(90 * asymptoticLowFrequencyOrder);
 			
 			let currentAsymptoticOrder = asymptoticLowFrequencyOrder;
-			asymptoticChanges.forEach((asymptoticChange, index) => {
+			for (const asymptoticChange of asymptoticChanges) {
+				const index = ws.length - 1;
 				ws.push(asymptoticChange.w);
 				gains.push(20*Math.log10(asymptoticChange.w / ws[index])*currentAsymptoticOrder + gains[index]);
 				phases.push(90 * currentAsymptoticOrder);
@@ -154,7 +155,7 @@ export class FrequentialResponseCalculator {
 				ws.push(asymptoticChange.w);
 				gains.push(gains[gains.length - 1]);
 				phases.push(90 * currentAsymptoticOrder);
-			});
+			}
 			
 			const index = ws.length - 1;
 			if (wMax > ws[index]) {

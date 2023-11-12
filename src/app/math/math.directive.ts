@@ -31,7 +31,7 @@ export class MathDirective implements OnInit, OnChanges, OnDestroy {
     this.mathService.ready().pipe(
       take(1),
       takeUntil(this.alive$)
-  ).subscribe(() => this.mathService.render(this.el, '$$' + this.appMath + '$$'));
+    ).subscribe(() => this.mathService.render(this.el, '$$' + this.appMath + '$$'));
   }
 
   ngOnDestroy() {
