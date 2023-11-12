@@ -6,14 +6,10 @@ describe('NyquistGraphComponent', () => {
   let component: NyquistGraphComponent;
   let fixture: ComponentFixture<NyquistGraphComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [NyquistGraphComponent]
-    })
-    .compileComponents();
-  });
-
   beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [NyquistGraphComponent]
+    });
     fixture = TestBed.createComponent(NyquistGraphComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

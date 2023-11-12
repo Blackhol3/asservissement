@@ -10,8 +10,8 @@ describe('SimpleElementComponent', () => {
   let component: SimpleElementComponent;
   let fixture: ComponentFixture<SimpleElementComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  beforeEach(() => {
+    TestBed.configureTestingModule({
       imports: [
         SimpleElementComponent,
         
@@ -19,11 +19,7 @@ describe('SimpleElementComponent', () => {
         MatFormFieldModule,
         MatIconModule,
       ],
-    })
-    .compileComponents();
-  });
-
-  beforeEach(() => {
+    });
     fixture = TestBed.createComponent(SimpleElementComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

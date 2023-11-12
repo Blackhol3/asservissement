@@ -1,4 +1,4 @@
-import * as Highcharts from 'highcharts';
+import Highcharts from 'highcharts/es-modules/masters/highcharts.src';
 
 export const colors = {
 	input: '#1f77b4',

@@ -9,8 +9,8 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
 describe('AppComponent', () => {
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  beforeEach(() => {
+    TestBed.configureTestingModule({
         imports: [
             AppComponent,
             BrowserAnimationsModule,
@@ -21,7 +21,7 @@ describe('AppComponent', () => {
             MatSidenavModule,
             MatToolbarModule,
         ],
-    }).compileComponents();
+    });
   });
 
   it('should create the app', () => {

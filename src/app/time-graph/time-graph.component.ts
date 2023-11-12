@@ -1,10 +1,12 @@
 import { Component, OnChanges, Input, ChangeDetectionStrategy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+
+import * as deepmerge from 'deepmerge';
+import Highcharts from 'highcharts/es-modules/masters/highcharts.src';
+
 import { TransferFunction } from '../transfer-function';
 import { InputType } from '../common-type';
 import * as Chart from '../chart';
-import * as deepmerge from 'deepmerge';
-import * as Highcharts from 'highcharts';
 
 enum Data {
 	Input,

@@ -5,13 +5,12 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { environment } from './environments/environment';
 import { AppComponent } from './app/app.component';
 
-import * as Highcharts from 'highcharts';
-import HighchartsMore from 'highcharts/highcharts-more';
-import HighchartsAnnotation from 'highcharts/modules/annotations';
-import Exporting from 'highcharts/modules/exporting';
-HighchartsMore(Highcharts);
-HighchartsAnnotation(Highcharts);
-Exporting(Highcharts);
+import Highcharts from 'highcharts/es-modules/masters/highcharts.src';
+import 'highcharts/es-modules/masters/highcharts-more.src';
+import 'highcharts/es-modules/masters/modules/accessibility.src';
+import 'highcharts/es-modules/masters/modules/annotations.src';
+import 'highcharts/es-modules/masters/modules/exporting.src';
+import 'highcharts/es-modules/masters/modules/export-data.src';
 
 Highcharts.SVGRenderer.prototype.symbols.plus = function (x: number, y: number, w: number, h: number) {
 	return ['M', x + w/2, y, 'v', h, 'm', -w/2, -h/2, 'h', w, 'z'];

@@ -47,12 +47,12 @@ mat-sidenav-content {
 	background: silver;
 
 	.transfer-function-texs {
-		text-align: center;
+		display: flex;
+		justify-content: center;
+		align-items: top;
 		
 		& > div {
-			display: inline-block;
 			margin: 0 2em;
-			vertical-align: top;
 		}
 	}
 	

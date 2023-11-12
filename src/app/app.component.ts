@@ -80,7 +80,6 @@ export class AppComponent {
 		[(new PIController()).name, () => new PIController()],
 		[(new PIDController()).name, () => new PIDController()],
 		[(new PhaseLeadCompensator()).name, () => new PhaseLeadCompensator()],
-		
 	];
 	
 	transferFunction = new TransferFunction();

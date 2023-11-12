@@ -5,7 +5,6 @@ import { MathService } from "./math.service";
 
 @Directive({
   selector: '[appMath]',
-  providers: [MathService],
   standalone: true,
 })
 export class MathDirective implements OnInit, OnChanges, OnDestroy {

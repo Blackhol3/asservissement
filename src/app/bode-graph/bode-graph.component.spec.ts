@@ -6,14 +6,10 @@ describe('TimeGraphComponent', () => {
   let component: BodeGraphComponent;
   let fixture: ComponentFixture<BodeGraphComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [BodeGraphComponent],
-    })
-    .compileComponents();
-  });
-
   beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [BodeGraphComponent],
+    });
     fixture = TestBed.createComponent(BodeGraphComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

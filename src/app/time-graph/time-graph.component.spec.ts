@@ -2,27 +2,14 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { TimeGraphComponent } from './time-graph.component';
 
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-
-import * as Highcharts from 'highcharts';
-
 describe('TimeGraphComponent', () => {
   let component: TimeGraphComponent;
   let fixture: ComponentFixture<TimeGraphComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [
-        TimeGraphComponent,
-        MatSnackBarModule,
-      ],
-    })
-    .compileComponents();
-	
-	window.Highcharts = Highcharts;
-  });
-
   beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [TimeGraphComponent],
+    });
     fixture = TestBed.createComponent(TimeGraphComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

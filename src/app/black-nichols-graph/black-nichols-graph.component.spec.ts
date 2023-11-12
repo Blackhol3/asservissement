@@ -7,13 +7,9 @@ describe('BlackNicholsGraphComponent', () => {
   let fixture: ComponentFixture<BlackNicholsGraphComponent>;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
+    TestBed.configureTestingModule({
       imports: [BlackNicholsGraphComponent]
-    })
-    .compileComponents();
-  });
-
-  beforeEach(() => {
+    });
     fixture = TestBed.createComponent(BlackNicholsGraphComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

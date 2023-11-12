@@ -1,9 +1,11 @@
 import { Component, OnChanges, Input, ChangeDetectionStrategy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+
+import * as deepmerge from 'deepmerge';
+import Highcharts from 'highcharts/es-modules/masters/highcharts.src';
+
 import { TransferFunction } from '../transfer-function';
 import { FrequentialResponseCalculator, GainMargin, PhaseMargin } from '../frequential-response-calculator';
 import * as Chart from '../chart';
-import * as deepmerge from 'deepmerge';
-import * as Highcharts from 'highcharts';
 
 enum Data {
 	Real,

@@ -31,8 +31,10 @@ export class SimpleElementComponent {
 	@Output() change = new EventEmitter<void>();
 	@Output() remove = new EventEmitter<void>();
 	
-	update(): void {
-		this.simpleElement!.update();
-		this.change.emit();
+	update(isValid: boolean): void {
+		if (isValid) {
+			this.simpleElement!.update();
+			this.change.emit();
+		}
 	}
 }
