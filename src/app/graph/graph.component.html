@@ -9,22 +9,26 @@
 		<mat-button-toggle [value]="1">Fréquentiel</mat-button-toggle>
 	</mat-button-toggle-group>
 	
-	<mat-button-toggle-group *ngIf="graphType === 0" aria-label="Consigne" [(ngModel)]="inputType" vertical="true">
-		<mat-button-toggle [value]="0">Impulsion</mat-button-toggle>
-		<mat-button-toggle [value]="1">Échelon</mat-button-toggle>
-		<mat-button-toggle [value]="2">Rampe</mat-button-toggle>
-	</mat-button-toggle-group>
+	@if (graphType === 0) {
+		<mat-button-toggle-group aria-label="Consigne" [(ngModel)]="inputType" vertical="true">
+			<mat-button-toggle [value]="0">Impulsion</mat-button-toggle>
+			<mat-button-toggle [value]="1">Échelon</mat-button-toggle>
+			<mat-button-toggle [value]="2">Rampe</mat-button-toggle>
+		</mat-button-toggle-group>
+	}
 	
-	<mat-button-toggle-group *ngIf="graphType === 1" aria-label="Visualisation" [(ngModel)]="visualizationType" vertical="true">
-		<mat-button-toggle [value]="0">Bode</mat-button-toggle>
-		<mat-button-toggle [value]="1">Black – Nichols</mat-button-toggle>
-		<mat-button-toggle [value]="2">Nyquist</mat-button-toggle>
-	</mat-button-toggle-group>
+	@if (graphType === 1) {
+		<mat-button-toggle-group aria-label="Visualisation" [(ngModel)]="visualizationType" vertical="true">
+			<mat-button-toggle [value]="0">Bode</mat-button-toggle>
+			<mat-button-toggle [value]="1">Black – Nichols</mat-button-toggle>
+			<mat-button-toggle [value]="2">Nyquist</mat-button-toggle>
+		</mat-button-toggle-group>
+	}
 </div>
 
 <div class="graph">
-	<app-time-graph *ngIf="graphType === 0" [transferFunction]="transferFunction" [inputType]="inputType"></app-time-graph>
-	<app-bode-graph *ngIf="graphType === 1 && visualizationType === 0" [transferFunction]="transferFunction"></app-bode-graph>
-	<app-black-nichols-graph *ngIf="graphType === 1 && visualizationType === 1" [transferFunction]="transferFunction"></app-black-nichols-graph>
-	<app-nyquist-graph *ngIf="graphType === 1 && visualizationType === 2" [transferFunction]="transferFunction"></app-nyquist-graph>
+	@if (graphType === 0) { <app-time-graph [transferFunction]="transferFunction" [inputType]="inputType" /> }
+	@if (graphType === 1 && visualizationType === 0) { <app-bode-graph [transferFunction]="transferFunction" /> }
+	@if (graphType === 1 && visualizationType === 1) { <app-black-nichols-graph [transferFunction]="transferFunction" /> }
+	@if (graphType === 1 && visualizationType === 2) { <app-nyquist-graph [transferFunction]="transferFunction" /> }
 </div>

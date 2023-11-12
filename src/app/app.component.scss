@@ -22,7 +22,7 @@ mat-toolbar {
 	}
 }
 
-.mat-sidenav {
+.mat-sidenav.mat-drawer {
 	background-color: silver;
 	width: 200px;
 	padding: 4px;
@@ -36,7 +36,7 @@ mat-toolbar {
 	}
 }
 
-.mdc-list-item__primary-text {
+.mat-mdc-menu-item-text {
 	font-size: 14px !important;
 }
 

@@ -1,14 +1,15 @@
 <mat-toolbar color="primary" role="header">
 	<span>Asservissement</span>
 	<span class="spacer"></span>
-	<button
-		*ngFor="let tilesModeType of [0, 1, 2, 3]"
-		mat-icon-button
-		[disabled]="tilesMode == tilesModeType"
-		(click)="tilesMode = tilesModeType"
-	>
-		<img src="../assets/tiles/{{tilesMode === tilesModeType ? 'enabled' : 'disabled'}}/{{tilesModeType}}.png" />
-	</button>
+	@for (tilesModeType of [0, 1, 2, 3]; track $index) {
+		<button
+			mat-icon-button
+			[disabled]="tilesMode == tilesModeType"
+			(click)="tilesMode = tilesModeType"
+		>
+			<img src="../assets/tiles/{{tilesMode === tilesModeType ? 'enabled' : 'disabled'}}/{{tilesModeType}}.png" />
+		</button>
+	}
 </mat-toolbar>
 
 <mat-sidenav-container fullscreen>
@@ -17,20 +18,25 @@
 			<span>Ajouter…</span>
 		</button>
 		<mat-menu #menu="matMenu">
-			<ng-container *ngFor="let simpleElementType of simpleElementTypes; let index = index">
-				<button mat-menu-item *ngIf="simpleElementType !== null" (click)="add(index)">
-					{{simpleElementType[0]}}
-				</button>
-				<mat-divider *ngIf="simpleElementType === null"></mat-divider>
-			</ng-container>
+			@for (simpleElementType of simpleElementTypes; track $index) {
+				@if (simpleElementType !== null) {
+					<button mat-menu-item (click)="add($index)">
+						{{simpleElementType[0]}}
+					</button>
+				}
+				@else {
+					<mat-divider />
+				}
+			}
 		</mat-menu>
-		<app-simple-element
-			*ngFor="let simpleElement of simpleElements; let index = index;"
-			[(simpleElement)]="simpleElements[index]"
-			(change)="update()"
-			(remove)="remove(index)"
-			@items
-		></app-simple-element>
+		@for (simpleElement of simpleElements; track $index) {
+			<app-simple-element
+				[(simpleElement)]="simpleElements[$index]"
+				(change)="update()"
+				(remove)="remove($index)"
+				@items
+			/>
+		}
 	</mat-sidenav>
 	<mat-sidenav-content>
 		<div class="transfer-function-texs card">
@@ -38,10 +44,10 @@
 			<div [appMath]="transferFunctionClosedLoopTex"></div>
 		</div>
 		<div [appExplicitGrid]="['1:1', '2:1', '1:2', '2:2'][tilesMode]" class="graphs">
-			<app-graph [transferFunction]="transferFunction" class="card"></app-graph>
-			<app-graph [transferFunction]="transferFunction" *ngIf="tilesMode >= 1" class="card"></app-graph>
-			<app-graph [transferFunction]="transferFunction" *ngIf="tilesMode >= 3" class="card"></app-graph>
-			<app-graph [transferFunction]="transferFunction" *ngIf="tilesMode >= 3" class="card"></app-graph>
+			<app-graph [transferFunction]="transferFunction" class="card" />
+			@if (tilesMode >= 1) { <app-graph [transferFunction]="transferFunction" class="card" /> }
+			@if (tilesMode >= 3) { <app-graph [transferFunction]="transferFunction" class="card" /> }
+			@if (tilesMode >= 3) { <app-graph [transferFunction]="transferFunction" class="card" /> }
 		</div>
 	</mat-sidenav-content>
 </mat-sidenav-container>

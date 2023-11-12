@@ -42,7 +42,7 @@
             "namedChunks": true
           },
           "configurations": {
-			 "development": {
+			      "development": {
                 "vendorChunk": true,
                 "extractLicenses": false,
                 "buildOptimizer": false,
@@ -83,22 +83,22 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "asservissement:build"
+            "buildTarget": "asservissement:build"
           },
           "configurations": {
-		    "development": {
-              "browserTarget": "asservissement:build:development"
-		    },
-			"production": {
-              "browserTarget": "asservissement:build:production"
-		  	}
-		  },
-		  "defaultConfiguration": "development"
+            "development": {
+              "buildTarget": "asservissement:build:development"
+            },
+          "production": {
+            "buildTarget": "asservissement:build:production"
+            }
+          },
+		      "defaultConfiguration": "development"
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "asservissement:build"
+            "buildTarget": "asservissement:build"
           }
         },
         "test": {
