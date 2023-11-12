@@ -1,5 +1,12 @@
 import { Component, ViewEncapsulation } from '@angular/core';
 import { animate, style, trigger, transition } from '@angular/animations';
+
+import { MatButtonModule } from '@angular/material/button';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatToolbarModule } from '@angular/material/toolbar';
+
 import { TransferFunction } from './transfer-function';
 import { TilesModeType } from './common-type';
 
@@ -14,6 +21,11 @@ import { PController } from './simple-element/p-controller';
 import { PIController } from './simple-element/pi-controller';
 import { PIDController } from './simple-element/pid-controller';
 import { PhaseLeadCompensator } from './simple-element/phase-lead-compensator';
+
+import { ExplicitGridDirective } from './explicit-grid.directive';
+import { GraphComponent } from './graph/graph.component';
+import { MathDirective } from './math/math.directive';
+import { SimpleElementComponent } from './simple-element/simple-element.component';
 
 @Component({
 	selector: 'app-root',
@@ -32,12 +44,25 @@ import { PhaseLeadCompensator } from './simple-element/phase-lead-compensator';
 				style({ transform: 'scale(1)', opacity: 1, height: '*' }),
 				animate(
 					'250ms cubic-bezier(0.4, 0.0, 0.2, 1)',
-					style({transform: 'scale(0.5)', opacity: 0, height: '0px'})
+					style({ transform: 'scale(0.5)', opacity: 0, height: '0px' })
 				),
 			]),
 		])
 	],
 	encapsulation: ViewEncapsulation.None,
+	standalone: true,
+	imports: [
+		MatButtonModule,
+		MatDividerModule,
+		MatMenuModule,
+		MatSidenavModule,
+		MatToolbarModule,
+
+		ExplicitGridDirective,
+		GraphComponent,
+		MathDirective,
+		SimpleElementComponent,
+	],
 })
 export class AppComponent {
 	simpleElements: SimpleElement[] = [];

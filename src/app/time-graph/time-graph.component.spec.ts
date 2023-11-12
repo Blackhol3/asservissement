@@ -12,10 +12,10 @@ describe('TimeGraphComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ TimeGraphComponent ],
-	  imports: [
-		  MatSnackBarModule,
-	  ],
+      imports: [
+        TimeGraphComponent,
+        MatSnackBarModule,
+      ],
     })
     .compileComponents();
 	

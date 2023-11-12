@@ -1,12 +1,29 @@
 import { enableProdMode } from '@angular/core';
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { bootstrapApplication } from '@angular/platform-browser';
+import { provideAnimations } from '@angular/platform-browser/animations';
 
-import { AppModule } from './app/app.module';
 import { environment } from './environments/environment';
+import { AppComponent } from './app/app.component';
+
+import * as Highcharts from 'highcharts';
+import HighchartsMore from 'highcharts/highcharts-more';
+import HighchartsAnnotation from 'highcharts/modules/annotations';
+import Exporting from 'highcharts/modules/exporting';
+HighchartsMore(Highcharts);
+HighchartsAnnotation(Highcharts);
+Exporting(Highcharts);
+
+Highcharts.SVGRenderer.prototype.symbols.plus = function (x: number, y: number, w: number, h: number) {
+	return ['M', x + w/2, y, 'v', h, 'm', -w/2, -h/2, 'h', w, 'z'];
+};
 
 if (environment.production) {
-  enableProdMode();
+	enableProdMode();
 }
 
-platformBrowserDynamic().bootstrapModule(AppModule)
-  .catch(err => console.error(err));
+bootstrapApplication(AppComponent, {
+	providers: [
+		provideAnimations(),
+	],
+})
+.catch(err => console.error(err));

@@ -8,9 +8,7 @@ describe('TimeGraphComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ BodeGraphComponent ],
-	  imports: [
-	  ],
+      imports: [BodeGraphComponent],
     })
     .compileComponents();
   });

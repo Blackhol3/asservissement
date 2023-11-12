@@ -8,7 +8,7 @@ describe('BlackNicholsGraphComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ BlackNicholsGraphComponent ]
+      imports: [BlackNicholsGraphComponent]
     })
     .compileComponents();
   });

@@ -8,7 +8,7 @@ describe('NyquistGraphComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ NyquistGraphComponent ]
+      imports: [NyquistGraphComponent]
     })
     .compileComponents();
   });

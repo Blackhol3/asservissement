@@ -19,6 +19,7 @@ enum Data {
 	templateUrl: './time-graph.component.html',
 	styleUrls: ['./time-graph.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: true,
 })
 export class TimeGraphComponent implements OnChanges, AfterViewInit {
 	@Input() transferFunction: TransferFunction = new TransferFunction();

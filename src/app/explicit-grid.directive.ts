@@ -1,7 +1,8 @@
 import { Directive, ElementRef, Input, OnChanges } from '@angular/core';
 
 @Directive({
-	selector: '[appExplicitGrid]'
+	selector: '[appExplicitGrid]',
+	standalone: true,
 })
 export class ExplicitGridDirective implements OnChanges {
 	@Input('appExplicitGrid') structure: string = '1:1';

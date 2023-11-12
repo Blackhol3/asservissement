@@ -19,6 +19,7 @@ const wExtremeMax = 1e12;
 	templateUrl: './bode-graph.component.html',
 	styleUrls: ['./bode-graph.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: true,
 })
 export class BodeGraphComponent implements OnChanges, AfterViewInit {
 	@Input() transferFunction: TransferFunction = new TransferFunction();

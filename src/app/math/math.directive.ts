@@ -1,10 +1,12 @@
 import { Directive, OnChanges, OnInit, Input, ElementRef, OnDestroy, SimpleChanges } from "@angular/core";
-import { Subject} from "rxjs";
-import { MathService } from "./math.service";
+import { Subject } from "rxjs";
 import { take, takeUntil } from "rxjs/operators";
+import { MathService } from "./math.service";
 
 @Directive({
-  selector: '[appMath]'
+  selector: '[appMath]',
+  providers: [MathService],
+  standalone: true,
 })
 export class MathDirective implements OnInit, OnChanges, OnDestroy {
   @Input() appMath: string = '';

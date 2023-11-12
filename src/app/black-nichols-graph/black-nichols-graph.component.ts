@@ -15,6 +15,7 @@ enum Data {
 	templateUrl: './black-nichols-graph.component.html',
 	styleUrls: ['./black-nichols-graph.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: true,
 })
 export class BlackNicholsGraphComponent implements OnChanges, AfterViewInit {
 	@Input() transferFunction: TransferFunction = new TransferFunction();

@@ -12,12 +12,13 @@ describe('SimpleElementComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ SimpleElementComponent ],
-	  imports: [
-		  MatCardModule,
-		  MatFormFieldModule,
-		  MatIconModule,
-	  ],
+      imports: [
+        SimpleElementComponent,
+        
+        MatCardModule,
+        MatFormFieldModule,
+        MatIconModule,
+      ],
     })
     .compileComponents();
   });

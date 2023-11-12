@@ -15,6 +15,7 @@ enum Data {
 	templateUrl: './nyquist-graph.component.html',
 	styleUrls: ['./nyquist-graph.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: true,
 })
 export class NyquistGraphComponent implements OnChanges, AfterViewInit {
 	@Input() transferFunction: TransferFunction = new TransferFunction();
