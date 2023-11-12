@@ -40,6 +40,17 @@ export class TransferFunction {
 	multiply(factor: TransferFunction): TransferFunction {
 		const numerators = [...this.numerators, ...factor.numerators];
 		const denominators = [...this.denominators, ...factor.denominators];
+
+		for (let i = 0; i < numerators.length; ++i) {
+			for (let j = 0; j < denominators.length; ++j) {
+				const factor = numerators[i].getFactor(denominators[j]);
+				if (factor !== null) {
+					numerators[i] = new Polynomial([factor]);
+					denominators.splice(j, 1);
+					break;
+				}
+			}
+		}
 		
 		return new TransferFunction(numerators, denominators);
 	}

@@ -92,6 +92,15 @@ export class Polynomial {
 		
 		return [real, imaginary];
 	}
+
+	getFactor(polynome: Polynomial): number | null {
+		if (this.order !== polynome.order) {
+			return null;
+		}
+
+		const factor = this.at(this.smallerNonZeroCoefficient) / polynome.at(polynome.smallerNonZeroCoefficient);
+		return this._coefficients.every((value, order) => value === factor * polynome.at(order)) ? factor : null;
+	}
 	
 	getRecursivePolynomial(dt: number): Polynomial {
 		let polynomial = new Polynomial();

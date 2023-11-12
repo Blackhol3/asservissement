@@ -101,6 +101,24 @@ describe('Polynome', () => {
 		expect(result[0]).toBe(1 - 300 + 50000);
 		expect(result[1]).toBe(20 - 4000 + 600000);
 	});
+
+	it('should calculate the multiplicative factor with another polynome', () => {
+		let p1 = new Polynomial([10, 20, 30]);
+		let p2 = new Polynomial([5, 7]);
+		expect(p1.getFactor(p2)).toBe(null);
+
+		p1 = new Polynomial([10, 20, 30]);
+		p2 = new Polynomial([1, 2, 2]);
+		expect(p1.getFactor(p2)).toBe(null);
+
+		p1 = new Polynomial([10, 20, 30]);
+		p2 = new Polynomial([1, 2, 3]);
+		expect(p1.getFactor(p2)).toBe(10);
+
+		p1 = new Polynomial([0, 0, 0.5, 1, 1.5]);
+		p2 = new Polynomial([0, 0, 10, 20, 30]);
+		expect(p1.getFactor(p2)).toBe(1/20);
+	});
 	
 	it('should calculate the recursive polynomial', () => {
 		let p = new Polynomial([2, 5, 7]);

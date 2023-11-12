@@ -48,6 +48,23 @@ describe('TransferFunction', () => {
 		expect(result).toBeInstanceOf(TransferFunction);
 		expect(result.numerators).toEqual([p1, p2, p4]);
 		expect(result.denominators).toEqual([p3, p5, p6]);
+
+		let n1 = new Polynomial([10, 20, 30]);
+		let n2 = new Polynomial([5, 7]);
+		let n3 = new Polynomial([0, 5, 5, 7]);
+		
+		let d1 = new Polynomial([0, 5, 7]);
+		let d2 = new Polynomial([1, 2, 3]);
+		let d3 = new Polynomial([5, 10, 15]);
+
+		tf1 = new TransferFunction([n1, n2], [d1]);
+		tf2 = new TransferFunction([n3], [d2, d3]);
+
+		result = tf1.multiply(tf2);
+
+		expect(result).toBeInstanceOf(TransferFunction);
+		expect(result.numerators).toEqual([new Polynomial([10]), n2, n3]);
+		expect(result.denominators).toEqual([d1, d3]);
 	});
 	
 	it('should expand', () => {
