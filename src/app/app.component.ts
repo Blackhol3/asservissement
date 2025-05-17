@@ -50,7 +50,6 @@ import { SimpleElementComponent } from './simple-element/simple-element.componen
 		])
 	],
 	encapsulation: ViewEncapsulation.None,
-	standalone: true,
 	imports: [
 		MatButtonModule,
 		MatDividerModule,

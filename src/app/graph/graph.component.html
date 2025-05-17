@@ -1,16 +1,16 @@
 <div class="button-toggle-groups">
-	<mat-button-toggle-group aria-label="Type de boucle" [(ngModel)]="loopType" (change)="ngOnChanges()" vertical="true">
+	<mat-button-toggle-group aria-label="Type de boucle" [(ngModel)]="loopType" (change)="ngOnChanges()" vertical hideSingleSelectionIndicator>
 		<mat-button-toggle [value]="0">Boucle ouverte</mat-button-toggle>
 		<mat-button-toggle [value]="1">Boucle fermée</mat-button-toggle>
 	</mat-button-toggle-group>
 	
-	<mat-button-toggle-group aria-label="Type de graphe" [(ngModel)]="graphType" vertical="true">
+	<mat-button-toggle-group aria-label="Type de graphe" [(ngModel)]="graphType" vertical hideSingleSelectionIndicator>
 		<mat-button-toggle [value]="0">Temporel</mat-button-toggle>
 		<mat-button-toggle [value]="1">Fréquentiel</mat-button-toggle>
 	</mat-button-toggle-group>
 	
 	@if (graphType === 0) {
-		<mat-button-toggle-group aria-label="Consigne" [(ngModel)]="inputType" vertical="true">
+		<mat-button-toggle-group aria-label="Consigne" [(ngModel)]="inputType" vertical hideSingleSelectionIndicator>
 			<mat-button-toggle [value]="0">Impulsion</mat-button-toggle>
 			<mat-button-toggle [value]="1">Échelon</mat-button-toggle>
 			<mat-button-toggle [value]="2">Rampe</mat-button-toggle>
@@ -18,7 +18,7 @@
 	}
 	
 	@if (graphType === 1) {
-		<mat-button-toggle-group aria-label="Visualisation" [(ngModel)]="visualizationType" vertical="true">
+		<mat-button-toggle-group aria-label="Visualisation" [(ngModel)]="visualizationType" vertical hideSingleSelectionIndicator>
 			<mat-button-toggle [value]="0">Bode</mat-button-toggle>
 			<mat-button-toggle [value]="1">Black – Nichols</mat-button-toggle>
 			<mat-button-toggle [value]="2">Nyquist</mat-button-toggle>

@@ -15,7 +15,6 @@ import { TimeGraphComponent } from '../time-graph/time-graph.component';
 	selector: 'app-graph',
 	templateUrl: './graph.component.html',
 	styleUrls: ['./graph.component.scss'],
-	standalone: true,
 	imports: [
 		FormsModule,
 		MatButtonToggleModule,

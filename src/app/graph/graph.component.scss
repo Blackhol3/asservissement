@@ -11,13 +11,13 @@
 
 mat-button-toggle-group {
 	margin: 10px;
-	width: 80%;
 }
 
-.mat-button-toggle {
+mat-button-toggle {
     height: 2em;
 	display: flex;
     align-items: center;
+	font-size: 1em;
 }
 
 .graph {

@@ -13,7 +13,6 @@ import { SimpleElement } from './simple-element'
 	selector: 'app-simple-element',
 	templateUrl: './simple-element.component.html',
 	styleUrls: ['./simple-element.component.scss'],
-	standalone: true,
 	imports: [
 		FormsModule,
 
