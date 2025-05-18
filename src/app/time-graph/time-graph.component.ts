@@ -110,18 +110,16 @@ export class TimeGraphComponent implements OnChanges, AfterViewInit {
 
 				return [
 					`<span style="font-size:10px">${formatter.format(this.x as number)} s</span>`,
-					`<span style="color:${this.point.color}">\u25CF</span> ${this.series.name} : <b>${formatter.format(this.y as number)}</b>`,
+					`<span style="color:${this.color}">\u25CF</span> ${this.series.name} : <b>${formatter.format(this.y as number)}</b>`,
 				].join('<br />');
 			},
 		},
-		plotOptions: {
-			series: {
-				events : {
-					legendItemClick: (event: Highcharts.SeriesLegendItemClickEventObject) => {
-						event.target.setVisible(undefined, false);
-						this.update();
-						event.preventDefault();
-					},
+		legend: {
+			events: {
+				itemClick: event => {
+					(event.legendItem as Highcharts.Series).setVisible(undefined, false);
+					this.update();
+					event.preventDefault();
 				},
 			},
 		},

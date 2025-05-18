@@ -33,6 +33,13 @@ export const options: Highcharts.Options = {
 		text: undefined,
 	},
 	legend: {
+		itemStyle: {
+			fontWeight: 'bold',
+		},
+		itemHiddenStyle: {
+			color: '#cccccc',
+			textDecoration: 'none',
+		},
 		verticalAlign: 'top',
 	},
 	credits: {
@@ -52,6 +59,22 @@ export const options: Highcharts.Options = {
 	},
 	xAxis: {
 		crosshair: true,
+		labels: {
+			style: {
+				color: '#666666',
+				fontSize: '11px',
+			}
+		},
+		lineColor: '#ccd6eb',
+		tickColor: '#ccd6eb',
+	},
+	yAxis: {
+		labels: {
+			style: {
+				color: '#666666',
+				fontSize: '11px',
+			}
+		}
 	},
 };
 

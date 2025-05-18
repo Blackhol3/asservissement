@@ -78,15 +78,14 @@ export class BodeGraphComponent implements OnChanges, AfterViewInit {
 			minorTickInterval: 0.1,
 			minorGridLineWidth: 1,
 		},
-		plotOptions: {
-			series: {
-				events : {
-					legendItemClick: (event: Highcharts.SeriesLegendItemClickEventObject) => {
-						this.chartGain!.series[event.target.index].setVisible(undefined, false);
-						this.chartPhase!.series[event.target.index].setVisible(undefined, false);
-						this.update();
-						event.preventDefault();
-					},
+		legend: {
+			events: {
+				itemClick: event => {
+					const index = (event.legendItem as Highcharts.Series).index;
+					this.chartGain!.series[index].setVisible(undefined, false);
+					this.chartPhase!.series[index].setVisible(undefined, false);
+					this.update();
+					event.preventDefault();
 				},
 			},
 		},
@@ -99,7 +98,7 @@ export class BodeGraphComponent implements OnChanges, AfterViewInit {
 
 				return [
 					`<span style="font-size:10px">${Chart.formatFrequency(this.x as number)}</span>`,
-					`<span style="color:${this.point.color}">\u25CF</span> ${this.series.name} : <b>${formatter.format(this.y as number)} ${this.series.chart.options.tooltip!.valueSuffix}</b>`,
+					`<span style="color:${this.color}">\u25CF</span> ${this.series.name} : <b>${formatter.format(this.y as number)} ${this.series.chart.options.tooltip!.valueSuffix}</b>`,
 				].join('<br />');
 			},
 		},

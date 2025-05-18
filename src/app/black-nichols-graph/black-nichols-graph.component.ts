@@ -76,15 +76,17 @@ export class BlackNicholsGraphComponent implements OnChanges, AfterViewInit {
 			softMax: 5,
 			crosshair: true,
 		},
+		legend: {
+			events: {
+				itemClick: event => {
+					(event.legendItem as Highcharts.Series).setVisible(undefined, false);
+					this.update();
+					event.preventDefault();
+				},
+			},
+		},
 		plotOptions: {
 			series: {
-				events : {
-					legendItemClick: (event: Highcharts.SeriesLegendItemClickEventObject) => {
-						event.target.setVisible(undefined, false);
-						this.update();
-						event.preventDefault();
-					},
-				},
 				lineWidth: 2,
 			},
 		},
@@ -96,8 +98,8 @@ export class BlackNicholsGraphComponent implements OnChanges, AfterViewInit {
 				});
 
 				return [
-					`<span style="color:${this.point.color}">\u25CF</span> <span style="font-size:10px;">${this.series.name}</span>`,
-					`Pulsation : <b>${Chart.formatFrequency((this.point as any).w)}</b>`,
+					`<span style="color:${this.color}">\u25CF</span> <span style="font-size:10px;">${this.series.name}</span>`,
+					`Pulsation : <b>${Chart.formatFrequency((this as any).w)}</b>`,
 					`Phase : <b>${formatter.format(this.x as number)} °</b>`,
 					`Gain : <b>${formatter.format(this.y as number)} dB</b>`,
 				].join('<br />');
