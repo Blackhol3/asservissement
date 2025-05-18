@@ -1,40 +1,40 @@
-import { Directive, OnChanges, OnInit, Input, ElementRef, OnDestroy, SimpleChanges } from "@angular/core";
+import { Directive, type OnChanges, type OnInit, Input, ElementRef, type OnDestroy, type SimpleChanges } from "@angular/core";
 import { Subject } from "rxjs";
 import { take, takeUntil } from "rxjs/operators";
 import { MathService } from "./math.service";
 
 @Directive({
-  selector: '[appMath]',
-  standalone: true,
+	selector: '[appMath]',
+	standalone: true,
 })
 export class MathDirective implements OnInit, OnChanges, OnDestroy {
-  @Input() appMath: string = '';
-  private alive$ = new Subject<boolean>();
-  private readonly el: HTMLElement;
+	@Input() appMath: string = '';
+	private alive$ = new Subject<boolean>();
+	private readonly el: HTMLElement;
 
-  constructor(private mathService: MathService, elementRef: ElementRef) {
-    this.el = elementRef.nativeElement;
-  }
+	constructor(private mathService: MathService, elementRef: ElementRef<HTMLElement>) {
+		this.el = elementRef.nativeElement;
+	}
 
-  ngOnInit() {
-    this.render();
-  }
+	ngOnInit() {
+		this.render();
+	}
 
-  ngOnChanges(changes: SimpleChanges) {
-    if(changes && changes['appMath'] && changes['appMath'].currentValue) {
-      this.render();
-    }
-  }
+	ngOnChanges(changes: SimpleChanges) {
+		if(changes && changes['appMath'] && changes['appMath'].currentValue) {
+			this.render();
+		}
+	}
 
-  private render() {
-    this.mathService.ready().pipe(
-      take(1),
-      takeUntil(this.alive$)
-    ).subscribe(() => this.mathService.render(this.el, '$$' + this.appMath + '$$'));
-  }
+	private render() {
+		this.mathService.ready().pipe(
+			take(1),
+			takeUntil(this.alive$)
+		).subscribe(() => void this.mathService.render(this.el, '$$' + this.appMath + '$$'));
+	}
 
-  ngOnDestroy() {
-    this.alive$.next(false);
-  }
+	ngOnDestroy() {
+		this.alive$.next(false);
+	}
 
 }

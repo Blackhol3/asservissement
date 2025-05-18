@@ -1,4 +1,4 @@
-import { Characteristic, SimpleElement } from './simple-element'
+import { type Characteristic, SimpleElement } from './simple-element'
 import { Polynomial } from '../polynomial'
 import { TransferFunction } from '../transfer-function'
 

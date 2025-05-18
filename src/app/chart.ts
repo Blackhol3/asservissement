@@ -21,11 +21,11 @@ export const options: Highcharts.Options = {
 		},
 		spacing: [5, 20, 5, 10],
 		events: {
-			fullscreenClose: function (this: any) {
-				this.update({chart: {backgroundColor: 'transparent'}});
+			fullscreenClose: chart => {
+				chart.update({chart: {backgroundColor: 'transparent'}});
 			},
-			fullscreenOpen: function (this: any) {
-				this.update({chart: {backgroundColor: '#FAFAFA'}});
+			fullscreenOpen: chart => {
+				chart.update({chart: {backgroundColor: '#FAFAFA'}});
 			},
 		}
 	},
@@ -81,17 +81,17 @@ export const options: Highcharts.Options = {
 /** @link https://www.highcharts.com/demo/synchronized-charts */
 /** @link https://www.highcharts.com/forum/viewtopic.php?t=35134 */
 export function synchronize(charts: Highcharts.Chart[]) {
-	function leaveEventListener(event: any): void {
-		for (let chart of charts) {
+	function leaveEventListener() {
+		for (const chart of charts) {
 			chart.tooltip.hide();
 			chart.xAxis[0].hideCrosshair();
 		}
 	}
 	
-	function moveEventListener(event: any): void {
-		for (let chart of charts) {
-			let normalizedEvent = chart.pointer.normalize(event);
-			let point = chart.series[0].searchPoint(event, true);
+	function moveEventListener(event: TouchEvent | MouseEvent) {
+		for (const chart of charts) {
+			const normalizedEvent = chart.pointer.normalize(event);
+			const point = chart.series[0].searchPoint(event as PointerEvent, true);
 			
 			if (point) {
 				highlight(point, normalizedEvent);
@@ -101,39 +101,39 @@ export function synchronize(charts: Highcharts.Chart[]) {
 	
 	function highlight(point: Highcharts.Point, event: Highcharts.PointerEventObject): void {
 		event = point.series.chart.pointer.normalize(event);
-	    point.series.chart.tooltip.refresh(point);
-	    point.series.chart.xAxis[0].drawCrosshair(event, point);
+		point.series.chart.tooltip.refresh(point);
+		point.series.chart.xAxis[0].drawCrosshair(event, point);
 	}
 	
 	function getSyncExtremes(chart: Highcharts.Chart) {
 		return function (event: Highcharts.AxisSetExtremesEventObject) {
 			if (event.trigger !== 'syncExtremes') {
-				for (let currentChart of charts) {
-			        if (chart !== currentChart) {
-		                currentChart.xAxis[0].setExtremes(
-		                    event.min,
-		                    event.max,
-		                    undefined,
-		                    false,
-		                    { trigger: 'syncExtremes' }
-		                );
-			        }
-			    }
+				for (const currentChart of charts) {
+					if (chart !== currentChart) {
+						currentChart.xAxis[0].setExtremes(
+							event.min,
+							event.max,
+							undefined,
+							false,
+							{ trigger: 'syncExtremes' }
+						);
+					}
+				}
 			}
 		}
 	}
 	
-	let moveEventTypes = ['mousemove', 'touchmove', 'touchstart'];
-	for (let chart of charts) {
+	const moveEventTypes = ['mousemove', 'touchmove', 'touchstart'] as const;
+	for (const chart of charts) {
 		chart.container.addEventListener('mouseleave', leaveEventListener);
-		for (let moveEventType of moveEventTypes) {
-		    chart.container.addEventListener(
-		        moveEventType,
-		        moveEventListener
+		for (const moveEventType of moveEventTypes) {
+			chart.container.addEventListener(
+				moveEventType,
+				moveEventListener
 			);
 		}
 		
-		let options: Highcharts.Options = {
+		const options: Highcharts.Options = {
 			xAxis: {
 				events: {
 					setExtremes: getSyncExtremes(chart),
@@ -153,7 +153,7 @@ export function formatFrequency(frequency: number): string {
 	const result = frequencyFormatter.format(frequency);
 	return (
 		result.includes('E0') 
-		? result.replace('E0', '') + ' rad/s'
-		: result.replace('E', '⋅10<tspan style="font-size:0.8em" dy="-0.5em">') +'</tspan><tspan dy="0.5em"> rad/s</tspan>'
+			? result.replace('E0', '') + ' rad/s'
+			: result.replace('E', '⋅10<tspan style="font-size:0.8em" dy="-0.5em">') +'</tspan><tspan dy="0.5em"> rad/s</tspan>'
 	);
 }

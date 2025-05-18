@@ -13,7 +13,7 @@
 					<mat-label>{{characteristic.name}}</mat-label>
 					<input
 						matInput type="number" name="characteristic-{{$index}}" #input="ngModel"
-						[(ngModel)]="characteristic.value" (ngModelChange)="update(input.viewModel !== null)"
+						[(ngModel)]="characteristic.value" (ngModelChange)="onChange(input.viewModel !== null)"
 						[min]="characteristic.minValue" [step]="characteristic.step"
 					/>
 				</mat-form-field>

@@ -1,4 +1,4 @@
-import { Component, OnChanges, Input, ChangeDetectionStrategy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, type OnChanges, Input, ChangeDetectionStrategy, ViewChild, ElementRef, type AfterViewInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import * as deepmerge from 'deepmerge';
@@ -57,7 +57,7 @@ export class TimeGraphComponent implements OnChanges, AfterViewInit {
 				enableMouseTracking: false,
 				visible: false,
 			},
-	        {
+			{
 				data: [],
 				type: 'line',
 				name: "Tangente à l'origine",
@@ -109,8 +109,8 @@ export class TimeGraphComponent implements OnChanges, AfterViewInit {
 				});
 
 				return [
-					`<span style="font-size:10px">${formatter.format(this.x as number)} s</span>`,
-					`<span style="color:${this.color}">\u25CF</span> ${this.series.name} : <b>${formatter.format(this.y as number)}</b>`,
+					`<span style="font-size:10px">${formatter.format(this.x)} s</span>`,
+					`<span style="color:${this.color as string}">\u25CF</span> ${this.series.name} : <b>${formatter.format(this.y as number)}</b>`,
 				].join('<br />');
 			},
 		},
@@ -119,6 +119,7 @@ export class TimeGraphComponent implements OnChanges, AfterViewInit {
 				itemClick: event => {
 					(event.legendItem as Highcharts.Series).setVisible(undefined, false);
 					this.update();
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-call
 					event.preventDefault();
 				},
 			},

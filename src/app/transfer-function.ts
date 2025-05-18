@@ -62,7 +62,7 @@ export class TransferFunction {
 		this.numerators.forEach((value) => { expandedNumerator = expandedNumerator.multiply(value); });
 		this.denominators.forEach((value) => { expandedDenominator = expandedDenominator.multiply(value); });
 		
-		let simplificationOrder = Math.min(expandedNumerator.smallerNonZeroCoefficient, expandedDenominator.smallerNonZeroCoefficient);
+		const simplificationOrder = Math.min(expandedNumerator.smallerNonZeroCoefficient, expandedDenominator.smallerNonZeroCoefficient);
 		if (simplificationOrder > 0) {
 			expandedNumerator = new Polynomial(expandedNumerator.coefficients.slice(simplificationOrder));
 			expandedDenominator = new Polynomial(expandedDenominator.coefficients.slice(simplificationOrder));

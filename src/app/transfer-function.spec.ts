@@ -7,38 +7,38 @@ describe('TransferFunction', () => {
 	});
 	
 	it('should calculate the order', () => {
-		let n1 = new Polynomial([10, 20, 30]);
-		let n2 = new Polynomial([5, 7]);
-		let n3 = new Polynomial([0, 5, 5, 7]);
+		const n1 = new Polynomial([10, 20, 30]);
+		const n2 = new Polynomial([5, 7]);
+		const n3 = new Polynomial([0, 5, 5, 7]);
 		
-		let d1 = new Polynomial([0, 0, 30]);
-		let d2 = new Polynomial([0, 5, 7]);
+		const d1 = new Polynomial([0, 0, 30]);
+		const d2 = new Polynomial([0, 5, 7]);
 		
-		let tf = new TransferFunction([n1, n2, n3], [d1, d2]);
+		const tf = new TransferFunction([n1, n2, n3], [d1, d2]);
 		
 		expect(tf.order).toEqual(-2);
 	});
 	
 	it('should calculate the zero multiplicity', () => {
-		let n1 = new Polynomial([10, 20, 30]);
-		let n2 = new Polynomial([5, 7]);
-		let n3 = new Polynomial([0, 5, 5, 7]);
+		const n1 = new Polynomial([10, 20, 30]);
+		const n2 = new Polynomial([5, 7]);
+		const n3 = new Polynomial([0, 5, 5, 7]);
 		
-		let d1 = new Polynomial([0, 0, 30]);
-		let d2 = new Polynomial([0, 5, 7]);
+		const d1 = new Polynomial([0, 0, 30]);
+		const d2 = new Polynomial([0, 5, 7]);
 		
-		let tf = new TransferFunction([n1, n2, n3], [d1, d2]);
+		const tf = new TransferFunction([n1, n2, n3], [d1, d2]);
 		
 		expect(tf.zeroMultiplicity).toEqual(2);
 	});
 	
 	it('should multiply by another transfer function', () => {
-		let p1 = new Polynomial([Math.random(), Math.random(), Math.random()]);
-		let p2 = new Polynomial([Math.random(), Math.random(), Math.random()]);
-		let p3 = new Polynomial([Math.random(), Math.random(), Math.random()]);
-		let p4 = new Polynomial([Math.random(), Math.random(), Math.random()]);
-		let p5 = new Polynomial([Math.random(), Math.random(), Math.random()]);
-		let p6 = new Polynomial([Math.random(), Math.random(), Math.random()]);
+		const p1 = new Polynomial([Math.random(), Math.random(), Math.random()]);
+		const p2 = new Polynomial([Math.random(), Math.random(), Math.random()]);
+		const p3 = new Polynomial([Math.random(), Math.random(), Math.random()]);
+		const p4 = new Polynomial([Math.random(), Math.random(), Math.random()]);
+		const p5 = new Polynomial([Math.random(), Math.random(), Math.random()]);
+		const p6 = new Polynomial([Math.random(), Math.random(), Math.random()]);
 		
 		let tf1 = new TransferFunction([p1, p2], [p3]);
 		let tf2 = new TransferFunction([p4], [p5, p6]);
@@ -49,13 +49,13 @@ describe('TransferFunction', () => {
 		expect(result.numerators).toEqual([p1, p2, p4]);
 		expect(result.denominators).toEqual([p3, p5, p6]);
 
-		let n1 = new Polynomial([10, 20, 30]);
-		let n2 = new Polynomial([5, 7]);
-		let n3 = new Polynomial([0, 5, 5, 7]);
+		const n1 = new Polynomial([10, 20, 30]);
+		const n2 = new Polynomial([5, 7]);
+		const n3 = new Polynomial([0, 5, 5, 7]);
 		
-		let d1 = new Polynomial([0, 5, 7]);
-		let d2 = new Polynomial([1, 2, 3]);
-		let d3 = new Polynomial([5, 10, 15]);
+		const d1 = new Polynomial([0, 5, 7]);
+		const d2 = new Polynomial([1, 2, 3]);
+		const d3 = new Polynomial([5, 10, 15]);
 
 		tf1 = new TransferFunction([n1, n2], [d1]);
 		tf2 = new TransferFunction([n3], [d2, d3]);
@@ -69,11 +69,11 @@ describe('TransferFunction', () => {
 	
 	it('should expand', () => {
 		let n1 = new Polynomial([10, 20, 30]);
-		let n2 = new Polynomial([5, 7]);
-		let n3 = new Polynomial([5, 5, 7]);
+		const n2 = new Polynomial([5, 7]);
+		const n3 = new Polynomial([5, 5, 7]);
 		
 		let d1 = new Polynomial([10, 20, 30]);
-		let d2 = new Polynomial([5, 7]);
+		const d2 = new Polynomial([5, 7]);
 		
 		let tf = new TransferFunction([n1, n2, n3], [d1, d2]);
 		let expandedTf = tf.getExpandedTransferFunction();
@@ -98,8 +98,8 @@ describe('TransferFunction', () => {
 	});
 	
 	it('should calculate the closed-loop transfer function', () => {
-		let tf = new TransferFunction([new Polynomial([3]), new Polynomial([1, 5])], [new Polynomial([2, 5, 7])]);
-		let result = tf.getClosedLoopTransferFunction();
+		const tf = new TransferFunction([new Polynomial([3]), new Polynomial([1, 5])], [new Polynomial([2, 5, 7])]);
+		const result = tf.getClosedLoopTransferFunction();
 		
 		expect(result).toBeInstanceOf(TransferFunction);
 		expect(result.numerator.coefficients).toEqual([3, 15]);
@@ -107,8 +107,8 @@ describe('TransferFunction', () => {
 	});
 	
 	it('should calculate the recursive transfer function', () => {
-		let tf = new TransferFunction([new Polynomial([3]), new Polynomial([1, 5])], [new Polynomial([2, 5, 7])]);
-		let result = tf.getRecursiveTransferFunction(0.01);
+		const tf = new TransferFunction([new Polynomial([3]), new Polynomial([1, 5])], [new Polynomial([2, 5, 7])]);
+		const result = tf.getRecursiveTransferFunction(0.01);
 		
 		expect(result).toBeInstanceOf(TransferFunction);
 		expect(result.numerator.coefficients).toEqual([

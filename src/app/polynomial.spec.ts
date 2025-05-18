@@ -15,7 +15,7 @@ describe('Polynome', () => {
 	});
 	
 	it('should calculate the order', () => {
-		let p = new Polynomial([10, 20, 30]);
+		const p = new Polynomial([10, 20, 30]);
 		expect(p.order).toBe(2);
 	});
 	
@@ -39,7 +39,7 @@ describe('Polynome', () => {
 	});
 	
 	it('should change the coefficients', () => {
-		let p = new Polynomial([10, 20]);
+		const p = new Polynomial([10, 20]);
 		let result = p.change(1, 200);
 		
 		expect(result).toBeInstanceOf(Polynomial);
@@ -52,26 +52,26 @@ describe('Polynome', () => {
 	});
 	
 	it('should add', () => {
-		let p1 = new Polynomial([10, 20, 30]);
-		let p2 = new Polynomial([5, 7]);
-		let result = p1.add(p2);
+		const p1 = new Polynomial([10, 20, 30]);
+		const p2 = new Polynomial([5, 7]);
+		const result = p1.add(p2);
 		
 		expect(result).toBeInstanceOf(Polynomial);
 		expect(result.coefficients).toEqual([15, 27, 30]);
 	});
 	
 	it('should multiply by a scalar', () => {
-		let p = new Polynomial([10, 20, 30]);
-		let result = p.multiply(5);
+		const p = new Polynomial([10, 20, 30]);
+		const result = p.multiply(5);
 		
 		expect(result).toBeInstanceOf(Polynomial);
 		expect(result.coefficients).toEqual([50, 100, 150]);
 	});
 	
 	it('should multiply by another polynome', () => {
-		let p1 = new Polynomial([10, 20, 30]);
-		let p2 = new Polynomial([5, 7]);
-		let result = p1.multiply(p2);
+		const p1 = new Polynomial([10, 20, 30]);
+		const p2 = new Polynomial([5, 7]);
+		const result = p1.multiply(p2);
 		
 		expect(result).toBeInstanceOf(Polynomial);
 		expect(result.coefficients).toEqual([50, 170, 290, 210]);
@@ -95,8 +95,8 @@ describe('Polynome', () => {
 	});
 	
 	it('should calculate the complex value', () => {
-		let p = new Polynomial([1, 2, 3, 4, 5, 6]);
-		let result = p.getComplexValue(10);
+		const p = new Polynomial([1, 2, 3, 4, 5, 6]);
+		const result = p.getComplexValue(10);
 		
 		expect(result[0]).toBe(1 - 300 + 50000);
 		expect(result[1]).toBe(20 - 4000 + 600000);
@@ -121,8 +121,8 @@ describe('Polynome', () => {
 	});
 	
 	it('should calculate the recursive polynomial', () => {
-		let p = new Polynomial([2, 5, 7]);
-		let result = p.getRecursivePolynomial(0.01);
+		const p = new Polynomial([2, 5, 7]);
+		const result = p.getRecursivePolynomial(0.01);
 		
 		expect(result).toBeInstanceOf(Polynomial);
 		expect(result.coefficients).toEqual([

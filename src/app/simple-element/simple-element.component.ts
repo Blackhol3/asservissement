@@ -27,13 +27,13 @@ export class SimpleElementComponent {
 	@Input() simpleElement?: SimpleElement;
 	@Output() simpleElementChange = new EventEmitter<SimpleElement>();
 	
-	@Output() change = new EventEmitter<void>();
+	@Output() update = new EventEmitter<void>();
 	@Output() remove = new EventEmitter<void>();
 	
-	update(isValid: boolean): void {
+	onChange(isValid: boolean): void {
 		if (isValid) {
 			this.simpleElement!.update();
-			this.change.emit();
+			this.update.emit();
 		}
 	}
 }

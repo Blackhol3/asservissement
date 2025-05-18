@@ -7,25 +7,25 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 
 describe('SimpleElementComponent', () => {
-  let component: SimpleElementComponent;
-  let fixture: ComponentFixture<SimpleElementComponent>;
+	let component: SimpleElementComponent;
+	let fixture: ComponentFixture<SimpleElementComponent>;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      imports: [
-        SimpleElementComponent,
+	beforeEach(() => {
+		TestBed.configureTestingModule({
+			imports: [
+				SimpleElementComponent,
         
-        MatCardModule,
-        MatFormFieldModule,
-        MatIconModule,
-      ],
-    });
-    fixture = TestBed.createComponent(SimpleElementComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+				MatCardModule,
+				MatFormFieldModule,
+				MatIconModule,
+			],
+		});
+		fixture = TestBed.createComponent(SimpleElementComponent);
+		component = fixture.componentInstance;
+		fixture.detectChanges();
+	});
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+	it('should create', () => {
+		expect(component).toBeTruthy();
+	});
 });

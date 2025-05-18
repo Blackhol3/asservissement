@@ -1,10 +1,10 @@
-import { Component, OnChanges, Input, ChangeDetectionStrategy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, type OnChanges, Input, ChangeDetectionStrategy, ViewChild, ElementRef, type AfterViewInit } from '@angular/core';
 
 import * as deepmerge from 'deepmerge';
 import Highcharts from 'highcharts/es-modules/masters/highcharts.src';
 
 import { TransferFunction } from '../transfer-function';
-import { FrequentialResponseCalculator, GainMargin, PhaseMargin } from '../frequential-response-calculator';
+import { FrequentialResponseCalculator, type GainMargin, type PhaseMargin } from '../frequential-response-calculator';
 import * as Chart from '../chart';
 
 enum Data {
@@ -85,6 +85,7 @@ export class BodeGraphComponent implements OnChanges, AfterViewInit {
 					this.chartGain!.series[index].setVisible(undefined, false);
 					this.chartPhase!.series[index].setVisible(undefined, false);
 					this.update();
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-call
 					event.preventDefault();
 				},
 			},
@@ -97,8 +98,8 @@ export class BodeGraphComponent implements OnChanges, AfterViewInit {
 				});
 
 				return [
-					`<span style="font-size:10px">${Chart.formatFrequency(this.x as number)}</span>`,
-					`<span style="color:${this.color}">\u25CF</span> ${this.series.name} : <b>${formatter.format(this.y as number)} ${this.series.chart.options.tooltip!.valueSuffix}</b>`,
+					`<span style="font-size:10px">${Chart.formatFrequency(this.x)}</span>`,
+					`<span style="color:${this.color as string}">\u25CF</span> ${this.series.name} : <b>${formatter.format(this.y as number)} ${this.series.chart.options.tooltip!.valueSuffix}</b>`,
 				].join('<br />');
 			},
 		},

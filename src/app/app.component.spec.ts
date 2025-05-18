@@ -9,24 +9,24 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
 describe('AppComponent', () => {
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-        imports: [
-            AppComponent,
-            BrowserAnimationsModule,
+	beforeEach(() => {
+		TestBed.configureTestingModule({
+			imports: [
+				AppComponent,
+				BrowserAnimationsModule,
             
-            MatCardModule,
-            MatCheckboxModule,
-            MatMenuModule,
-            MatSidenavModule,
-            MatToolbarModule,
-        ],
-    });
-  });
+				MatCardModule,
+				MatCheckboxModule,
+				MatMenuModule,
+				MatSidenavModule,
+				MatToolbarModule,
+			],
+		});
+	});
 
-  it('should create the app', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
-  });
+	it('should create the app', () => {
+		const fixture = TestBed.createComponent(AppComponent);
+		const app = fixture.componentInstance;
+		expect(app).toBeTruthy();
+	});
 });

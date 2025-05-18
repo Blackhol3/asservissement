@@ -1,10 +1,10 @@
-import { Component, OnChanges, Input, ChangeDetectionStrategy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, type OnChanges, Input, ChangeDetectionStrategy, ViewChild, ElementRef, type AfterViewInit } from '@angular/core';
 
 import * as deepmerge from 'deepmerge';
 import Highcharts from 'highcharts/es-modules/masters/highcharts.src';
 
 import { TransferFunction } from '../transfer-function';
-import { FrequentialResponseCalculator, GainMargin, PhaseMargin } from '../frequential-response-calculator';
+import { FrequentialResponseCalculator, type GainMargin, type PhaseMargin } from '../frequential-response-calculator';
 import * as Chart from '../chart';
 
 enum Data {
@@ -81,6 +81,7 @@ export class BlackNicholsGraphComponent implements OnChanges, AfterViewInit {
 				itemClick: event => {
 					(event.legendItem as Highcharts.Series).setVisible(undefined, false);
 					this.update();
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-call
 					event.preventDefault();
 				},
 			},
@@ -98,9 +99,10 @@ export class BlackNicholsGraphComponent implements OnChanges, AfterViewInit {
 				});
 
 				return [
-					`<span style="color:${this.color}">\u25CF</span> <span style="font-size:10px;">${this.series.name}</span>`,
+					`<span style="color:${this.color as string}">\u25CF</span> <span style="font-size:10px;">${this.series.name}</span>`,
+					// eslint-disable-next-line
 					`Pulsation : <b>${Chart.formatFrequency((this as any).w)}</b>`,
-					`Phase : <b>${formatter.format(this.x as number)} °</b>`,
+					`Phase : <b>${formatter.format(this.x)} °</b>`,
 					`Gain : <b>${formatter.format(this.y as number)} dB</b>`,
 				].join('<br />');
 			},

@@ -132,7 +132,7 @@ export class Polynomial {
 				}
 			}
 			
-			let orderText =
+			const orderText =
 				(order === 0) ? '' :
 				(order === 1) ? laplaceVariable :
 				laplaceVariable + '^{' + order + '}'

@@ -1,3 +1,4 @@
+<!-- eslint-disable @angular-eslint/template/eqeqeq -->
 <mat-toolbar color="primary" role="header">
 	<span>Asservissement</span>
 	<span class="spacer"></span>
@@ -7,7 +8,7 @@
 			[disabled]="tilesMode == tilesModeType"
 			(click)="tilesMode = tilesModeType"
 		>
-			<img src="../assets/tiles/{{tilesMode === tilesModeType ? 'enabled' : 'disabled'}}/{{tilesModeType}}.png" />
+			<img src="../assets/tiles/{{tilesMode === tilesModeType ? 'enabled' : 'disabled'}}/{{tilesModeType}}.png" alt="Mode d'affichage {{tilesModeType}}" />
 		</button>
 	}
 </mat-toolbar>
@@ -32,7 +33,7 @@
 		@for (simpleElement of simpleElements; track $index) {
 			<app-simple-element
 				[(simpleElement)]="simpleElements[$index]"
-				(change)="update()"
+				(update)="update()"
 				(remove)="remove($index)"
 				@items
 			/>

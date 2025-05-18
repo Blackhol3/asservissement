@@ -1,4 +1,4 @@
-import { Directive, ElementRef, Input, OnChanges } from '@angular/core';
+import { Directive, ElementRef, Input, type OnChanges } from '@angular/core';
 
 @Directive({
 	selector: '[appExplicitGrid]',
@@ -11,7 +11,7 @@ export class ExplicitGridDirective implements OnChanges {
 	totalWidth: number = 0;
 	totalHeight: number = 0;
 	
-	constructor(private el: ElementRef) {
+	constructor(private el: ElementRef<HTMLElement>) {
 		new ResizeObserver((entries) => this.onResize(entries)).observe(this.el.nativeElement);
 		this.el.nativeElement.style.display = 'grid';
 	}
@@ -20,7 +20,7 @@ export class ExplicitGridDirective implements OnChanges {
 		const width = this.totalWidth / this.arrayStructure[1];
 		const height = this.totalHeight / this.arrayStructure[0];
 		
-		for (let child of Array.from(this.el.nativeElement.children)) {
+		for (const child of Array.from(this.el.nativeElement.children)) {
 			(child as HTMLElement).style.width = width + 'px';
 			(child as HTMLElement).style.height = height + 'px';
 		}
