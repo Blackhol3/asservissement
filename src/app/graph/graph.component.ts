@@ -1,4 +1,4 @@
-import { Component, Input, type OnChanges } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -24,19 +24,18 @@ import { TimeGraphComponent } from '../time-graph/time-graph.component';
 		NyquistGraphComponent,
 		TimeGraphComponent,
 	],
+	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GraphComponent implements OnChanges {
-	@Input('transferFunction') transferFunctionOpenLoop: TransferFunction = new TransferFunction();
-	transferFunction: TransferFunction = new TransferFunction();
+export class GraphComponent {
+	transferFunction = input.required<TransferFunction>();
+	plottedTransferFunction = computed(() => {
+		return this.loopType() === LoopType.Open ? this.transferFunction() : this.transferFunction().getClosedLoopTransferFunction();
+	});
 
-	loopType: LoopType = LoopType.Open;
-	graphType: GraphType = GraphType.Time;
-	inputType: InputType = InputType.Step;
-	visualizationType: VisualizationType = VisualizationType.Bode;
+	loopType = signal(LoopType.Open);
+	graphType = signal(GraphType.Time);
+	inputType = signal(InputType.Step);
+	visualizationType = signal(VisualizationType.Bode);
 	
 	constructor() { }
-	
-	ngOnChanges() {
-		this.transferFunction = this.loopType === LoopType.Open ? this.transferFunctionOpenLoop : this.transferFunctionOpenLoop.getClosedLoopTransferFunction();
-	}
 }

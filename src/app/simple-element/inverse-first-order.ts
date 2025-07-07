@@ -19,15 +19,10 @@ export class InverseFirstOrder extends SimpleElement {
 		},
 	];
 	
-	constructor() {
-		super();
-		this.update();
-	}
-
-	update(): void {
+	get transferFunction() {
 		const numerator = new Polynomial([this.characteristics[0].value, this.characteristics[0].value * this.characteristics[1].value]);
 		const denominator = new Polynomial([1]);
 		
-		this._transferFunction = new TransferFunction([numerator], [denominator]);
+		return new TransferFunction([numerator], [denominator]);
 	}
 }

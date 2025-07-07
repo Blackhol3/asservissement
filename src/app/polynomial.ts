@@ -1,11 +1,11 @@
 export class Polynomial {
-	constructor(private readonly _coefficients: number[] = []) {
+	constructor(private readonly _coefficients: readonly number[] = []) {
 		if (this._coefficients.length === 0) {
 			this._coefficients = [0];
 		}
 	}
 	
-	get coefficients(): number[] {
+	get coefficients(): readonly number[] {
 		return this._coefficients;
 	}
 

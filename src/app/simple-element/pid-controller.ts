@@ -24,13 +24,8 @@ export class PIDController extends SimpleElement {
 			value: 1,
 		},
 	];
-	
-	constructor() {
-		super();
-		this.update();
-	}
 
-	update(): void {
+	get transferFunction() {
 		const Kp = this.characteristics[0].value;
 		const Ti = this.characteristics[1].value;
 		const Td = this.characteristics[2].value;
@@ -38,6 +33,6 @@ export class PIDController extends SimpleElement {
 		const numerator = new Polynomial([Kp, Kp*Ti, Kp*Ti*Td]);
 		const denominator = new Polynomial([0, Ti]);
 		
-		this._transferFunction = new TransferFunction([numerator], [denominator]);
+		return new TransferFunction([numerator], [denominator]);
 	}
 }

@@ -1,7 +1,7 @@
 import { Polynomial } from './polynomial';
 
 export class TransferFunction {
-	constructor(readonly numerators: Polynomial[] = [], readonly denominators: Polynomial[] = []) {}
+	constructor(readonly numerators: readonly Polynomial[] = [], readonly denominators: readonly Polynomial[] = []) {}
 	
 	get numerator(): Polynomial {
 		if (this.numerators.length >= 2) {

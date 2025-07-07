@@ -25,12 +25,7 @@ export class SecondOrder extends SimpleElement {
 		},
 	];
 	
-	constructor() {
-		super();
-		this.update();
-	}
-
-	update(): void {
+	get transferFunction() {
 		const K = this.characteristics[0].value;
 		const w0 = this.characteristics[1].value;
 		const z = this.characteristics[2].value;
@@ -38,6 +33,6 @@ export class SecondOrder extends SimpleElement {
 		const numerator = new Polynomial([K]);
 		const denominator = new Polynomial([1, 2*z/w0, 1/(w0*w0)]);
 		
-		this._transferFunction = new TransferFunction([numerator], [denominator]);
+		return new TransferFunction([numerator], [denominator]);
 	}
 }

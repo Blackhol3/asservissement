@@ -1,11 +1,10 @@
-import { Directive, ElementRef, Input, type OnChanges } from '@angular/core';
+import { Directive, ElementRef, effect, input } from '@angular/core';
 
 @Directive({
 	selector: '[appExplicitGrid]',
-	standalone: true,
 })
-export class ExplicitGridDirective implements OnChanges {
-	@Input('appExplicitGrid') structure: string = '1:1';
+export class ExplicitGridDirective {
+	structure = input('1:1', {alias: 'appExplicitGrid'});
 	arrayStructure: [number, number] = [1, 1];
 	
 	totalWidth: number = 0;
@@ -14,6 +13,7 @@ export class ExplicitGridDirective implements OnChanges {
 	constructor(private el: ElementRef<HTMLElement>) {
 		new ResizeObserver((entries) => this.onResize(entries)).observe(this.el.nativeElement);
 		this.el.nativeElement.style.display = 'grid';
+		effect(() => this.onChange());
 	}
 	
 	resize() {
@@ -32,8 +32,8 @@ export class ExplicitGridDirective implements OnChanges {
 		this.resize();
 	}
 	
-	ngOnChanges() {
-		this.arrayStructure = this.structure.split(':').map((str) => parseInt(str)) as [number, number];
+	onChange() {
+		this.arrayStructure = this.structure().split(':').map((str) => parseInt(str)) as [number, number];
 		this.el.nativeElement.style.gridTemplateColumns = 'repeat(' + this.arrayStructure[1] + ', 1fr)';
 		setTimeout(() => this.resize());
 	}

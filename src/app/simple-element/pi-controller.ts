@@ -19,18 +19,13 @@ export class PIController extends SimpleElement {
 		},
 	];
 	
-	constructor() {
-		super();
-		this.update();
-	}
-
-	update(): void {
+	get transferFunction() {
 		const Kp = this.characteristics[0].value;
 		const Ti = this.characteristics[1].value;
 		
 		const numerator = new Polynomial([Kp, Kp*Ti]);
 		const denominator = new Polynomial([0, Ti]);
 		
-		this._transferFunction = new TransferFunction([numerator], [denominator]);
+		return new TransferFunction([numerator], [denominator]);
 	}
 }

@@ -1,4 +1,4 @@
-import { Component, type OnChanges, Input, ChangeDetectionStrategy, ViewChild, ElementRef, type AfterViewInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ElementRef, effect, input } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import * as deepmerge from 'deepmerge';
@@ -21,14 +21,12 @@ enum Data {
 	templateUrl: './time-graph.component.html',
 	styleUrls: ['./time-graph.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	standalone: true,
 })
-export class TimeGraphComponent implements OnChanges, AfterViewInit {
-	@Input() transferFunction: TransferFunction = new TransferFunction();
-	@Input() inputType: InputType = InputType.Step;
+export class TimeGraphComponent {
+	transferFunction = input.required<TransferFunction>();
+	inputType = input.required<InputType>();
 	
-	@ViewChild('chartElement') chartElement: ElementRef<HTMLDivElement> | undefined;
-	chart: Highcharts.Chart | undefined;
+	chart: Highcharts.Chart;
 	
 	tMin: number = -0.05;
 	tMax: number = 5;
@@ -125,26 +123,24 @@ export class TimeGraphComponent implements OnChanges, AfterViewInit {
 			},
 		},
 	};
-	
-	constructor(private snackBar: MatSnackBar) { }
-	
-	ngAfterViewInit(): void {
-		this.chart = Highcharts.chart(this.chartElement!.nativeElement, deepmerge.all([Chart.options, this.options]));
-		this.update();
-		new ResizeObserver(() => this.chart!.reflow()).observe(this.chartElement!.nativeElement);
+
+	constructor(
+		private chartElement: ElementRef<HTMLElement>,
+		private snackBar: MatSnackBar,
+	) {
+		const element = this.chartElement.nativeElement;
+		this.chart = Highcharts.chart(element, deepmerge.all([Chart.options, this.options]));
+		new ResizeObserver(() => this.chart.reflow()).observe(element);
+		effect(() => this.update());
 	}
-	
+
 	update(animate = true, dt = 1e-3, nbPoints = 1001): void {
-		if (this.chart === undefined) {
-			return;
-		}
-		
 		const tMin = this.tMin;
 		const tMax = this.tMax;
 		const dtMin = (tMax - tMin)/(nbPoints - 1);
 		dt = Math.min(dt, dtMin);
 		
-		const recursiveTransferFunction = this.transferFunction.getRecursiveTransferFunction(dt);
+		const recursiveTransferFunction = this.transferFunction().getRecursiveTransferFunction(dt);
 		
 		const input_memory = new Array(recursiveTransferFunction.numerator.order + 1).fill(0);
 		const output_memory = new Array(recursiveTransferFunction.denominator.order).fill(0);
@@ -267,13 +263,9 @@ export class TimeGraphComponent implements OnChanges, AfterViewInit {
 	}
 	
 	setLineData(dataType: Data, x: number[], y: number[]): void {
-		if (this.chart?.series[dataType].visible) {
+		if (this.chart.series[dataType].visible) {
 			this.chart.series[dataType].setData(x.map((value, index) => [value, y[index]]), false);
 		}
-	}
-	
-	ngOnChanges(): void {
-		this.update();
 	}
 	
 	getInput(t: number, dt: number): number {
@@ -281,15 +273,15 @@ export class TimeGraphComponent implements OnChanges, AfterViewInit {
 			return 0;
 		}
 		
-		if (this.inputType === InputType.Impulse) {
+		if (this.inputType() === InputType.Impulse) {
 			return (t === 0) ? 1/dt : 0;
 		}
 			
-		if (this.inputType === InputType.Step) {
+		if (this.inputType() === InputType.Step) {
 			return 1;
 		}
 		
-		if (this.inputType === InputType.Ramp) {
+		if (this.inputType() === InputType.Ramp) {
 			return t;
 		}
 		
@@ -297,16 +289,16 @@ export class TimeGraphComponent implements OnChanges, AfterViewInit {
 	}
 	
 	hasAsymptote(): boolean {
-		return this.inputType + this.transferFunction.zeroMultiplicity <= 2;
+		return this.inputType() + this.transferFunction().zeroMultiplicity <= 2;
 	}
 	
 	hasHorizontalAsymptote(): boolean {
-		return this.inputType + this.transferFunction.zeroMultiplicity <= 1;
+		return this.inputType() + this.transferFunction().zeroMultiplicity <= 1;
 	}
 	
 	getAsymptote(): [number, number] {
-		const expandedTransferFunction = this.transferFunction.getExpandedTransferFunction();
-		const zeroMultiplicity = this.transferFunction.zeroMultiplicity;
+		const expandedTransferFunction = this.transferFunction().getExpandedTransferFunction();
+		const zeroMultiplicity = this.transferFunction().zeroMultiplicity;
 		
 		const values = [
 			0,
@@ -315,8 +307,8 @@ export class TimeGraphComponent implements OnChanges, AfterViewInit {
 			(expandedTransferFunction.numerator.at(1)*expandedTransferFunction.denominator.at(zeroMultiplicity) - expandedTransferFunction.numerator.at(0)*expandedTransferFunction.denominator.at(zeroMultiplicity + 1)) / Math.pow(expandedTransferFunction.denominator.at(zeroMultiplicity), 2),
 		];
 		
-		const A = values[this.inputType + zeroMultiplicity];
-		const B = values[this.inputType + zeroMultiplicity + 1];
+		const A = values[this.inputType() + zeroMultiplicity];
+		const B = values[this.inputType() + zeroMultiplicity + 1];
 		
 		return [
 			A * this.tMin + B,
@@ -325,15 +317,15 @@ export class TimeGraphComponent implements OnChanges, AfterViewInit {
 	}
 	
 	hasTangent(): boolean {
-		return this.transferFunction.order + this.inputType >= 2;
+		return this.transferFunction().order + this.inputType() >= 2;
 	}
 	
 	getTangent(): [number, number] {
-		if (this.transferFunction.order + this.inputType > 2) {
+		if (this.transferFunction().order + this.inputType() > 2) {
 			return [0, 0];
 		}
 		
-		const expandedTransferFunction = this.transferFunction.getExpandedTransferFunction();
+		const expandedTransferFunction = this.transferFunction().getExpandedTransferFunction();
 		const A = expandedTransferFunction.numerator.at(expandedTransferFunction.numerator.order) / expandedTransferFunction.denominator.at(expandedTransferFunction.denominator.order);
 		
 		return [

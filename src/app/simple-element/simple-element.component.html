@@ -2,13 +2,13 @@
 	<mat-card-content>
 		<form>
 			<div class="title">
-				<h4>{{simpleElement?.name}}</h4>
+				<h4>{{simpleElement().name}}</h4>
 				<button type="button" mat-icon-button aria-label="Remove" (click)="remove.emit()">
 					<mat-icon>close</mat-icon>
 				</button>
 			</div>
 			
-			@for (characteristic of simpleElement?.characteristics; track $index) {
+			@for (characteristic of simpleElement().characteristics; track $index) {
 				<mat-form-field>
 					<mat-label>{{characteristic.name}}</mat-label>
 					<input

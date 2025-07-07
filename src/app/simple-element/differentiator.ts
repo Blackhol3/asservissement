@@ -13,15 +13,10 @@ export class Differentiator extends SimpleElement {
 		},
 	];
 	
-	constructor() {
-		super();
-		this.update();
-	}
-
-	update(): void {
+	get transferFunction() {
 		const numerator = new Polynomial([...Array<number>(this.characteristics[0].value).fill(0), 1]);
 		const denominator = new Polynomial([1]);
 		
-		this._transferFunction = new TransferFunction([numerator], [denominator]);
+		return new TransferFunction([numerator], [denominator]);
 	}
 }

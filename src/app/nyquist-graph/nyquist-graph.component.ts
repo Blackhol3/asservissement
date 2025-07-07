@@ -1,4 +1,4 @@
-import { Component, type OnChanges, Input, ChangeDetectionStrategy, ViewChild, ElementRef, type AfterViewInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ElementRef, computed, effect, input } from '@angular/core';
 
 import * as deepmerge from 'deepmerge';
 import Highcharts from 'highcharts/es-modules/masters/highcharts.src';
@@ -17,14 +17,12 @@ enum Data {
 	templateUrl: './nyquist-graph.component.html',
 	styleUrls: ['./nyquist-graph.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	standalone: true,
 })
-export class NyquistGraphComponent implements OnChanges, AfterViewInit {
-	@Input() transferFunction: TransferFunction = new TransferFunction();
-	frequentialResponseCalculator: FrequentialResponseCalculator = new FrequentialResponseCalculator();
+export class NyquistGraphComponent {
+	transferFunction = input(new TransferFunction());
+	frequentialResponseCalculator = computed(() => new FrequentialResponseCalculator(this.transferFunction()));
 	
-	@ViewChild('chartElement') chartElement: ElementRef<HTMLDivElement> | undefined;
-	chart: Highcharts.Chart | undefined;
+	chart: Highcharts.Chart;
 	stabilityMarginsGroup: Highcharts.SVGElement | undefined = undefined;
 
 	wMin: number = 1e-3;
@@ -98,15 +96,19 @@ export class NyquistGraphComponent implements OnChanges, AfterViewInit {
 		},
 	};
 	
-	constructor() {}
-	
-	ngAfterViewInit(): void {
-		this.chart = Highcharts.chart(this.chartElement!.nativeElement, deepmerge.all([Chart.options, this.options]));
-		this.update();
+	constructor(
+		private chartElement: ElementRef<HTMLElement>,
+	) {
+		const element = this.chartElement.nativeElement;
+		this.chart = Highcharts.chart(element, deepmerge.all([Chart.options, this.options]));
 		new ResizeObserver(() => {
 			this.updateAxes();
-			this.chart!.reflow();
-		}).observe(this.chartElement!.nativeElement);
+			this.chart.reflow();
+		}).observe(element);
+		effect(() => {
+			this.update();
+			this.updateAxes();
+		});
 	}
 	
 	update(animate = true, nbPoints = 1001): void {
@@ -114,7 +116,7 @@ export class NyquistGraphComponent implements OnChanges, AfterViewInit {
 			return;
 		}
 		
-		const response = this.frequentialResponseCalculator.getCartesianResponse(this.wMin, this.wMax, nbPoints);
+		const response = this.frequentialResponseCalculator().getCartesianResponse(this.wMin, this.wMax, nbPoints);
 		this.setLineData(Data.Real, response.reals, response.imaginaries, response.ws);
 
 		this.chart.removeAnnotation('Marge de gain');
@@ -139,9 +141,9 @@ export class NyquistGraphComponent implements OnChanges, AfterViewInit {
 				'stroke-dasharray': [8, 3, 1, 3].join(','),
 			}).add(this.stabilityMarginsGroup);
 
-			const polarResponse = this.frequentialResponseCalculator.getPolarResponse(this.wMin, this.wMax, nbPoints);
-			this.addGainMarginAnnotation(this.frequentialResponseCalculator.getGainMargin(polarResponse));
-			this.addPhaseMarginAnnotation(this.frequentialResponseCalculator.getPhaseMargin(polarResponse));
+			const polarResponse = this.frequentialResponseCalculator().getPolarResponse(this.wMin, this.wMax, nbPoints);
+			this.addGainMarginAnnotation(this.frequentialResponseCalculator().getGainMargin(polarResponse));
+			this.addPhaseMarginAnnotation(this.frequentialResponseCalculator().getPhaseMargin(polarResponse));
 		}
 
 		this.chart.redraw(animate);
@@ -154,7 +156,7 @@ export class NyquistGraphComponent implements OnChanges, AfterViewInit {
 
 		const realValue = -Math.pow(10, gainMargin.gain/20);
 
-		this.chart!.addAnnotation({
+		this.chart.addAnnotation({
 			id: 'Marge de gain',
 			draggable: '',
 			shapeOptions: {
@@ -294,14 +296,8 @@ export class NyquistGraphComponent implements OnChanges, AfterViewInit {
 	}
 	
 	setLineData(dataType: Data, x: number[], y: number[], w: number[]): void {
-		if (this.chart!.series[dataType].visible) {
-			this.chart!.series[dataType].setData(x.map((_, index) => ({x: x[index], y: y[index], w: w[index]})), false);
+		if (this.chart.series[dataType].visible) {
+			this.chart.series[dataType].setData(x.map((_, index) => ({x: x[index], y: y[index], w: w[index]})), false);
 		}
-	}
-	
-	ngOnChanges() {
-		this.frequentialResponseCalculator = new FrequentialResponseCalculator(this.transferFunction);
-		this.update();
-		this.updateAxes();
 	}
 }

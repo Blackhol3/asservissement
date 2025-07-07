@@ -24,13 +24,8 @@ export class InverseSecondOrder extends SimpleElement {
 			value: 1,
 		},
 	];
-	
-	constructor() {
-		super();
-		this.update();
-	}
 
-	update(): void {
+	get transferFunction() {
 		const K = this.characteristics[0].value;
 		const w0 = this.characteristics[1].value;
 		const z = this.characteristics[2].value;
@@ -38,6 +33,6 @@ export class InverseSecondOrder extends SimpleElement {
 		const numerator = new Polynomial([K, 2*K*z/w0, K/(w0*w0)]);
 		const denominator = new Polynomial([1]);
 		
-		this._transferFunction = new TransferFunction([numerator], [denominator]);
+		return new TransferFunction([numerator], [denominator]);
 	}
 }

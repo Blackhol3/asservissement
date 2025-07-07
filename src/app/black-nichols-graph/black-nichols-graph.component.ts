@@ -1,4 +1,4 @@
-import { Component, type OnChanges, Input, ChangeDetectionStrategy, ViewChild, ElementRef, type AfterViewInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ElementRef, computed, effect, input } from '@angular/core';
 
 import * as deepmerge from 'deepmerge';
 import Highcharts from 'highcharts/es-modules/masters/highcharts.src';
@@ -17,14 +17,12 @@ enum Data {
 	templateUrl: './black-nichols-graph.component.html',
 	styleUrls: ['./black-nichols-graph.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	standalone: true,
 })
-export class BlackNicholsGraphComponent implements OnChanges, AfterViewInit {
-	@Input() transferFunction: TransferFunction = new TransferFunction();
-	frequentialResponseCalculator: FrequentialResponseCalculator = new FrequentialResponseCalculator();
+export class BlackNicholsGraphComponent {
+	transferFunction = input.required<TransferFunction>();
+	frequentialResponseCalculator = computed(() => new FrequentialResponseCalculator(this.transferFunction()));
 	
-	@ViewChild('chartElement') chartElement: ElementRef<HTMLDivElement> | undefined;
-	chart: Highcharts.Chart | undefined;
+	chart: Highcharts.Chart;
 	
 	wMin: number = 1e-3;
 	wMax: number = 1e3;
@@ -109,12 +107,13 @@ export class BlackNicholsGraphComponent implements OnChanges, AfterViewInit {
 		},
 	};
 	
-	constructor() {}
-	
-	ngAfterViewInit(): void {
-		this.chart = Highcharts.chart(this.chartElement!.nativeElement, deepmerge.all([Chart.options, this.options]));
-		this.update();
-		new ResizeObserver(() => this.chart!.reflow()).observe(this.chartElement!.nativeElement);
+	constructor(
+		private chartElement: ElementRef<HTMLElement>,
+	) {
+		const element = this.chartElement.nativeElement;
+		this.chart = Highcharts.chart(element, deepmerge.all([Chart.options, this.options]));
+		new ResizeObserver(() => this.chart.reflow()).observe(element);
+		effect(() => this.update());
 	}
 	
 	update(animate = true, nbPoints = 1001): void {
@@ -122,14 +121,14 @@ export class BlackNicholsGraphComponent implements OnChanges, AfterViewInit {
 			return;
 		}
 		
-		const response = this.frequentialResponseCalculator.getPolarResponse(this.wMin, this.wMax, nbPoints);
+		const response = this.frequentialResponseCalculator().getPolarResponse(this.wMin, this.wMax, nbPoints);
 		this.setLineData(Data.Real, response.phases, response.gains, response.ws);
 
 		this.chart.removeAnnotation('Marge de gain');
 		this.chart.removeAnnotation('Marge de phase');
 		if (this.chart.series[Data.StabilityMargins].visible) {
-			this.addGainMarginAnnotation(this.frequentialResponseCalculator.getGainMargin(response));
-			this.addPhaseMarginAnnotation(this.frequentialResponseCalculator.getPhaseMargin(response));
+			this.addGainMarginAnnotation(this.frequentialResponseCalculator().getGainMargin(response));
+			this.addPhaseMarginAnnotation(this.frequentialResponseCalculator().getPhaseMargin(response));
 		}
 
 		this.chart.redraw(animate);
@@ -140,7 +139,7 @@ export class BlackNicholsGraphComponent implements OnChanges, AfterViewInit {
 			return;
 		}
 
-		this.chart!.addAnnotation({
+		this.chart.addAnnotation({
 			id: 'Marge de gain',
 			draggable: '',
 			shapeOptions: {
@@ -183,7 +182,7 @@ export class BlackNicholsGraphComponent implements OnChanges, AfterViewInit {
 			return;
 		}
 
-		this.chart!.addAnnotation({
+		this.chart.addAnnotation({
 			id: 'Marge de phase',
 			draggable: '',
 			shapeOptions: {
@@ -222,13 +221,8 @@ export class BlackNicholsGraphComponent implements OnChanges, AfterViewInit {
 	}
 	
 	setLineData(dataType: Data, x: number[], y: number[], w: number[]): void {
-		if (this.chart!.series[dataType].visible) {
-			this.chart!.series[dataType].setData(x.map((_, index) => ({x: x[index], y: y[index], w: w[index]})), false);
+		if (this.chart.series[dataType].visible) {
+			this.chart.series[dataType].setData(x.map((_, index) => ({x: x[index], y: y[index], w: w[index]})), false);
 		}
-	}
-	
-	ngOnChanges() {
-		this.frequentialResponseCalculator = new FrequentialResponseCalculator(this.transferFunction);
-		this.update();
 	}
 }

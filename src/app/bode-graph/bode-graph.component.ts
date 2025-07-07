@@ -1,4 +1,4 @@
-import { Component, type OnChanges, Input, ChangeDetectionStrategy, ViewChild, ElementRef, type AfterViewInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ViewChild, ElementRef, type AfterViewInit, computed, effect, input, signal } from '@angular/core';
 
 import * as deepmerge from 'deepmerge';
 import Highcharts from 'highcharts/es-modules/masters/highcharts.src';
@@ -21,17 +21,17 @@ const wExtremeMax = 1e12;
 	templateUrl: './bode-graph.component.html',
 	styleUrls: ['./bode-graph.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	standalone: true,
 })
-export class BodeGraphComponent implements OnChanges, AfterViewInit {
-	@Input() transferFunction: TransferFunction = new TransferFunction();
-	frequentialResponseCalculator: FrequentialResponseCalculator = new FrequentialResponseCalculator();
+export class BodeGraphComponent implements AfterViewInit {
+	transferFunction = input.required<TransferFunction>();
+	frequentialResponseCalculator = computed(() => new FrequentialResponseCalculator(this.transferFunction()));
 	
 	@ViewChild('chartGainElement') chartGainElement: ElementRef<HTMLDivElement> | undefined;
 	@ViewChild('chartPhaseElement') chartPhaseElement: ElementRef<HTMLDivElement> | undefined;
 	
 	chartGain: Highcharts.Chart | undefined;
 	chartPhase: Highcharts.Chart | undefined;
+	chartsReady = signal(false);
 	
 	wMin: number = 1e-2;
 	wMax: number = 1e1;
@@ -141,7 +141,9 @@ export class BodeGraphComponent implements OnChanges, AfterViewInit {
 		},
 	};
 
-	constructor() {}
+	constructor() {
+		effect(() => this.update());
+	}
 	
 	ngAfterViewInit(): void {
 		this.chartGain = Highcharts.chart(this.chartGainElement!.nativeElement, deepmerge.all([Chart.options, this.optionsCommon, this.optionsGain]));
@@ -151,7 +153,7 @@ export class BodeGraphComponent implements OnChanges, AfterViewInit {
 		this.chartPhase.series[Data.StabilityMargins].setData([[wExtremeMin, -180], [wExtremeMax, -180]], false);
 		
 		Chart.synchronize([this.chartGain, this.chartPhase]);
-		this.update();
+		this.chartsReady.set(true);
 		
 		setTimeout(() => {
 			this.chartGain!.reflow();
@@ -162,12 +164,16 @@ export class BodeGraphComponent implements OnChanges, AfterViewInit {
 	}
 	
 	update(animate = true, nbPoints = 1001): void {
+		if (!this.chartsReady()) {
+			return;
+		}
+
 		if (this.chartGain === undefined || this.chartPhase === undefined) {
 			return;
 		}
 		
-		const response = this.frequentialResponseCalculator.getPolarResponse(this.wMin, this.wMax, nbPoints);
-		const asymptoticResponse = this.frequentialResponseCalculator.getAsymptoticPolarResponse(this.wMin, this.wMax);
+		const response = this.frequentialResponseCalculator().getPolarResponse(this.wMin, this.wMax, nbPoints);
+		const asymptoticResponse = this.frequentialResponseCalculator().getAsymptoticPolarResponse(this.wMin, this.wMax);
 		
 		this.setLineData(this.chartGain, Data.Real, response.ws, response.gains);
 		this.setLineData(this.chartPhase, Data.Real, response.ws, response.phases);
@@ -180,8 +186,8 @@ export class BodeGraphComponent implements OnChanges, AfterViewInit {
 		this.chartPhase.removeAnnotation('Marge de gain');
 		this.chartPhase.removeAnnotation('Marge de phase');
 		if (this.chartGain.series[Data.StabilityMargins].visible) {
-			this.addGainMarginAnnotation(this.frequentialResponseCalculator.getGainMargin(response));
-			this.addPhaseMarginAnnotation(this.frequentialResponseCalculator.getPhaseMargin(response));
+			this.addGainMarginAnnotation(this.frequentialResponseCalculator().getGainMargin(response));
+			this.addPhaseMarginAnnotation(this.frequentialResponseCalculator().getPhaseMargin(response));
 		}
 
 		this.chartGain.redraw(animate);
@@ -318,10 +324,5 @@ export class BodeGraphComponent implements OnChanges, AfterViewInit {
 		if (chart.series[dataType].visible) {
 			chart.series[dataType].setData(x.map((value, index) => [value, y[index]]), false);
 		}
-	}
-	
-	ngOnChanges() {
-		this.frequentialResponseCalculator = new FrequentialResponseCalculator(this.transferFunction);
-		this.update();
 	}
 }

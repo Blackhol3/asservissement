@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewEncapsulation, signal } from '@angular/core';
 import { animate, style, trigger, transition } from '@angular/animations';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -49,22 +49,23 @@ import { SimpleElementComponent } from './simple-element/simple-element.componen
 			]),
 		])
 	],
-	encapsulation: ViewEncapsulation.None,
 	imports: [
 		MatButtonModule,
 		MatDividerModule,
 		MatMenuModule,
 		MatSidenavModule,
 		MatToolbarModule,
-
+		
 		ExplicitGridDirective,
 		GraphComponent,
 		MathDirective,
 		SimpleElementComponent,
 	],
+	encapsulation: ViewEncapsulation.None,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent {
-	simpleElements: SimpleElement[] = [];
+	simpleElements = signal<SimpleElement[]>([]);
 	simpleElementTypes: ([string, () => SimpleElement] | null)[] = [
 		[(new FirstOrder()).name, () => new FirstOrder()],
 		[(new SecondOrder()).name, () => new SecondOrder()],
@@ -81,50 +82,56 @@ export class AppComponent {
 		[(new PhaseLeadCompensator()).name, () => new PhaseLeadCompensator()],
 	];
 	
-	transferFunction = new TransferFunction();
-	transferFunctionTex = '';
+	transferFunction = signal(new TransferFunction());
+	transferFunctionTex = signal('');
 	
-	transferFunctionClosedLoop = new TransferFunction();
-	transferFunctionClosedLoopTex = '';
+	transferFunctionClosedLoop = signal(new TransferFunction());
+	transferFunctionClosedLoopTex = signal('');
 	
-	tilesMode: TilesModeType = TilesModeType.HalfHorizontal;
+	tilesMode = signal(TilesModeType.HalfHorizontal);
 	
 	add(index: number): void {
-		this.simpleElements.push(this.simpleElementTypes[index]![1]());
+		this.simpleElements.update(x => [...x, this.simpleElementTypes[index]![1]()]);
 		this.update();
 	}
 	
 	remove(index: number): void {
-		this.simpleElements.splice(index, 1);
+		this.simpleElements.update(x => { x.splice(index, 1); return x; });
 		this.update();
 	}
 	
 	update(): void {
-		this.transferFunction = new TransferFunction();
-		this.transferFunctionTex = '\\begin{align}FTBO(p) &= ';
+		let transferFunction = new TransferFunction();
+		let transferFunctionTex = '\\begin{align}FTBO(p) &= ';
 		
-		this.simpleElements.forEach((element) => {
-			this.transferFunction = this.transferFunction.multiply(element.transferFunction);
-			this.transferFunctionTex += element.transferFunction.getTex();
+		this.simpleElements().forEach((element) => {
+			transferFunction = transferFunction.multiply(element.transferFunction);
+			transferFunctionTex += element.transferFunction.getTex();
 		});
 		
-		this.transferFunctionClosedLoop = this.transferFunction.getClosedLoopTransferFunction();
-		this.transferFunctionClosedLoopTex = '\\begin{align}FTBF(p) &= ';
+		const transferFunctionClosedLoop = transferFunction.getClosedLoopTransferFunction();
+		let transferFunctionClosedLoopTex = '\\begin{align}FTBF(p) &= ';
 		
-		if (this.simpleElements.length === 0) {
-			this.transferFunctionTex += '1';
-			this.transferFunctionClosedLoopTex += '\\frac12';
+		if (this.simpleElements().length === 0) {
+			transferFunctionTex += '1';
+			transferFunctionClosedLoopTex += '\\frac12';
 			
 		}
 		else {
-			this.transferFunctionClosedLoopTex += this.transferFunctionClosedLoop.getTex();
+			transferFunctionClosedLoopTex += transferFunctionClosedLoop.getTex();
 			
-			if (this.simpleElements.length > 1) {
-				this.transferFunctionTex += '\\\\&= ' + this.transferFunction.getExpandedTransferFunction().getTex();
+			if (this.simpleElements().length > 1) {
+				transferFunctionTex += '\\\\&= ' + transferFunction.getExpandedTransferFunction().getTex();
 			}
 		}
 		
-		this.transferFunctionTex += '\\end{align}';
-		this.transferFunctionClosedLoopTex += '\\end{align}';
+		transferFunctionTex += '\\end{align}';
+		transferFunctionClosedLoopTex += '\\end{align}';
+
+		this.transferFunction.set(transferFunction);
+		this.transferFunctionTex.set(transferFunctionTex);
+
+		this.transferFunctionClosedLoop.set(transferFunctionClosedLoop);
+		this.transferFunctionClosedLoopTex.set(transferFunctionClosedLoopTex);
 	}
 }

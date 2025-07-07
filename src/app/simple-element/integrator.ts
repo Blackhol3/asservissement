@@ -12,16 +12,11 @@ export class Integrator extends SimpleElement {
 			value: 1,
 		},
 	];
-	
-	constructor() {
-		super();
-		this.update();
-	}
 
-	update(): void {
+	get transferFunction() {
 		const numerator = new Polynomial([1]);
 		const denominator = new Polynomial([...Array<number>(this.characteristics[0].value).fill(0), 1]);
 		
-		this._transferFunction = new TransferFunction([numerator], [denominator]);
+		return new TransferFunction([numerator], [denominator]);
 	}
 }

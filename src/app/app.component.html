@@ -5,10 +5,10 @@
 	@for (tilesModeType of [0, 1, 2, 3]; track $index) {
 		<button
 			mat-icon-button
-			[disabled]="tilesMode == tilesModeType"
-			(click)="tilesMode = tilesModeType"
+			[disabled]="tilesMode() == tilesModeType"
+			(click)="tilesMode.set(tilesModeType)"
 		>
-			<img src="../assets/tiles/{{tilesMode === tilesModeType ? 'enabled' : 'disabled'}}/{{tilesModeType}}.png" alt="Mode d'affichage {{tilesModeType}}" />
+			<img src="../assets/tiles/{{tilesMode() === tilesModeType ? 'enabled' : 'disabled'}}/{{tilesModeType}}.png" alt="Mode d'affichage {{tilesModeType}}" />
 		</button>
 	}
 </mat-toolbar>
@@ -30,9 +30,9 @@
 				}
 			}
 		</mat-menu>
-		@for (simpleElement of simpleElements; track $index) {
+		@for (simpleElement of simpleElements(); track $index) {
 			<app-simple-element
-				[(simpleElement)]="simpleElements[$index]"
+				[simpleElement]="simpleElement"
 				(update)="update()"
 				(remove)="remove($index)"
 				@items
@@ -41,14 +41,14 @@
 	</mat-sidenav>
 	<mat-sidenav-content>
 		<div class="transfer-function-texs card">
-			<div [appMath]="transferFunctionTex"></div>
-			<div [appMath]="transferFunctionClosedLoopTex"></div>
+			<div [appMath]="transferFunctionTex()"></div>
+			<div [appMath]="transferFunctionClosedLoopTex()"></div>
 		</div>
-		<div [appExplicitGrid]="['1:1', '2:1', '1:2', '2:2'][tilesMode]" class="graphs">
-			<app-graph [transferFunction]="transferFunction" class="card" />
-			@if (tilesMode >= 1) { <app-graph [transferFunction]="transferFunction" class="card" /> }
-			@if (tilesMode >= 3) { <app-graph [transferFunction]="transferFunction" class="card" /> }
-			@if (tilesMode >= 3) { <app-graph [transferFunction]="transferFunction" class="card" /> }
+		<div [appExplicitGrid]="['1:1', '2:1', '1:2', '2:2'][tilesMode()]" class="graphs">
+			<app-graph [transferFunction]="transferFunction()" class="card" />
+			@if (tilesMode() >= 1) { <app-graph [transferFunction]="transferFunction()" class="card" /> }
+			@if (tilesMode() >= 3) { <app-graph [transferFunction]="transferFunction()" class="card" /> }
+			@if (tilesMode() >= 3) { <app-graph [transferFunction]="transferFunction()" class="card" /> }
 		</div>
 	</mat-sidenav-content>
 </mat-sidenav-container>

@@ -1,5 +1,5 @@
 <div class="button-toggle-groups">
-	<mat-button-toggle-group aria-label="Type de boucle" [(ngModel)]="loopType" (change)="ngOnChanges()" vertical hideSingleSelectionIndicator>
+	<mat-button-toggle-group aria-label="Type de boucle" [(ngModel)]="loopType" vertical hideSingleSelectionIndicator>
 		<mat-button-toggle [value]="0">Boucle ouverte</mat-button-toggle>
 		<mat-button-toggle [value]="1">Boucle fermée</mat-button-toggle>
 	</mat-button-toggle-group>
@@ -9,7 +9,7 @@
 		<mat-button-toggle [value]="1">Fréquentiel</mat-button-toggle>
 	</mat-button-toggle-group>
 	
-	@if (graphType === 0) {
+	@if (graphType() === 0) {
 		<mat-button-toggle-group aria-label="Consigne" [(ngModel)]="inputType" vertical hideSingleSelectionIndicator>
 			<mat-button-toggle [value]="0">Impulsion</mat-button-toggle>
 			<mat-button-toggle [value]="1">Échelon</mat-button-toggle>
@@ -17,7 +17,7 @@
 		</mat-button-toggle-group>
 	}
 	
-	@if (graphType === 1) {
+	@if (graphType() === 1) {
 		<mat-button-toggle-group aria-label="Visualisation" [(ngModel)]="visualizationType" vertical hideSingleSelectionIndicator>
 			<mat-button-toggle [value]="0">Bode</mat-button-toggle>
 			<mat-button-toggle [value]="1">Black – Nichols</mat-button-toggle>
@@ -27,8 +27,8 @@
 </div>
 
 <div class="graph">
-	@if (graphType === 0) { <app-time-graph [transferFunction]="transferFunction" [inputType]="inputType" /> }
-	@if (graphType === 1 && visualizationType === 0) { <app-bode-graph [transferFunction]="transferFunction" /> }
-	@if (graphType === 1 && visualizationType === 1) { <app-black-nichols-graph [transferFunction]="transferFunction" /> }
-	@if (graphType === 1 && visualizationType === 2) { <app-nyquist-graph [transferFunction]="transferFunction" /> }
+	@if (graphType() === 0) { <app-time-graph [transferFunction]="plottedTransferFunction()" [inputType]="inputType()" /> }
+	@if (graphType() === 1 && visualizationType() === 0) { <app-bode-graph [transferFunction]="plottedTransferFunction()" /> }
+	@if (graphType() === 1 && visualizationType() === 1) { <app-black-nichols-graph [transferFunction]="plottedTransferFunction()" /> }
+	@if (graphType() === 1 && visualizationType() === 2) { <app-nyquist-graph [transferFunction]="plottedTransferFunction()" /> }
 </div>

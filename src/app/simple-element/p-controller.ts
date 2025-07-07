@@ -12,16 +12,11 @@ export class PController extends SimpleElement {
 			value: 1,
 		},
 	];
-	
-	constructor() {
-		super();
-		this.update();
-	}
 
-	update(): void {
+	get transferFunction() {
 		const numerator = new Polynomial([this.characteristics[0].value]);
 		const denominator = new Polynomial([1]);
 		
-		this._transferFunction = new TransferFunction([numerator], [denominator]);
+		return new TransferFunction([numerator], [denominator]);
 	}
 }

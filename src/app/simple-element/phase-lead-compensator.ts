@@ -25,12 +25,7 @@ export class PhaseLeadCompensator extends SimpleElement {
 		},
 	];
 	
-	constructor() {
-		super();
-		this.update();
-	}
-
-	update(): void {
+	get transferFunction() {
 		const K = this.characteristics[0].value;
 		const T = this.characteristics[1].value;
 		const a = this.characteristics[2].value;
@@ -38,6 +33,6 @@ export class PhaseLeadCompensator extends SimpleElement {
 		const numerator = new Polynomial([K, K*a*T]);
 		const denominator = new Polynomial([1, T]);
 		
-		this._transferFunction = new TransferFunction([numerator], [denominator]);
+		return new TransferFunction([numerator], [denominator]);
 	}
 }

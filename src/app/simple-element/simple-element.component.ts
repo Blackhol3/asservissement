@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -22,17 +22,16 @@ import { SimpleElement } from './simple-element'
 		MatIconModule,
 		MatInputModule,
 	],
+	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SimpleElementComponent {
-	@Input() simpleElement?: SimpleElement;
-	@Output() simpleElementChange = new EventEmitter<SimpleElement>();
+	simpleElement = input.required<SimpleElement>();
 	
-	@Output() update = new EventEmitter<void>();
-	@Output() remove = new EventEmitter<void>();
+	update = output();
+	remove = output();
 	
 	onChange(isValid: boolean): void {
 		if (isValid) {
-			this.simpleElement!.update();
 			this.update.emit();
 		}
 	}
