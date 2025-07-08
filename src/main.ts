@@ -1,4 +1,4 @@
-import { enableProdMode } from '@angular/core';
+import { enableProdMode, provideZonelessChangeDetection } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
 
@@ -23,6 +23,7 @@ if (environment.production) {
 bootstrapApplication(AppComponent, {
 	providers: [
 		provideAnimations(),
+		provideZonelessChangeDetection(),
 	],
 })
 	.catch(err => console.error(err));

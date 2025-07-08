@@ -26,8 +26,7 @@
 		"highcharts": "^12.2.0",
 		"immer": "^10.1.1",
 		"rxjs": "7.5.7",
-		"tslib": "^2.3.1",
-		"zone.js": "~0.15.0"
+		"tslib": "^2.3.1"
 	},
 	"devDependencies": {
 		"@angular-devkit/build-angular": "20.0.5",

@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { FirstOrder } from './first-order';
 import { SimpleElementComponent } from './simple-element.component';
 
 import { MatCardModule } from '@angular/material/card';
@@ -10,7 +11,7 @@ describe('SimpleElementComponent', () => {
 	let component: SimpleElementComponent;
 	let fixture: ComponentFixture<SimpleElementComponent>;
 
-	beforeEach(() => {
+	beforeEach(async () => {
 		TestBed.configureTestingModule({
 			imports: [
 				SimpleElementComponent,
@@ -22,7 +23,8 @@ describe('SimpleElementComponent', () => {
 		});
 		fixture = TestBed.createComponent(SimpleElementComponent);
 		component = fixture.componentInstance;
-		fixture.detectChanges();
+		fixture.componentRef.setInput('simpleElement', new FirstOrder());
+		await fixture.whenStable();
 	});
 
 	it('should create', () => {
