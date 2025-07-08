@@ -7,7 +7,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 
-import { SimpleElement } from './simple-element'
+import { SimpleElement } from './simple-element';
+import { StateService } from '../state.service';
 
 @Component({
 	selector: 'app-simple-element',
@@ -26,13 +27,15 @@ import { SimpleElement } from './simple-element'
 })
 export class SimpleElementComponent {
 	simpleElement = input.required<SimpleElement>();
-	
-	update = output();
 	remove = output();
+
+	constructor(
+		public state: StateService,
+	) {}
 	
-	onChange(isValid: boolean): void {
+	onChange(index: number, isValid: boolean, value: number): void {
 		if (isValid) {
-			this.update.emit();
+			this.state.updateSimpleElement(this.simpleElement(), index, value);
 		}
 	}
 }

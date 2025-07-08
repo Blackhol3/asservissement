@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewEncapsulation, effect, signal } from '@angular/core';
 import { animate, style, trigger, transition } from '@angular/animations';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -8,7 +8,6 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
 import { TransferFunction } from './transfer-function';
-import { TilesModeType } from './common-type';
 
 import { SimpleElement } from './simple-element/simple-element';
 import { FirstOrder } from './simple-element/first-order';
@@ -26,6 +25,7 @@ import { ExplicitGridDirective } from './explicit-grid.directive';
 import { GraphComponent } from './graph/graph.component';
 import { MathDirective } from './math/math.directive';
 import { SimpleElementComponent } from './simple-element/simple-element.component';
+import { StateService } from './state.service';
 
 @Component({
 	selector: 'app-root',
@@ -65,7 +65,6 @@ import { SimpleElementComponent } from './simple-element/simple-element.componen
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent {
-	simpleElements = signal<SimpleElement[]>([]);
 	simpleElementTypes: ([string, () => SimpleElement] | null)[] = [
 		[(new FirstOrder()).name, () => new FirstOrder()],
 		[(new SecondOrder()).name, () => new SecondOrder()],
@@ -84,43 +83,34 @@ export class AppComponent {
 	
 	transferFunction = signal(new TransferFunction());
 	transferFunctionTex = signal('');
-	
-	transferFunctionClosedLoop = signal(new TransferFunction());
 	transferFunctionClosedLoopTex = signal('');
-	
-	tilesMode = signal(TilesModeType.HalfHorizontal);
-	
-	add(index: number): void {
-		this.simpleElements.update(x => [...x, this.simpleElementTypes[index]![1]()]);
-		this.update();
-	}
-	
-	remove(index: number): void {
-		this.simpleElements.update(x => { x.splice(index, 1); return x; });
-		this.update();
+
+	constructor(
+		public state: StateService,
+	) {
+		effect(() => this.update());
 	}
 	
 	update(): void {
 		let transferFunction = new TransferFunction();
 		let transferFunctionTex = '\\begin{align}FTBO(p) &= ';
 		
-		this.simpleElements().forEach((element) => {
+		this.state.simpleElements().forEach((element) => {
 			transferFunction = transferFunction.multiply(element.transferFunction);
 			transferFunctionTex += element.transferFunction.getTex();
 		});
 		
-		const transferFunctionClosedLoop = transferFunction.getClosedLoopTransferFunction();
 		let transferFunctionClosedLoopTex = '\\begin{align}FTBF(p) &= ';
 		
-		if (this.simpleElements().length === 0) {
+		if (this.state.simpleElements().length === 0) {
 			transferFunctionTex += '1';
 			transferFunctionClosedLoopTex += '\\frac12';
 			
 		}
 		else {
-			transferFunctionClosedLoopTex += transferFunctionClosedLoop.getTex();
+			transferFunctionClosedLoopTex += transferFunction.getClosedLoopTransferFunction().getTex();
 			
-			if (this.simpleElements().length > 1) {
+			if (this.state.simpleElements().length > 1) {
 				transferFunctionTex += '\\\\&= ' + transferFunction.getExpandedTransferFunction().getTex();
 			}
 		}
@@ -130,8 +120,6 @@ export class AppComponent {
 
 		this.transferFunction.set(transferFunction);
 		this.transferFunctionTex.set(transferFunctionTex);
-
-		this.transferFunctionClosedLoop.set(transferFunctionClosedLoop);
 		this.transferFunctionClosedLoopTex.set(transferFunctionClosedLoopTex);
 	}
 }

@@ -12,8 +12,8 @@
 				<mat-form-field>
 					<mat-label>{{characteristic.name}}</mat-label>
 					<input
-						matInput type="number" name="characteristic-{{$index}}" #input="ngModel"
-						[(ngModel)]="characteristic.value" (ngModelChange)="onChange(input.viewModel !== null)"
+						matInput type="number" name="characteristic-{{$index}}" #input
+						[value]="characteristic.value" (input)="onChange($index, input.validity.valid, input.valueAsNumber)"
 						[min]="characteristic.minValue" [step]="characteristic.step"
 					/>
 				</mat-form-field>

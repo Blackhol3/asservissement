@@ -1,15 +1,20 @@
-import { TransferFunction } from '../transfer-function'
+import { immerable } from 'immer';
+import { TransferFunction } from '../transfer-function';
 
 export interface Characteristic {
-	name: string,
-	minValue: number,
-	step: number,
+	readonly name: string,
+	readonly minValue: number,
+	readonly step: number,
 	
-	value: number,
+	readonly value: number,
 }
 
 export abstract class SimpleElement {
-	abstract readonly name: string;
-	abstract readonly characteristics: Characteristic[];
+	[immerable] = true;
+	
+	constructor (
+		readonly name: string,
+		readonly characteristics: readonly Characteristic[],
+	) {}
 	abstract get transferFunction(): TransferFunction;
 }
