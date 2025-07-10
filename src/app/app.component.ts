@@ -6,10 +6,11 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
+import { TilesModes, TilesModesList } from './common-type';
 import { TransferFunction } from './transfer-function';
 
-import { SimpleElement } from './simple-element/simple-element';
 import { FirstOrder } from './simple-element/first-order';
 import { SecondOrder } from './simple-element/second-order';
 import { InverseFirstOrder } from './simple-element/inverse-first-order';
@@ -21,8 +22,7 @@ import { PIController } from './simple-element/pi-controller';
 import { PIDController } from './simple-element/pid-controller';
 import { PhaseLeadCompensator } from './simple-element/phase-lead-compensator';
 
-import { ExplicitGridDirective } from './explicit-grid.directive';
-import { GraphComponent } from './graph/graph.component';
+import { GraphsGridComponent } from './graphs-grid/graphs-grid.component';
 import { MathDirective } from './math/math.directive';
 import { SimpleElementComponent } from './simple-element/simple-element.component';
 import { StateService } from './state.service';
@@ -55,9 +55,9 @@ import { StateService } from './state.service';
 		MatMenuModule,
 		MatSidenavModule,
 		MatToolbarModule,
+		MatTooltipModule,
 		
-		ExplicitGridDirective,
-		GraphComponent,
+		GraphsGridComponent,
 		MathDirective,
 		SimpleElementComponent,
 	],
@@ -65,7 +65,7 @@ import { StateService } from './state.service';
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent {
-	simpleElementTypes: ([string, () => SimpleElement] | null)[] = [
+	readonly simpleElementTypes = [
 		[(new FirstOrder()).name, () => new FirstOrder()],
 		[(new SecondOrder()).name, () => new SecondOrder()],
 		null,
@@ -79,14 +79,17 @@ export class AppComponent {
 		[(new PIController()).name, () => new PIController()],
 		[(new PIDController()).name, () => new PIDController()],
 		[(new PhaseLeadCompensator()).name, () => new PhaseLeadCompensator()],
-	];
+	] as const;
 	
-	transferFunction = signal(new TransferFunction());
-	transferFunctionTex = signal('');
-	transferFunctionClosedLoopTex = signal('');
+	readonly transferFunction = signal(new TransferFunction());
+	readonly transferFunctionTex = signal('');
+	readonly transferFunctionClosedLoopTex = signal('');
+
+	readonly tilesModes = TilesModes;
+	readonly tilesModesList = TilesModesList;
 
 	constructor(
-		public state: StateService,
+		readonly state: StateService,
 	) {
 		effect(() => this.update());
 	}
@@ -103,9 +106,8 @@ export class AppComponent {
 		let transferFunctionClosedLoopTex = '\\begin{align}FTBF(p) &= ';
 		
 		if (this.state.simpleElements().length === 0) {
-			transferFunctionTex += '1';
+			transferFunctionTex += '\\frac11';
 			transferFunctionClosedLoopTex += '\\frac12';
-			
 		}
 		else {
 			transferFunctionClosedLoopTex += transferFunction.getClosedLoopTransferFunction().getTex();

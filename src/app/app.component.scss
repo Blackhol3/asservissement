@@ -50,22 +50,20 @@ mat-sidenav-content {
 		display: flex;
 		justify-content: center;
 		align-items: top;
+
+		background: #FAFAFA;
+		border: solid 1px rgba(0,0,0,.12);
+		border-radius: 4px;
 		
 		& > div {
 			margin: 0 2em;
 		}
 	}
 	
-	.graphs {
+	app-graphs-grid {
 		flex-grow: 1;
 		flex-basis: 0;
 		overflow: hidden;
 		height: 100%;
-	}
-	
-	.card {
-		background: #FAFAFA;
-		border: solid 1px rgba(0,0,0,.12);
-		border-radius: 4px;
 	}
 }

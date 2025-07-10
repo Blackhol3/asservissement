@@ -1,9 +1,11 @@
-export enum TilesModeType {
-	Full,
-	HalfHorizontal,
-	HalfVertical,
-	Quarter,
-};
+export const TilesModes = {
+	Full: {title: 'Tuile unique (1×1)', structure: [1, 1]},
+	HalfHorizontal: {title: 'Deux tuiles horizontales (2×1)', structure: [2, 1]},
+	HalfVertical: {title: 'Deux tuiles horizontales (1×2)', structure: [1, 2]},
+	Quarter: {title: 'Quatre tuiles (2×2)', structure: [2, 2]},
+} as const;
+export const TilesModesList = Object.keys(TilesModes) as readonly TilesMode[];
+export type TilesMode = keyof typeof TilesModes;
 
 export enum LoopType {
 	Open,

@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { produce } from 'immer';
 
-import { TilesModeType } from './common-type';
+import { type TilesMode } from './common-type';
 
 import { SimpleElement } from './simple-element/simple-element';
 
@@ -10,7 +10,7 @@ import { SimpleElement } from './simple-element/simple-element';
 })
 export class StateService {
 	#simpleElements = signal<readonly SimpleElement[]>([]);
-	#tilesMode = signal(TilesModeType.HalfHorizontal);
+	#tilesMode = signal<TilesMode>('HalfHorizontal');
 
 	simpleElements = this.#simpleElements.asReadonly();
 	tilesMode = this.#tilesMode.asReadonly();
@@ -30,7 +30,7 @@ export class StateService {
 		this.#simpleElements.update(elements => elements.filter(x => x !== element));
 	}
 
-	setTilesMode(tilesMode: TilesModeType) {
+	setTilesMode(tilesMode: TilesMode) {
 		this.#tilesMode.set(tilesMode);
 	}
 }
