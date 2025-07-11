@@ -9,12 +9,12 @@
 			</div>
 			
 			@for (characteristic of simpleElement().type.characteristics; track $index) {
-				<mat-form-field>
+				<mat-form-field [hideRequiredMarker]="true">
 					<mat-label>{{characteristic.name}}</mat-label>
 					<input
 						matInput type="number" name="characteristic-{{$index}}" #input
-						[value]="simpleElement().values[$index]" (input)="onChange($index, input.validity.valid, input.valueAsNumber)"
-						[min]="characteristic.minValue" [step]="characteristic.step"
+						[ngModel]="simpleElement().values[$index]" (ngModelChange)="onChange($index, input.validity.valid, $event)"
+						[min]="characteristic.minValue" [step]="characteristic.step" required 
 					/>
 				</mat-form-field>
 			}

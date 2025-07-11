@@ -1,7 +1,8 @@
 import { Injectable, signal } from '@angular/core';
-import { produce } from 'immer';
+import { castDraft, produce } from 'immer';
 
 import { type TilesMode } from './common-type';
+import { type GraphOptions, GraphsOptions } from './graph-options';
 
 import { SimpleElement, type SimpleElementType } from './simple-element/simple-element';
 import { FirstOrder } from './simple-element/first-order';
@@ -60,9 +61,11 @@ export class StateService {
 
 	#simpleElements = signal<readonly SimpleElement[]>([]);
 	#tilesMode = signal<TilesMode>('HalfHorizontal');
+	#graphsOptions = signal(new GraphsOptions());
 
 	simpleElements = this.#simpleElements.asReadonly();
 	tilesMode = this.#tilesMode.asReadonly();
+	graphsOptions = this.#graphsOptions.asReadonly();
 
 	constructor() {
 		const url = new URL(window.location.href);
@@ -93,6 +96,14 @@ export class StateService {
 		this.#tilesMode.set(tilesMode);
 	}
 
+	updateGraphOption<T extends keyof GraphOptions>(graphOptions: GraphOptions, option: T, value: GraphOptions[T]) {
+		const index = this.#graphsOptions().findIndex(graphOptions);
+		this.#graphsOptions.update(produce(graphsOptions => {
+			const x = castDraft(graphsOptions.at(index));
+			x[option] = value;
+		}));
+	}
+
 	async copyToClipboard() {
 		const string = JSON.stringify(this.toJSON());
 		const deflate = await toDeflate(string);
@@ -104,14 +115,15 @@ export class StateService {
 
 	protected toJSON() {
 		return {
-			elements: this.#simpleElements().map(element => element.toJSON()),
+			simpleElements: this.#simpleElements().map(element => element.toJSON()),
 			tilesMode: this.#tilesMode(),
+			graphsOptions: this.#graphsOptions().toJSON(),
 		};
 	}
 
 	protected fromJSON(data: JSONState) {
 		const simpleElements: SimpleElement[] = [];
-		for (const element of data.elements) {
+		for (const element of data.simpleElements) {
 			const elementType = this.simpleElementTypes.find(type => type.shortName === element[0]);
 			if (elementType === undefined) {
 				throw new Error(`"${element[0]}" is not a valid element type.`);
@@ -119,8 +131,9 @@ export class StateService {
 
 			simpleElements.push(new SimpleElement(elementType, element.slice(1) as number[]))
 		}
-
+		
 		this.#simpleElements.set(simpleElements);
 		this.#tilesMode.set(data.tilesMode);
+		this.#graphsOptions.set(GraphsOptions.fromJSON(data.graphsOptions));
 	}
 }

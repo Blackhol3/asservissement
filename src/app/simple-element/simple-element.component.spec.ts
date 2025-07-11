@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { FirstOrder } from './first-order';
+import { SimpleElement } from './simple-element';
 import { SimpleElementComponent } from './simple-element.component';
 
 import { MatCardModule } from '@angular/material/card';
@@ -23,7 +24,7 @@ describe('SimpleElementComponent', () => {
 		});
 		fixture = TestBed.createComponent(SimpleElementComponent);
 		component = fixture.componentInstance;
-		fixture.componentRef.setInput('simpleElement', new FirstOrder());
+		fixture.componentRef.setInput('simpleElement', new SimpleElement(new FirstOrder()));
 		await fixture.whenStable();
 	});
 

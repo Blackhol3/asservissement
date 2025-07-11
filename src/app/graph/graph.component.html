@@ -1,34 +1,34 @@
 <div class="button-toggle-groups">
-	<mat-button-toggle-group aria-label="Type de boucle" [(ngModel)]="loopType" vertical hideSingleSelectionIndicator>
-		<mat-button-toggle [value]="0">Boucle ouverte</mat-button-toggle>
-		<mat-button-toggle [value]="1">Boucle fermée</mat-button-toggle>
+	<mat-button-toggle-group aria-label="Type de boucle" [ngModel]="graphOptions().loopType" (ngModelChange)="onLoopTypeChange($event)" vertical hideSingleSelectionIndicator>
+		<mat-button-toggle [value]="LoopType.Open">Boucle ouverte</mat-button-toggle>
+		<mat-button-toggle [value]="LoopType.Closed">Boucle fermée</mat-button-toggle>
 	</mat-button-toggle-group>
 	
-	<mat-button-toggle-group aria-label="Type de graphe" [(ngModel)]="graphType" vertical hideSingleSelectionIndicator>
-		<mat-button-toggle [value]="0">Temporel</mat-button-toggle>
-		<mat-button-toggle [value]="1">Fréquentiel</mat-button-toggle>
+	<mat-button-toggle-group aria-label="Type de graphe" [ngModel]="graphOptions().graphType" (ngModelChange)="onGraphTypeChange($event)" vertical hideSingleSelectionIndicator>
+		<mat-button-toggle [value]="GraphType.Time">Temporel</mat-button-toggle>
+		<mat-button-toggle [value]="GraphType.Frequency">Fréquentiel</mat-button-toggle>
 	</mat-button-toggle-group>
 	
-	@if (graphType() === 0) {
-		<mat-button-toggle-group aria-label="Consigne" [(ngModel)]="inputType" vertical hideSingleSelectionIndicator>
-			<mat-button-toggle [value]="0">Impulsion</mat-button-toggle>
-			<mat-button-toggle [value]="1">Échelon</mat-button-toggle>
-			<mat-button-toggle [value]="2">Rampe</mat-button-toggle>
+	@if (graphOptions().graphType === GraphType.Time) {
+		<mat-button-toggle-group aria-label="Consigne" [ngModel]="graphOptions().inputType" (ngModelChange)="onInputTypeChange($event)" vertical hideSingleSelectionIndicator>
+			<mat-button-toggle [value]="InputType.Impulse">Impulsion</mat-button-toggle>
+			<mat-button-toggle [value]="InputType.Step">Échelon</mat-button-toggle>
+			<mat-button-toggle [value]="InputType.Ramp">Rampe</mat-button-toggle>
 		</mat-button-toggle-group>
 	}
 	
-	@if (graphType() === 1) {
-		<mat-button-toggle-group aria-label="Visualisation" [(ngModel)]="visualizationType" vertical hideSingleSelectionIndicator>
-			<mat-button-toggle [value]="0">Bode</mat-button-toggle>
-			<mat-button-toggle [value]="1">Black – Nichols</mat-button-toggle>
-			<mat-button-toggle [value]="2">Nyquist</mat-button-toggle>
+	@if (graphOptions().graphType === GraphType.Frequency) {
+		<mat-button-toggle-group aria-label="Visualisation" [ngModel]="graphOptions().visualizationType" (ngModelChange)="onVisualizationTypeChange($event)" vertical hideSingleSelectionIndicator>
+			<mat-button-toggle [value]="VisualizationType.Bode">Bode</mat-button-toggle>
+			<mat-button-toggle [value]="VisualizationType.BlackNichols">Black – Nichols</mat-button-toggle>
+			<mat-button-toggle [value]="VisualizationType.Nyquist">Nyquist</mat-button-toggle>
 		</mat-button-toggle-group>
 	}
 </div>
 
 <div class="graph">
-	@if (graphType() === 0) { <app-time-graph [transferFunction]="plottedTransferFunction()" [inputType]="inputType()" /> }
-	@if (graphType() === 1 && visualizationType() === 0) { <app-bode-graph [transferFunction]="plottedTransferFunction()" /> }
-	@if (graphType() === 1 && visualizationType() === 1) { <app-black-nichols-graph [transferFunction]="plottedTransferFunction()" /> }
-	@if (graphType() === 1 && visualizationType() === 2) { <app-nyquist-graph [transferFunction]="plottedTransferFunction()" /> }
+	@if (graphOptions().graphType === GraphType.Time) { <app-time-graph [transferFunction]="plottedTransferFunction()" [inputType]="graphOptions().inputType" /> }
+	@if (graphOptions().graphType === GraphType.Frequency && graphOptions().visualizationType === VisualizationType.Bode) { <app-bode-graph [transferFunction]="plottedTransferFunction()" /> }
+	@if (graphOptions().graphType === GraphType.Frequency && graphOptions().visualizationType === VisualizationType.BlackNichols) { <app-black-nichols-graph [transferFunction]="plottedTransferFunction()" /> }
+	@if (graphOptions().graphType === GraphType.Frequency && graphOptions().visualizationType === VisualizationType.Nyquist) { <app-nyquist-graph [transferFunction]="plottedTransferFunction()" /> }
 </div>
