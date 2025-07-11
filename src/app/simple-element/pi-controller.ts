@@ -1,29 +1,26 @@
-import { SimpleElement } from './simple-element';
+import { SimpleElementType } from './simple-element';
 import { Polynomial } from '../polynomial';
 import { TransferFunction } from '../transfer-function';
 
-export class PIController extends SimpleElement {
+export class PIController extends SimpleElementType {
 	constructor() {
-		super('Correcteur PI', [
+		super('Correcteur PI', 'PI', [
 			{
 				name: 'Gain proportionnel',
 				minValue: 0.1,
 				step: 0.1,
-				value: 1,
+				defaultValue: 1,
 			},
 			{
 				name: 'Constante de temps d\'intégration',
 				minValue: 0.1,
 				step: 0.1,
-				value: 1,
+				defaultValue: 1,
 			},
 		]);
 	}
 	
-	get transferFunction() {
-		const Kp = this.characteristics[0].value;
-		const Ti = this.characteristics[1].value;
-		
+	getTransferFunction([Kp, Ti]: [number, number]) {
 		const numerator = new Polynomial([Kp, Kp*Ti]);
 		const denominator = new Polynomial([0, Ti]);
 		

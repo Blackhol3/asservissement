@@ -2,18 +2,18 @@
 	<mat-card-content>
 		<form>
 			<div class="title">
-				<h4>{{simpleElement().name}}</h4>
+				<h4>{{simpleElement().type.name}}</h4>
 				<button type="button" mat-icon-button aria-label="Remove" (click)="remove.emit()">
 					<mat-icon>close</mat-icon>
 				</button>
 			</div>
 			
-			@for (characteristic of simpleElement().characteristics; track $index) {
+			@for (characteristic of simpleElement().type.characteristics; track $index) {
 				<mat-form-field>
 					<mat-label>{{characteristic.name}}</mat-label>
 					<input
 						matInput type="number" name="characteristic-{{$index}}" #input
-						[value]="characteristic.value" (input)="onChange($index, input.validity.valid, input.valueAsNumber)"
+						[value]="simpleElement().values[$index]" (input)="onChange($index, input.validity.valid, input.valueAsNumber)"
 						[min]="characteristic.minValue" [step]="characteristic.step"
 					/>
 				</mat-form-field>

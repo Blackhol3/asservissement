@@ -1,28 +1,28 @@
-import { SimpleElement } from './simple-element';
+import { SimpleElementType } from './simple-element';
 import { Polynomial } from '../polynomial';
 import { TransferFunction } from '../transfer-function';
 
-export class FirstOrder extends SimpleElement {
+export class FirstOrder extends SimpleElementType {
 	constructor() {
-		super('Premier ordre', [
+		super('Premier ordre', '1', [
 			{
 				name: 'Gain statique',
 				minValue: 0.1,
 				step: 0.1,
-				value: 1,
+				defaultValue: 1,
 			},
 			{
 				name: 'Constante de temps',
 				minValue: 0.1,
 				step: 0.1,
-				value: 1,
+				defaultValue: 1,
 			},
 		]);
 	}
 
-	get transferFunction() {
-		const numerator = new Polynomial([this.characteristics[0].value]);
-		const denominator = new Polynomial([1, this.characteristics[1].value]);
+	getTransferFunction([K, tau]: [number, number]) {
+		const numerator = new Polynomial([K]);
+		const denominator = new Polynomial([1, tau]);
 		
 		return new TransferFunction([numerator], [denominator]);
 	}

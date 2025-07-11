@@ -1,21 +1,21 @@
-import { SimpleElement } from './simple-element';
+import { SimpleElementType } from './simple-element';
 import { Polynomial } from '../polynomial';
 import { TransferFunction } from '../transfer-function';
 
-export class PController extends SimpleElement {
+export class PController extends SimpleElementType {
 	constructor() {
-		super('Correcteur P', [
+		super('Correcteur P', 'P', [
 			{
 				name: 'Gain proportionnel',
 				minValue: 0.1,
 				step: 0.1,
-				value: 1,
+				defaultValue: 1,
 			},
 		]);
 	}
 
-	get transferFunction() {
-		const numerator = new Polynomial([this.characteristics[0].value]);
+	getTransferFunction([K]: [number]) {
+		const numerator = new Polynomial([K]);
 		const denominator = new Polynomial([1]);
 		
 		return new TransferFunction([numerator], [denominator]);

@@ -1,6 +1,14 @@
 <mat-toolbar color="primary" role="header">
 	<span>Asservissement</span>
 	<span class="spacer"></span>
+	<button
+		class="copy-to-clipboard"
+		mat-icon-button
+		matTooltip="Copier un lien de partage"
+		(click)="copyToClipboard()"
+	>
+		<mat-icon>link</mat-icon>
+	</button>
 	@for (tilesMode of tilesModesList; track $index) {
 		<button
 			mat-icon-button
@@ -19,13 +27,12 @@
 			<span>Ajouter…</span>
 		</button>
 		<mat-menu #menu="matMenu">
-			@for (simpleElementType of simpleElementTypes; track $index) {
-				@if (simpleElementType !== null) {
-					<button mat-menu-item (click)="state.addSimpleElement(simpleElementType[1]())">
-						{{simpleElementType[0]}}
-					</button>
-				}
-				@else {
+			@for (simpleElementType of state.simpleElementTypes; track $index) {
+				<button mat-menu-item (click)="state.addSimpleElement(simpleElementType)">
+					{{simpleElementType.name}}
+				</button>
+				
+				@if (shouldAddDividerAfter(simpleElementType)) {
 					<mat-divider />
 				}
 			}

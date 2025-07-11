@@ -1,36 +1,32 @@
-import { SimpleElement } from './simple-element';
+import { SimpleElementType } from './simple-element';
 import { Polynomial } from '../polynomial';
 import { TransferFunction } from '../transfer-function';
 
-export class PhaseLeadCompensator extends SimpleElement {
+export class PhaseLeadCompensator extends SimpleElementType {
 	constructor() {
-		super('Correcteur à avance de phase', [
+		super('Correcteur à avance de phase', 'AP', [
 			{
 				name: 'Gain proportionnel',
 				minValue: 0.1,
 				step: 0.1,
-				value: 1,
+				defaultValue: 1,
 			},
 			{
 				name: 'Constante de temps',
 				minValue: 0.1,
 				step: 0.1,
-				value: 1,
+				defaultValue: 1,
 			},
 			{
 				name: 'Facteur d\'avance',
 				minValue: 1,
 				step: 0.1,
-				value: 2,
+				defaultValue: 2,
 			},
 		]);
 	}
 	
-	get transferFunction() {
-		const K = this.characteristics[0].value;
-		const T = this.characteristics[1].value;
-		const a = this.characteristics[2].value;
-		
+	getTransferFunction([K, T, a]: [number, number, number]) {
 		const numerator = new Polynomial([K, K*a*T]);
 		const denominator = new Polynomial([1, T]);
 		

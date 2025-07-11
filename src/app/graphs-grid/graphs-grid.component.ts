@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, ElementRef, HostBinding, computed, effect, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, HostBinding, computed, input } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 
 import { TilesModes } from '../common-type';
 import { StateService } from '../state.service';
@@ -17,9 +18,10 @@ import { GraphComponent } from '../graph/graph.component';
 })
 export class GraphsGridComponent {
 	readonly transferFunction = input.required<TransferFunction>();
-
+	
 	readonly tilesStructure = computed(() => TilesModes[this.state.tilesMode()].structure);
 	readonly tilesList = computed(() => new Array<never>(this.tilesStructure()[0] * this.tilesStructure()[1]));
+	readonly #tilesStructure = toObservable(this.tilesStructure);
 
 	protected totalWidth = 0;
 	protected totalHeight = 0;
@@ -29,7 +31,7 @@ export class GraphsGridComponent {
 		private readonly elementRef: ElementRef<HTMLElement>,
 	) {
 		new ResizeObserver(entries => this.onResize(entries)).observe(this.elementRef.nativeElement);
-		effect(() => this.resize());
+		this.#tilesStructure.subscribe(() => requestAnimationFrame(() => this.resize()));
 	}
 
 	resize() {
