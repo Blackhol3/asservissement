@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, effect, signal } from '@angular/core';
 import { castDraft, produce } from 'immer';
 
 import { type TilesMode } from './common-type';
@@ -42,6 +42,8 @@ async function copyToClipboard(string: string) {
 	await navigator.clipboard.writeText(string);
 }
 
+const localStorageKey = 'asservissement';
+
 @Injectable({
 	providedIn: 'root'
 })
@@ -68,13 +70,22 @@ export class StateService {
 	graphsOptions = this.#graphsOptions.asReadonly();
 
 	constructor() {
+		effect(() => localStorage.setItem(localStorageKey, JSON.stringify(this.toJSON())));
+
 		const url = new URL(window.location.href);
-		const data = url.searchParams.get('data');
-		if (data === null) {
+		const urlData = url.searchParams.get('data');
+		if (urlData !== null) {
+			url.searchParams.delete('data');
+			history.replaceState(null, '', url.href);
+
+			void fromDeflate(urlData).then(x => this.fromJSON(x));
 			return;
 		}
-
-		void fromDeflate(data).then(x => this.fromJSON(x));
+		
+		const localStorageData = localStorage.getItem(localStorageKey);
+		if (localStorageData !== null) {
+			this.fromJSON(JSON.parse(localStorageData) as JSONState);
+		}
 	}
 
 	addSimpleElement(type: SimpleElementType) {
