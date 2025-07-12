@@ -19,16 +19,16 @@ enum Data {
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NyquistGraphComponent {
-	transferFunction = input(new TransferFunction());
-	frequentialResponseCalculator = computed(() => new FrequentialResponseCalculator(this.transferFunction()));
+	readonly transferFunction = input(new TransferFunction());
+	readonly frequentialResponseCalculator = computed(() => new FrequentialResponseCalculator(this.transferFunction()));
 	
 	chart: Highcharts.Chart;
 	stabilityMarginsGroup: Highcharts.SVGElement | undefined = undefined;
 
-	wMin: number = 1e-3;
-	wMax: number = 1e3;
+	readonly wMin: number = 1e-3;
+	readonly wMax: number = 1e3;
 	
-	options: Highcharts.Options = {
+	readonly options: Highcharts.Options = {
 		series: [
 			{
 				data: [],
@@ -94,6 +94,9 @@ export class NyquistGraphComponent {
 				].join('<br />');
 			},
 		},
+		chart: {
+			reflow: false,
+		},
 	};
 	
 	constructor(
@@ -102,8 +105,8 @@ export class NyquistGraphComponent {
 		const element = this.chartElement.nativeElement;
 		this.chart = Highcharts.chart(element, deepmerge.all([Chart.options, this.options]));
 		new ResizeObserver(() => {
-			this.updateAxes();
 			this.chart.reflow();
+			this.updateAxes();
 		}).observe(element);
 		effect(() => {
 			this.update();
@@ -112,10 +115,6 @@ export class NyquistGraphComponent {
 	}
 	
 	update(animate = true, nbPoints = 1001): void {
-		if (this.chart === undefined) {
-			return;
-		}
-		
 		const response = this.frequentialResponseCalculator().getCartesianResponse(this.wMin, this.wMax, nbPoints);
 		this.setLineData(Data.Real, response.reals, response.imaginaries, response.ws);
 
@@ -195,7 +194,7 @@ export class NyquistGraphComponent {
 	}
 
 	addPhaseMarginAnnotation(phaseMargin: PhaseMargin): void {
-		if (phaseMargin === null || this.chart === undefined) {
+		if (phaseMargin === null) {
 			return;
 		}
 
@@ -243,10 +242,6 @@ export class NyquistGraphComponent {
 	}
 	
 	updateAxes(): void {
-		if (this.chart === undefined) {
-			return;
-		}
-
 		const axis = {
 			x: this.chart.xAxis[0],
 			y: this.chart.yAxis[0],
