@@ -2,7 +2,7 @@
 	<span>Asservissement</span>
 	<span class="spacer"></span>
 	<button
-		class="copy-to-clipboard"
+		class="copy-to-clipboard-button"
 		mat-icon-button
 		matTooltip="Copier un lien de partage"
 		(click)="copyToClipboard()"
@@ -11,12 +11,13 @@
 	</button>
 	@for (tilesMode of tilesModesList; track $index) {
 		<button
+			class="tiles-mode-button"
 			mat-icon-button
 			[matTooltip]="tilesModes[tilesMode].title"
 			[disabled]="state.tilesMode() === tilesMode"
 			(click)="state.setTilesMode(tilesMode)"
 		>
-			<img src="../assets/tiles/{{state.tilesMode() === tilesMode ? 'enabled' : 'disabled'}}/{{tilesMode}}.png" alt="Mode d'affichage {{tilesMode}}" />
+			<mat-icon svgIcon="app:{{tilesMode}}" />
 		</button>
 	}
 </mat-toolbar>

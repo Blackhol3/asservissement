@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation, effect, signal } from '@angular/core';
 import { animate, style, trigger, transition } from '@angular/animations';
+import { DomSanitizer } from '@angular/platform-browser';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatIconModule } from '@angular/material/icon';
+import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -74,8 +75,14 @@ export class AppComponent {
 	constructor(
 		readonly state: StateService,
 		readonly snackBar: MatSnackBar,
+		private readonly iconRegistry: MatIconRegistry,
+		private readonly sanitizer: DomSanitizer,
 	) {
 		effect(() => this.update());
+
+		for (const tilesMode of TilesModesList) {
+			iconRegistry.addSvgIconInNamespace('app', tilesMode, sanitizer.bypassSecurityTrustResourceUrl(`assets/tiles/${tilesMode}.svg`));
+		}
 	}
 
 	shouldAddDividerAfter(simpleElementType: SimpleElementType) {

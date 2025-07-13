@@ -3,8 +3,16 @@ mat-toolbar {
 		flex-grow: 1;
 	}
 
-	.copy-to-clipboard {
+	.copy-to-clipboard-button {
 		margin-right: 24px;
+	}
+
+	.tiles-mode-button {
+		color: silver;
+
+		&[disabled] {
+			color: white;
+		}
 	}
 
 	button {
