@@ -1,11 +1,12 @@
-import { Component, ChangeDetectionStrategy, ElementRef, effect, input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ElementRef, computed, effect, input } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import * as deepmerge from 'deepmerge';
 import Highcharts from 'highcharts/es-modules/masters/highcharts.src';
 
-import { TransferFunction } from '../transfer-function';
 import { InputType } from '../common-type';
+import { TimeResponseCalculator } from '../time-response-calculator';
+import { TransferFunction } from '../transfer-function';
 import * as Chart from '../chart';
 
 enum Data {
@@ -25,6 +26,7 @@ enum Data {
 export class TimeGraphComponent {
 	readonly transferFunction = input.required<TransferFunction>();
 	readonly inputType = input.required<InputType>();
+	readonly timeResponseCalculator = computed(() => new TimeResponseCalculator(this.transferFunction(), this.inputType()));
 	
 	chart: Highcharts.Chart;
 	
@@ -135,123 +137,63 @@ export class TimeGraphComponent {
 	}
 
 	update(animate = true, dt = 1e-3, nbPoints = 1001): void {
-		const tMin = this.tMin;
-		const tMax = this.tMax;
-		const dtMin = (tMax - tMin)/(nbPoints - 1);
-		dt = Math.min(dt, dtMin);
-		
-		const recursiveTransferFunction = this.transferFunction().getRecursiveTransferFunction(dt);
-		
-		const input_memory = new Array(recursiveTransferFunction.numerator.order + 1).fill(0);
-		const output_memory = new Array(recursiveTransferFunction.denominator.order).fill(0);
-		
-		const ts = [];
-		const inputs = [];
-		const outputs = [];
-		const rapidity = {stabilizedArea: [this.getAsymptote()[0] * 0.95, this.getAsymptote()[0] * 1.05], wasInStabilizedArea: false, time: 0, value: 0};
-		
-		for (let t = 0; t < tMax; t += dt) {
-			const input = this.getInput(t, dt);
-			
-			input_memory.unshift(input);
-			input_memory.pop();
-			
-			let output = 0;
-			recursiveTransferFunction.numerator.coefficients.forEach((value, order) => {
-				output += input_memory[order] * value;
-			});
-			recursiveTransferFunction.denominator.coefficients.forEach((value, order) => {
-				if (order === 0) {
-					return;
-				}
-				
-				output -= output_memory[order - 1] * value;
-			});
-			
-			if (t >= tMin && (ts.length === 0 || t >= ts[ts.length - 1] + dtMin)) {
-				ts.push(t);
-				inputs.push(input);
-				outputs.push(output);
-			}
-			
-			if (rapidity.wasInStabilizedArea === false && output >= rapidity.stabilizedArea[0] && output <= rapidity.stabilizedArea[1]) {
-				rapidity.wasInStabilizedArea = true;
-				rapidity.time = t;
-				rapidity.value = output;
-			}
-			else if (rapidity.wasInStabilizedArea === true && (output < rapidity.stabilizedArea[0] || output > rapidity.stabilizedArea[1])) {
-				rapidity.wasInStabilizedArea = false;
-			}
-			
-			output_memory.unshift(output);
-			output_memory.pop();
-		}
-		
-		if (this.chart.series[Data.Rapidity].visible && !this.hasHorizontalAsymptote()) {
+		if (this.chart.series[Data.Rapidity].visible && !this.timeResponseCalculator().hasHorizontalAsymptote()) {
 			this.snackBar.open("La réponse de cette fonction de transfert ne possède pas d'asymptote horizontale.", undefined, {duration: 3000});
 			this.chart.series[Data.Rapidity].setVisible(false, false);
 		}
 		
-		if (this.chart.series[Data.Asymptote].visible && !this.hasAsymptote()) {
+		if (this.chart.series[Data.Asymptote].visible && !this.timeResponseCalculator().hasAsymptote()) {
 			this.snackBar.open("La réponse de cette fonction de transfert ne possède pas d'asymptote.", undefined, {duration: 3000});
 			this.chart.series[Data.Asymptote].setVisible(false, false);
 		}
 		
-		if (this.chart.series[Data.Tangent].visible && !this.hasTangent()) {
+		if (this.chart.series[Data.Tangent].visible && !this.timeResponseCalculator().hasTangent()) {
 			this.snackBar.open("La réponse de cette fonction de transfert ne possède pas de tangente à l'origine.", undefined, {duration: 3000});
 			this.chart.series[Data.Tangent].setVisible(false, false);
 		}
 		
-		this.setLineData(
-			Data.Input,
-			[-0.001, 0, ...ts],
-			[0, 0, ...inputs]
-		);
+		const response = this.timeResponseCalculator().getResponse(this.tMin, this.tMax, dt, nbPoints);
 		
-		this.setLineData(
-			Data.Output,
-			[-0.001, 0, ...ts],
-			[0, 0, ...outputs]
-		);
+		this.setLineData(Data.Input, response.input.x, response.input.y);
+		this.setLineData(Data.Output, response.output.x, response.output.y);
 		
 		if (this.chart.series[Data.Asymptote].visible) {
 			this.setLineData(
 				Data.Asymptote,
-				[tMin, tMax],
-				this.getAsymptote()
+				[this.tMin, this.tMax],
+				this.timeResponseCalculator().getAsymptote(this.tMin, this.tMax),
 			);
 		}
 		
 		if (this.chart.series[Data.Tangent].visible) {
 			this.setLineData(
 				Data.Tangent,
-				[tMin, tMax],
-				this.getTangent()
+				[this.tMin, this.tMax],
+				this.timeResponseCalculator().getTangent(this.tMin, this.tMax),
 			);
 		}
 		
 		this.chart.removeAnnotation('Temps de réponse à 5 %');
 		if (this.chart.series[Data.Rapidity].visible) {
-			const horizontalAsymptote = this.getAsymptote()[0];
 			this.chart.series[Data.Rapidity].setData(
 				[
-					[tMin, horizontalAsymptote * 0.95, horizontalAsymptote * 1.05],
-					[tMax, horizontalAsymptote * 0.95, horizontalAsymptote * 1.05],
+					[this.tMin, ...response.rapidity.stabilizedArea],
+					[this.tMax, ...response.rapidity.stabilizedArea],
 				],
 				false
 			);
 			
-			if (rapidity.wasInStabilizedArea) {
+			if (response.rapidity.wasInStabilizedArea) {
 				this.chart.addAnnotation({
 					id: 'Temps de réponse à 5 %',
 					labels: [{
 						point: {
-							x: rapidity.time,
-							y: rapidity.value,
+							x: response.rapidity.time,
+							y: response.rapidity.value,
 							xAxis: 0,
 							yAxis: 0,
 						},
-						distance: rapidity.value > horizontalAsymptote ? 10 : -40,
+						distance: response.rapidity.value > response.rapidity.horizontalAsymptote ? 10 : -40,
 						text: 't<sub>5%</sub>',
 						useHTML: true,
 					}],
@@ -266,71 +208,5 @@ export class TimeGraphComponent {
 		if (this.chart.series[dataType].visible) {
 			this.chart.series[dataType].setData(x.map((value, index) => [value, y[index]]), false);
 		}
-	}
-	
-	getInput(t: number, dt: number): number {
-		if (t < 0) {
-			return 0;
-		}
-		
-		if (this.inputType() === InputType.Impulse) {
-			return (t === 0) ? 1/dt : 0;
-		}
-			
-		if (this.inputType() === InputType.Step) {
-			return 1;
-		}
-		
-		if (this.inputType() === InputType.Ramp) {
-			return t;
-		}
-		
-		throw new Error('No value associated with the selected input type.');
-	}
-	
-	hasAsymptote(): boolean {
-		return this.inputType() + this.transferFunction().zeroMultiplicity <= 2;
-	}
-	
-	hasHorizontalAsymptote(): boolean {
-		return this.inputType() + this.transferFunction().zeroMultiplicity <= 1;
-	}
-	
-	getAsymptote(): [number, number] {
-		const expandedTransferFunction = this.transferFunction().getExpandedTransferFunction();
-		const zeroMultiplicity = this.transferFunction().zeroMultiplicity;
-		
-		const values = [
-			0,
-			0,
-			expandedTransferFunction.numerator.at(0) / expandedTransferFunction.denominator.at(zeroMultiplicity),
-			(expandedTransferFunction.numerator.at(1)*expandedTransferFunction.denominator.at(zeroMultiplicity) - expandedTransferFunction.numerator.at(0)*expandedTransferFunction.denominator.at(zeroMultiplicity + 1)) / Math.pow(expandedTransferFunction.denominator.at(zeroMultiplicity), 2),
-		];
-		
-		const A = values[this.inputType() + zeroMultiplicity];
-		const B = values[this.inputType() + zeroMultiplicity + 1];
-		
-		return [
-			A * this.tMin + B,
-			A * this.tMax + B,
-		];
-	}
-	
-	hasTangent(): boolean {
-		return this.transferFunction().order + this.inputType() >= 2;
-	}
-	
-	getTangent(): [number, number] {
-		if (this.transferFunction().order + this.inputType() > 2) {
-			return [0, 0];
-		}
-		
-		const expandedTransferFunction = this.transferFunction().getExpandedTransferFunction();
-		const A = expandedTransferFunction.numerator.at(expandedTransferFunction.numerator.order) / expandedTransferFunction.denominator.at(expandedTransferFunction.denominator.order);
-		
-		return [
-			A * this.tMin,
-			A * this.tMax,
-		];
 	}
 }
