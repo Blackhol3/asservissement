@@ -23,8 +23,8 @@ const wExtremeMax = 1e12;
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BodeGraphComponent implements AfterViewInit {
-	transferFunction = input.required<TransferFunction>();
-	frequentialResponseCalculator = computed(() => new FrequentialResponseCalculator(this.transferFunction()));
+	readonly transferFunction = input.required<TransferFunction>();
+	readonly frequentialResponseCalculator = computed(() => new FrequentialResponseCalculator(this.transferFunction()));
 	
 	@ViewChild('chartGainElement') chartGainElement: ElementRef<HTMLDivElement> | undefined;
 	@ViewChild('chartPhaseElement') chartPhaseElement: ElementRef<HTMLDivElement> | undefined;
@@ -103,6 +103,9 @@ export class BodeGraphComponent implements AfterViewInit {
 				].join('<br />');
 			},
 		},
+		chart: {
+			marginLeft: 60,
+		}
 	};
 	
 	optionsGain: Highcharts.Options = {
@@ -114,6 +117,12 @@ export class BodeGraphComponent implements AfterViewInit {
 					this.update(false);
 				},
 			},
+			labels: {
+				enabled: false,
+			},
+			lineWidth: 0,
+			tickLength: 0,
+			title: undefined,
 		},
 		yAxis: {
 			title: {text : 'Gain (dB)'},

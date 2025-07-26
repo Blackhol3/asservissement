@@ -107,7 +107,7 @@ export class StateService {
 		this.#tilesMode.set(tilesMode);
 	}
 
-	updateGraphOption<T extends keyof GraphOptions>(graphOptions: GraphOptions, option: T, value: GraphOptions[T]) {
+	updateGraphOption<T extends 'loopType' | 'graphType' | 'inputType' | 'visualizationType'>(graphOptions: GraphOptions, option: T, value: GraphOptions[T]) {
 		const index = this.#graphsOptions().findIndex(graphOptions);
 		this.#graphsOptions.update(produce(graphsOptions => {
 			const x = castDraft(graphsOptions.at(index));

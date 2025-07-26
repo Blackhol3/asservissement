@@ -29,11 +29,11 @@ export type GainMargin = {frequency: number, gain: number} | null;
 export type PhaseMargin = {frequency: number, phase: number} | null;
 
 export class FrequentialResponseCalculator {
-	private transferFunction: TransferFunction;
-	private expandedTransferFunction: TransferFunction;
+	protected expandedTransferFunction: TransferFunction;
 	
-	constructor(transferFunction: TransferFunction = new TransferFunction()) {
-		this.transferFunction = transferFunction;
+	constructor(
+		protected transferFunction: TransferFunction,
+	) {
 		this.expandedTransferFunction = transferFunction.getExpandedTransferFunction();
 	}
 	

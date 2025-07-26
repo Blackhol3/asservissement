@@ -8,6 +8,7 @@ mat-toolbar {
 	}
 
 	.tiles-mode-button {
+		transition: color 500ms;
 		color: silver;
 
 		&[disabled] {

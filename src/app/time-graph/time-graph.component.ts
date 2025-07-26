@@ -23,15 +23,15 @@ enum Data {
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TimeGraphComponent {
-	transferFunction = input.required<TransferFunction>();
-	inputType = input.required<InputType>();
+	readonly transferFunction = input.required<TransferFunction>();
+	readonly inputType = input.required<InputType>();
 	
 	chart: Highcharts.Chart;
 	
 	tMin: number = -0.05;
 	tMax: number = 5;
 	
-	options: Highcharts.Options  = {
+	options: Highcharts.Options = {
 		series: [
 			{
 				data: [],

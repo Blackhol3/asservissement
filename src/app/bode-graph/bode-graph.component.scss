@@ -5,10 +5,11 @@
 
 .chart-gain-element {
 	display: block;
-	height: 55%;
+	height: 50%;
+	margin-bottom: 1em;
 }
 
 .chart-phase-element {
 	display: block;
-	height: 45%;
+	height: calc(50% - 1em);
 }
