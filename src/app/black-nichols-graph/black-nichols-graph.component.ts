@@ -3,14 +3,23 @@ import { Component, ChangeDetectionStrategy, ElementRef, computed, effect, input
 import * as deepmerge from 'deepmerge';
 import Highcharts from 'highcharts/es-modules/masters/highcharts.src';
 
+import { SeriesType } from '../common-type';
+import { GraphOptions } from '../graph-options';
+import { StateService } from '../state.service';
 import { TransferFunction } from '../transfer-function';
 import { FrequentialResponseCalculator, type GainMargin, type PhaseMargin } from '../frequential-response-calculator';
 import * as Chart from '../chart';
 
-enum Data {
-	Real,
-	StabilityMargins,
-}
+const formatter = new Intl.NumberFormat(undefined, {
+	minimumFractionDigits: 2,
+	maximumFractionDigits: 2,
+});
+
+const marginFormatter = new Intl.NumberFormat(undefined, {
+	minimumFractionDigits: 2,
+	maximumFractionDigits: 2,
+	signDisplay: 'always',
+});
 
 @Component({
 	selector: 'app-black-nichols-graph',
@@ -19,10 +28,11 @@ enum Data {
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BlackNicholsGraphComponent {
-	transferFunction = input.required<TransferFunction>();
-	frequentialResponseCalculator = computed(() => new FrequentialResponseCalculator(this.transferFunction()));
+	readonly transferFunction = input.required<TransferFunction>();
+	readonly graphOptions = input.required<GraphOptions>();
+	readonly frequentialResponseCalculator = computed(() => new FrequentialResponseCalculator(this.transferFunction()));
 	
-	chart: Highcharts.Chart;
+	readonly chart: Highcharts.Chart;
 	
 	wMin: number = 1e-3;
 	wMax: number = 1e3;
@@ -34,6 +44,7 @@ export class BlackNicholsGraphComponent {
 				type: 'scatter',
 				name: 'Réponse',
 				color: Chart.colors.output,
+				id: SeriesType.Real,
 				turboThreshold: 0,
 			},
 			{
@@ -41,6 +52,7 @@ export class BlackNicholsGraphComponent {
 				type: 'line',
 				name: 'Marges de stabilité',
 				color: Chart.colors.stability,
+				id: SeriesType.StabilityMargins,
 				enableMouseTracking: false,
 				marker: {
 					enabled: true,
@@ -77,10 +89,8 @@ export class BlackNicholsGraphComponent {
 		legend: {
 			events: {
 				itemClick: event => {
-					(event.legendItem as Highcharts.Series).setVisible(undefined, false);
-					this.update();
-					// eslint-disable-next-line @typescript-eslint/no-unsafe-call
-					event.preventDefault();
+					this.state.toggleSeriesVisibility(this.graphOptions(), (event.legendItem as Highcharts.Series).options.id as SeriesType);
+					event.preventDefault(); // eslint-disable-line @typescript-eslint/no-unsafe-call
 				},
 			},
 		},
@@ -91,42 +101,38 @@ export class BlackNicholsGraphComponent {
 		},
 		tooltip: {
 			formatter: function() {
-				const formatter = new Intl.NumberFormat(undefined, {
-					minimumFractionDigits: 2,
-					maximumFractionDigits: 2,
-				});
-
 				return [
 					`<span style="color:${this.color as string}">\u25CF</span> <span style="font-size:10px;">${this.series.name}</span>`,
-					// eslint-disable-next-line
-					`Pulsation : <b>${Chart.formatFrequency((this as any).w)}</b>`,
+					`Pulsation : <b>${Chart.formatFrequency((this as any).w)}</b>`, // eslint-disable-line
 					`Phase : <b>${formatter.format(this.x)} °</b>`,
-					`Gain : <b>${formatter.format(this.y as number)} dB</b>`,
+					`Gain : <b>${formatter.format(this.y!)} dB</b>`,
 				].join('<br />');
 			},
 		},
 	};
 	
 	constructor(
-		private chartElement: ElementRef<HTMLElement>,
+		private readonly chartElement: ElementRef<HTMLElement>,
+		private readonly state: StateService,
 	) {
 		const element = this.chartElement.nativeElement;
 		this.chart = Highcharts.chart(element, deepmerge.all([Chart.options, this.options]));
 		new ResizeObserver(() => this.chart.reflow()).observe(element);
 		effect(() => this.update());
 	}
-	
+
 	update(animate = true, nbPoints = 1001): void {
-		if (this.chart === undefined) {
-			return;
+		const visibleSeries = this.graphOptions().visibleSeries;
+		for (const type of this.options.series!.map(x => x.id).filter(id => id !== undefined) as SeriesType[]) {
+			this.getSeries(type).setVisible(visibleSeries.has(type), false);
 		}
 		
 		const response = this.frequentialResponseCalculator().getPolarResponse(this.wMin, this.wMax, nbPoints);
-		this.setLineData(Data.Real, response.phases, response.gains, response.ws);
+		this.setLineData(SeriesType.Real, response.phases, response.gains, response.ws);
 
 		this.chart.removeAnnotation('Marge de gain');
 		this.chart.removeAnnotation('Marge de phase');
-		if (this.chart.series[Data.StabilityMargins].visible) {
+		if (this.getSeries(SeriesType.StabilityMargins).visible) {
 			this.addGainMarginAnnotation(this.frequentialResponseCalculator().getGainMargin(response));
 			this.addPhaseMarginAnnotation(this.frequentialResponseCalculator().getPhaseMargin(response));
 		}
@@ -164,11 +170,7 @@ export class BlackNicholsGraphComponent {
 			],
 			labels: [{
 				point: {x: -180, y: gainMargin.gain / 2, xAxis: 0, yAxis: 0},
-				text: new Intl.NumberFormat(undefined, {
-					minimumFractionDigits: 2,
-					maximumFractionDigits: 2,
-					signDisplay: 'always',
-				}).format(-gainMargin.gain) + ' dB',
+				text: marginFormatter.format(-gainMargin.gain) + ' dB',
 				align: -gainMargin.gain > 0 ? 'right' : 'left',
 				verticalAlign: 'middle',
 				x: -gainMargin.gain > 0 ? -10 : 10,
@@ -207,11 +209,7 @@ export class BlackNicholsGraphComponent {
 			],
 			labels: [{
 				point: {x: (phaseMargin.phase - 180) / 2, y: 0, xAxis: 0, yAxis: 0},
-				text: new Intl.NumberFormat(undefined, {
-					minimumFractionDigits: 2,
-					maximumFractionDigits: 2,
-					signDisplay: 'always',
-				}).format(phaseMargin.phase + 180) + ' °',
+				text: marginFormatter.format(phaseMargin.phase + 180) + ' °',
 				align: 'center',
 				verticalAlign: (phaseMargin.phase + 180) > 0 ? 'bottom' : 'top',
 				x: 0,
@@ -220,9 +218,14 @@ export class BlackNicholsGraphComponent {
 		});
 	}
 	
-	setLineData(dataType: Data, x: number[], y: number[], w: number[]): void {
-		if (this.chart.series[dataType].visible) {
-			this.chart.series[dataType].setData(x.map((_, index) => ({x: x[index], y: y[index], w: w[index]})), false);
+	setLineData(type: SeriesType, x: number[], y: number[], w: number[]): void {
+		const series = this.getSeries(type);
+		if (series.visible) {
+			series.setData(x.map((_, index) => ({x: x[index], y: y[index], w: w[index]})), false);
 		}
+	}
+
+	protected getSeries(type: SeriesType) {
+		return this.chart.get(type) as Highcharts.Series;
 	}
 }

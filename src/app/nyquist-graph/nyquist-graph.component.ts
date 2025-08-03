@@ -3,14 +3,23 @@ import { Component, ChangeDetectionStrategy, ElementRef, computed, effect, input
 import * as deepmerge from 'deepmerge';
 import Highcharts from 'highcharts/es-modules/masters/highcharts.src';
 
+import { SeriesType } from '../common-type';
+import { GraphOptions } from '../graph-options';
+import { StateService } from '../state.service';
 import { TransferFunction } from '../transfer-function';
 import { FrequentialResponseCalculator, type GainMargin, type PhaseMargin } from '../frequential-response-calculator';
 import * as Chart from '../chart';
 
-enum Data {
-	Real,
-	StabilityMargins,
-}
+const formatter = new Intl.NumberFormat(undefined, {
+	minimumSignificantDigits: 3,
+	maximumSignificantDigits: 3,
+});
+
+const marginFormatter = new Intl.NumberFormat(undefined, {
+	minimumFractionDigits: 2,
+	maximumFractionDigits: 2,
+	signDisplay: 'always',
+});
 
 @Component({
 	selector: 'app-nyquist-graph',
@@ -19,10 +28,11 @@ enum Data {
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NyquistGraphComponent {
-	readonly transferFunction = input(new TransferFunction());
+	readonly transferFunction = input.required<TransferFunction>();
+	readonly graphOptions = input.required<GraphOptions>();
 	readonly frequentialResponseCalculator = computed(() => new FrequentialResponseCalculator(this.transferFunction()));
 	
-	chart: Highcharts.Chart;
+	readonly chart: Highcharts.Chart;
 	stabilityMarginsGroup: Highcharts.SVGElement | undefined = undefined;
 
 	readonly wMin: number = 1e-3;
@@ -35,6 +45,7 @@ export class NyquistGraphComponent {
 				type: 'scatter',
 				name: 'Réponse',
 				color: Chart.colors.output,
+				id: SeriesType.Real,
 				lineWidth: 2,
 				turboThreshold: 0,
 			},
@@ -43,6 +54,7 @@ export class NyquistGraphComponent {
 				type: 'line',
 				name: 'Marges de stabilité',
 				color: Chart.colors.stability,
+				id: SeriesType.StabilityMargins,
 				enableMouseTracking: false,
 				marker: {
 					enabled: true,
@@ -66,10 +78,8 @@ export class NyquistGraphComponent {
 		legend: {
 			events: {
 				itemClick: event => {
-					(event.legendItem as Highcharts.Series).setVisible(undefined, false);
-					this.update();
-					// eslint-disable-next-line @typescript-eslint/no-unsafe-call
-					event.preventDefault();
+					this.state.toggleSeriesVisibility(this.graphOptions(), (event.legendItem as Highcharts.Series).options.id as SeriesType);
+					event.preventDefault(); // eslint-disable-line @typescript-eslint/no-unsafe-call
 				},
 			},
 		},
@@ -80,17 +90,11 @@ export class NyquistGraphComponent {
 		},
 		tooltip: {
 			formatter: function() {
-				const formatter = new Intl.NumberFormat(undefined, {
-					minimumSignificantDigits: 3,
-					maximumSignificantDigits: 3,
-				});
-
 				return [
 					`<span style="color:${this.color as string}">\u25CF</span> <span style="font-size:10px;">${this.series.name}</span>`,
-					// eslint-disable-next-line
-					`Pulsation : <b>${Chart.formatFrequency((this as any).w)}</b>`,
+					`Pulsation : <b>${Chart.formatFrequency((this as any).w)}</b>`, // eslint-disable-line
 					`Réel : <b>${formatter.format(this.x)}</b>`,
-					`Imaginaire : <b>${formatter.format(this.y as number)}</b>`,
+					`Imaginaire : <b>${formatter.format(this.y!)}</b>`,
 				].join('<br />');
 			},
 		},
@@ -100,7 +104,8 @@ export class NyquistGraphComponent {
 	};
 	
 	constructor(
-		private chartElement: ElementRef<HTMLElement>,
+		private readonly chartElement: ElementRef<HTMLElement>,
+		private readonly state: StateService,
 	) {
 		const element = this.chartElement.nativeElement;
 		this.chart = Highcharts.chart(element, deepmerge.all([Chart.options, this.options]));
@@ -113,16 +118,21 @@ export class NyquistGraphComponent {
 			this.updateAxes();
 		});
 	}
-	
+
 	update(animate = true, nbPoints = 1001): void {
+		const visibleSeries = this.graphOptions().visibleSeries;
+		for (const type of this.options.series!.map(x => x.id).filter(id => id !== undefined) as SeriesType[]) {
+			this.getSeries(type).setVisible(visibleSeries.has(type), false);
+		}
+
 		const response = this.frequentialResponseCalculator().getCartesianResponse(this.wMin, this.wMax, nbPoints);
-		this.setLineData(Data.Real, response.reals, response.imaginaries, response.ws);
+		this.setLineData(SeriesType.Real, response.reals, response.imaginaries, response.ws);
 
 		this.chart.removeAnnotation('Marge de gain');
 		this.chart.removeAnnotation('Marge de phase');
 		this.stabilityMarginsGroup?.destroy();
 		this.stabilityMarginsGroup = undefined;
-		if (this.chart.series[Data.StabilityMargins].visible) {
+		if (this.getSeries(SeriesType.StabilityMargins).visible) {
 			this.stabilityMarginsGroup = this.chart.renderer.g().add();
 
 			const clipRectangle = this.chart.renderer.clipRect(this.chart.plotLeft, this.chart.plotTop, this.chart.plotWidth, this.chart.plotHeight);
@@ -180,11 +190,7 @@ export class NyquistGraphComponent {
 			],
 			labels: [{
 				point: {x: (realValue - 1)/2, y: 0, xAxis: 0, yAxis: 0},
-				text: new Intl.NumberFormat(undefined, {
-					minimumFractionDigits: 2,
-					maximumFractionDigits: 2,
-					signDisplay: 'always',
-				}).format(-gainMargin.gain) + ' dB',
+				text: marginFormatter.format(-gainMargin.gain) + ' dB',
 				align: 'center',
 				verticalAlign: -gainMargin.gain > 0 ? 'bottom' : 'top',
 				x: 0,
@@ -228,11 +234,7 @@ export class NyquistGraphComponent {
 			}],
 			labels: [{
 				point: {x: Math.cos(((phaseMargin.phase + 180) % 360 / 2 + 180) * Math.PI/180), y: Math.sin(((phaseMargin.phase + 180) % 360 / 2 + 180) * Math.PI/180), xAxis: 0, yAxis: 0},
-				text: new Intl.NumberFormat(undefined, {
-					minimumFractionDigits: 2,
-					maximumFractionDigits: 2,
-					signDisplay: 'always',
-				}).format(phaseMargin.phase + 180) + ' °',
+				text: marginFormatter.format(phaseMargin.phase + 180) + ' °',
 				align: 'right',
 				verticalAlign: 'middle',
 				x: -10,
@@ -290,9 +292,14 @@ export class NyquistGraphComponent {
 		}
 	}
 	
-	setLineData(dataType: Data, x: number[], y: number[], w: number[]): void {
-		if (this.chart.series[dataType].visible) {
-			this.chart.series[dataType].setData(x.map((_, index) => ({x: x[index], y: y[index], w: w[index]})), false);
+	setLineData(type: SeriesType, x: number[], y: number[], w: number[]): void {
+		const series = this.getSeries(type);
+		if (series.visible) {
+			series.setData(x.map((_, index) => ({x: x[index], y: y[index], w: w[index]})), false);
 		}
+	}
+
+	protected getSeries(type: SeriesType) {
+		return this.chart.get(type) as Highcharts.Series;
 	}
 }

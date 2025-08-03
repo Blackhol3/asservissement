@@ -1,7 +1,7 @@
 import { Injectable, effect, signal } from '@angular/core';
 import { castDraft, produce } from 'immer';
 
-import { type TilesMode } from './common-type';
+import { type SeriesType, type TilesMode } from './common-type';
 import { type GraphOptions, GraphsOptions } from './graph-options';
 
 import { SimpleElement, type SimpleElementType } from './simple-element/simple-element';
@@ -110,8 +110,36 @@ export class StateService {
 	updateGraphOption<T extends 'loopType' | 'graphType' | 'inputType' | 'visualizationType'>(graphOptions: GraphOptions, option: T, value: GraphOptions[T]) {
 		const index = this.#graphsOptions().findIndex(graphOptions);
 		this.#graphsOptions.update(produce(graphsOptions => {
-			const x = castDraft(graphsOptions.at(index));
+			const x = graphsOptions.at(index);
 			x[option] = value;
+		}));
+	}
+
+	toggleSeriesVisibility(graphOptions: GraphOptions, type: SeriesType) {
+		const index = this.#graphsOptions().findIndex(graphOptions);
+		if (index === -1) {
+			return;
+		}
+
+		this.#graphsOptions.update(produce(graphsOptions => {
+			const x = castDraft(graphsOptions.at(index));
+			if (x.visibleSeries.has(type)) {
+				x.visibleSeries.delete(type);
+			}
+			else {
+				x.visibleSeries.add(type);
+			}
+		}));
+	}
+
+	hideSeries(graphOptions: GraphOptions, type: SeriesType) {
+		const index = this.#graphsOptions().findIndex(graphOptions);
+		if (index === -1 || !this.#graphsOptions().at(index).visibleSeries.has(type)) {
+			return;
+		}
+
+		this.#graphsOptions.update(produce(graphsOptions => {
+			castDraft(graphsOptions.at(index)).visibleSeries.delete(type);
 		}));
 	}
 

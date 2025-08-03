@@ -27,8 +27,8 @@
 </div>
 
 <div class="graph">
-	@if (graphOptions().graphType === GraphType.Time) { <app-time-graph [transferFunction]="plottedTransferFunction()" [inputType]="graphOptions().inputType" /> }
-	@if (graphOptions().graphType === GraphType.Frequency && graphOptions().visualizationType === VisualizationType.Bode) { <app-bode-graph [transferFunction]="plottedTransferFunction()" /> }
-	@if (graphOptions().graphType === GraphType.Frequency && graphOptions().visualizationType === VisualizationType.BlackNichols) { <app-black-nichols-graph [transferFunction]="plottedTransferFunction()" /> }
-	@if (graphOptions().graphType === GraphType.Frequency && graphOptions().visualizationType === VisualizationType.Nyquist) { <app-nyquist-graph [transferFunction]="plottedTransferFunction()" /> }
+	@if (graphOptions().graphType === GraphType.Time) { <app-time-graph [transferFunction]="plottedTransferFunction()" [graphOptions]="graphOptions()" /> }
+	@if (graphOptions().graphType === GraphType.Frequency && graphOptions().visualizationType === VisualizationType.Bode) { <app-bode-graph [transferFunction]="plottedTransferFunction()" [graphOptions]="graphOptions()" /> }
+	@if (graphOptions().graphType === GraphType.Frequency && graphOptions().visualizationType === VisualizationType.BlackNichols) { <app-black-nichols-graph [transferFunction]="plottedTransferFunction()" [graphOptions]="graphOptions()" /> }
+	@if (graphOptions().graphType === GraphType.Frequency && graphOptions().visualizationType === VisualizationType.Nyquist) { <app-nyquist-graph [transferFunction]="plottedTransferFunction()" [graphOptions]="graphOptions()" /> }
 </div>

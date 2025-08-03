@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TimeGraphComponent } from './time-graph.component';
 
-import { InputType } from '../common-type';
+import { GraphOptions } from '../graph-options';
 import { TransferFunction } from '../transfer-function';
 
 describe('TimeGraphComponent', () => {
@@ -14,8 +14,8 @@ describe('TimeGraphComponent', () => {
 		});
 		fixture = TestBed.createComponent(TimeGraphComponent);
 		component = fixture.componentInstance;
+		fixture.componentRef.setInput('graphOptions', new GraphOptions());
 		fixture.componentRef.setInput('transferFunction', new TransferFunction());
-		fixture.componentRef.setInput('inputType', InputType.Step);
 		await fixture.whenStable();
 	});
 

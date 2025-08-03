@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BodeGraphComponent } from './bode-graph.component';
 
+import { GraphOptions } from '../graph-options';
 import { TransferFunction } from '../transfer-function';
 
 describe('TimeGraphComponent', () => {
@@ -13,6 +14,7 @@ describe('TimeGraphComponent', () => {
 		});
 		fixture = TestBed.createComponent(BodeGraphComponent);
 		component = fixture.componentInstance;
+		fixture.componentRef.setInput('graphOptions', new GraphOptions());
 		fixture.componentRef.setInput('transferFunction', new TransferFunction());
 		await fixture.whenStable();
 	});

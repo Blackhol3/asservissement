@@ -6,27 +6,39 @@ export const TilesModes = {
 	HalfVertical: {title: 'Deux tuiles horizontales (1×2)', structure: [1, 2]},
 	Quarter: {title: 'Quatre tuiles (2×2)', structure: [2, 2]},
 } as const;
-export const TilesModesList = Object.keys(TilesModes) as UnionToTuple<TilesMode>;
+export const TilesModesList = Object.keys(TilesModes) as unknown as Readonly<UnionToTuple<TilesMode>>;
 export type TilesMode = keyof typeof TilesModes;
 
 export enum LoopType {
 	Open,
 	Closed,
-};
+}
 
 export enum GraphType {
 	Time,
 	Frequency,
-};
+}
 
 export enum InputType {
 	Impulse,
 	Step,
 	Ramp,
-};
+}
 
 export enum VisualizationType {
 	Bode,
 	BlackNichols,
 	Nyquist,
+}
+
+export enum SeriesType {
+	Input = 'input',
+	Output = 'output',
+	Asymptote = 'asymptote',
+	Tangent = 'tangent',
+	Rapidity = 'rapidity',
+
+	Real = 'real',
+	Asymptotic = 'asymptotic',
+	StabilityMargins = 'stabilityMargins',
 }

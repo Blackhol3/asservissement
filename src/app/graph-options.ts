@@ -1,5 +1,5 @@
 import { immerable } from 'immer';
-import { GraphType, InputType, LoopType, TilesModes, TilesModesList, VisualizationType } from './common-type';
+import { GraphType, InputType, LoopType, SeriesType, TilesModes, TilesModesList, VisualizationType } from './common-type';
 
 export class GraphOptions {
 	[immerable] = true;
@@ -9,14 +9,15 @@ export class GraphOptions {
 		readonly graphType = GraphType.Time,
 		readonly inputType = InputType.Step,
 		readonly visualizationType = VisualizationType.Bode,
+		readonly visibleSeries: ReadonlySet<SeriesType> = new Set([SeriesType.Input, SeriesType.Output, SeriesType.Real]),
 	) {}
 
 	toJSON() {
-		return [this.loopType, this.graphType, this.inputType, this.visualizationType];
+		return [this.loopType, this.graphType, this.inputType, this.visualizationType, [...this.visibleSeries]] as const;
 	}
 
 	static fromJSON(data: ReturnType<GraphOptions['toJSON']>) {
-		return new GraphOptions(...data as number[]);
+		return new GraphOptions(data[0], data[1], data[2], data[3], new Set(data[4]));
 	}
 }
 

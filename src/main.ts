@@ -13,9 +13,13 @@ import 'highcharts/es-modules/masters/modules/annotations.src';
 import 'highcharts/es-modules/masters/modules/exporting.src';
 import 'highcharts/es-modules/masters/modules/export-data.src';
 
+import { enableMapSet } from 'immer';
+
 Highcharts.SVGRenderer.prototype.symbols.plus = function (x: number, y: number, w: number, h: number) {
 	return ['M', x + w/2, y, 'v', h, 'm', -w/2, -h/2, 'h', w, 'z'];
 };
+
+enableMapSet();
 
 if (environment.production) {
 	enableProdMode();

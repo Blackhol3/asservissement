@@ -4,18 +4,17 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import * as deepmerge from 'deepmerge';
 import Highcharts from 'highcharts/es-modules/masters/highcharts.src';
 
-import { InputType } from '../common-type';
+import { SeriesType } from '../common-type';
+import { GraphOptions } from '../graph-options';
+import { StateService } from '../state.service';
 import { TimeResponseCalculator } from '../time-response-calculator';
 import { TransferFunction } from '../transfer-function';
 import * as Chart from '../chart';
 
-enum Data {
-	Input,
-	Output,
-	Asymptote,
-	Tangent,
-	Rapidity,
-}
+const formatter = new Intl.NumberFormat(undefined, {
+	minimumFractionDigits: 3,
+	maximumFractionDigits: 3,
+});
 
 @Component({
 	selector: 'app-time-graph',
@@ -25,10 +24,12 @@ enum Data {
 })
 export class TimeGraphComponent {
 	readonly transferFunction = input.required<TransferFunction>();
-	readonly inputType = input.required<InputType>();
+	readonly graphOptions = input.required<GraphOptions>();
+
+	readonly inputType = computed(() => this.graphOptions().inputType);
 	readonly timeResponseCalculator = computed(() => new TimeResponseCalculator(this.transferFunction(), this.inputType()));
 	
-	chart: Highcharts.Chart;
+	readonly chart: Highcharts.Chart;
 	
 	tMin: number = -0.05;
 	tMax: number = 5;
@@ -40,40 +41,42 @@ export class TimeGraphComponent {
 				type: 'line',
 				name: 'Commande',
 				color: Chart.colors.input,
+				id: SeriesType.Input,
 			},
 			{
 				data: [],
 				type: 'line',
 				name: 'Réponse',
 				color: Chart.colors.output,
+				id: SeriesType.Output,
 			},
 			{
 				data: [],
 				type: 'line',
 				name: 'Asymptote',
 				color: Chart.colors.output,
+				id: SeriesType.Asymptote,
 				dashStyle: 'LongDashDot',
 				lineWidth: 1,
 				enableMouseTracking: false,
-				visible: false,
 			},
 			{
 				data: [],
 				type: 'line',
 				name: "Tangente à l'origine",
 				color: Chart.colors.output,
+				id: SeriesType.Tangent,
 				dashStyle: 'LongDashDot',
 				lineWidth: 1,
-				visible: false
 			},
 			{
 				data: [],
 				type: 'arearange',
 				name: 'Temps de réponse à 5 %',
 				color: Chart.colors.rapidity,
+				id: SeriesType.Rapidity,
 				lineWidth: 1,
 				fillOpacity: 0.5,
-				visible: false,
 			},
 			{
 				data: [[0, 0], [100, 0]],
@@ -103,32 +106,26 @@ export class TimeGraphComponent {
 		},
 		tooltip: {
 			formatter: function() {
-				const formatter = new Intl.NumberFormat(undefined, {
-					minimumFractionDigits: 3,
-					maximumFractionDigits: 3,
-				});
-
 				return [
 					`<span style="font-size:10px">${formatter.format(this.x)} s</span>`,
-					`<span style="color:${this.color as string}">\u25CF</span> ${this.series.name} : <b>${formatter.format(this.y as number)}</b>`,
+					`<span style="color:${this.color as string}">\u25CF</span> ${this.series.name} : <b>${formatter.format(this.y!)}</b>`,
 				].join('<br />');
 			},
 		},
 		legend: {
 			events: {
 				itemClick: event => {
-					(event.legendItem as Highcharts.Series).setVisible(undefined, false);
-					this.update();
-					// eslint-disable-next-line @typescript-eslint/no-unsafe-call
-					event.preventDefault();
+					this.state.toggleSeriesVisibility(this.graphOptions(), (event.legendItem as Highcharts.Series).options.id as SeriesType);
+					event.preventDefault(); // eslint-disable-line @typescript-eslint/no-unsafe-call
 				},
 			},
 		},
 	};
 
 	constructor(
-		private chartElement: ElementRef<HTMLElement>,
-		private snackBar: MatSnackBar,
+		private readonly chartElement: ElementRef<HTMLElement>,
+		private readonly snackBar: MatSnackBar,
+		private readonly state: StateService,
 	) {
 		const element = this.chartElement.nativeElement;
 		this.chart = Highcharts.chart(element, deepmerge.all([Chart.options, this.options]));
@@ -137,45 +134,53 @@ export class TimeGraphComponent {
 	}
 
 	update(animate = true, dt = 1e-3, nbPoints = 1001): void {
-		if (this.chart.series[Data.Rapidity].visible && !this.timeResponseCalculator().hasHorizontalAsymptote()) {
-			this.snackBar.open("La réponse de cette fonction de transfert ne possède pas d'asymptote horizontale.", undefined, {duration: 3000});
-			this.chart.series[Data.Rapidity].setVisible(false, false);
+		const visibleSeries = this.graphOptions().visibleSeries;
+		for (const type of this.options.series!.map(x => x.id).filter(id => id !== undefined) as SeriesType[]) {
+			this.getSeries(type).setVisible(visibleSeries.has(type), false);
+		}
+
+		if (this.getSeries(SeriesType.Rapidity).visible && !this.timeResponseCalculator().hasHorizontalAsymptote()) {
+			this.openSnackBar("La réponse de cette fonction de transfert ne possède pas d'asymptote horizontale.");
+			this.state.hideSeries(this.graphOptions(), SeriesType.Rapidity);
+			return;
 		}
 		
-		if (this.chart.series[Data.Asymptote].visible && !this.timeResponseCalculator().hasAsymptote()) {
-			this.snackBar.open("La réponse de cette fonction de transfert ne possède pas d'asymptote.", undefined, {duration: 3000});
-			this.chart.series[Data.Asymptote].setVisible(false, false);
+		if (this.getSeries(SeriesType.Asymptote).visible && !this.timeResponseCalculator().hasAsymptote()) {
+			this.openSnackBar("La réponse de cette fonction de transfert ne possède pas d'asymptote.");
+			this.state.hideSeries(this.graphOptions(), SeriesType.Asymptote);
+			return;
 		}
 		
-		if (this.chart.series[Data.Tangent].visible && !this.timeResponseCalculator().hasTangent()) {
-			this.snackBar.open("La réponse de cette fonction de transfert ne possède pas de tangente à l'origine.", undefined, {duration: 3000});
-			this.chart.series[Data.Tangent].setVisible(false, false);
+		if (this.getSeries(SeriesType.Tangent).visible && !this.timeResponseCalculator().hasTangent()) {
+			this.openSnackBar("La réponse de cette fonction de transfert ne possède pas de tangente à l'origine.");
+			this.state.hideSeries(this.graphOptions(), SeriesType.Tangent);
+			return;
 		}
-		
+
 		const response = this.timeResponseCalculator().getResponse(this.tMin, this.tMax, dt, nbPoints);
 		
-		this.setLineData(Data.Input, response.input.x, response.input.y);
-		this.setLineData(Data.Output, response.output.x, response.output.y);
+		this.setLineData(SeriesType.Input, response.input.x, response.input.y);
+		this.setLineData(SeriesType.Output, response.output.x, response.output.y);
 		
-		if (this.chart.series[Data.Asymptote].visible) {
+		if (this.getSeries(SeriesType.Asymptote).visible) {
 			this.setLineData(
-				Data.Asymptote,
+				SeriesType.Asymptote,
 				[this.tMin, this.tMax],
 				this.timeResponseCalculator().getAsymptote(this.tMin, this.tMax),
 			);
 		}
 		
-		if (this.chart.series[Data.Tangent].visible) {
+		if (this.getSeries(SeriesType.Tangent).visible) {
 			this.setLineData(
-				Data.Tangent,
+				SeriesType.Tangent,
 				[this.tMin, this.tMax],
 				this.timeResponseCalculator().getTangent(this.tMin, this.tMax),
 			);
 		}
 		
 		this.chart.removeAnnotation('Temps de réponse à 5 %');
-		if (this.chart.series[Data.Rapidity].visible) {
-			this.chart.series[Data.Rapidity].setData(
+		if (this.getSeries(SeriesType.Rapidity).visible) {
+			this.getSeries(SeriesType.Rapidity).setData(
 				[
 					[this.tMin, ...response.rapidity.stabilizedArea],
 					[this.tMax, ...response.rapidity.stabilizedArea],
@@ -204,9 +209,20 @@ export class TimeGraphComponent {
 		this.chart.redraw(animate);
 	}
 	
-	setLineData(dataType: Data, x: number[], y: number[]): void {
-		if (this.chart.series[dataType].visible) {
-			this.chart.series[dataType].setData(x.map((value, index) => [value, y[index]]), false);
+	setLineData(type: SeriesType, x: number[], y: number[]): void {
+		const series = this.getSeries(type);
+		if (series.visible) {
+			series.setData(x.map((value, index) => [value, y[index]]), false);
+		}
+	}
+
+	protected getSeries(type: SeriesType) {
+		return this.chart.get(type) as Highcharts.Series;
+	}
+
+	protected openSnackBar(message: string) {
+		if (this.snackBar._openedSnackBarRef === null) {
+			this.snackBar.open(message, undefined, {duration: 3000});
 		}
 	}
 }

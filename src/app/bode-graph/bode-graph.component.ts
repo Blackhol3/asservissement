@@ -3,18 +3,26 @@ import { Component, ChangeDetectionStrategy, ViewChild, ElementRef, type AfterVi
 import * as deepmerge from 'deepmerge';
 import Highcharts from 'highcharts/es-modules/masters/highcharts.src';
 
+import { SeriesType } from '../common-type';
+import { GraphOptions } from '../graph-options';
+import { StateService } from '../state.service';
 import { TransferFunction } from '../transfer-function';
 import { FrequentialResponseCalculator, type GainMargin, type PhaseMargin } from '../frequential-response-calculator';
 import * as Chart from '../chart';
 
-enum Data {
-	Real,
-	Asymptotic,
-	StabilityMargins,
-}
-
 const wExtremeMin = 1e-12;
 const wExtremeMax = 1e12;
+
+const formatter = new Intl.NumberFormat(undefined, {
+	minimumFractionDigits: 2,
+	maximumFractionDigits: 2,
+});
+
+const marginFormatter = new Intl.NumberFormat(undefined, {
+	minimumFractionDigits: 2,
+	maximumFractionDigits: 2,
+	signDisplay: 'always',
+});
 
 @Component({
 	selector: 'app-bode-graph',
@@ -24,6 +32,7 @@ const wExtremeMax = 1e12;
 })
 export class BodeGraphComponent implements AfterViewInit {
 	readonly transferFunction = input.required<TransferFunction>();
+	readonly graphOptions = input.required<GraphOptions>();
 	readonly frequentialResponseCalculator = computed(() => new FrequentialResponseCalculator(this.transferFunction()));
 	
 	@ViewChild('chartGainElement') chartGainElement: ElementRef<HTMLDivElement> | undefined;
@@ -31,7 +40,7 @@ export class BodeGraphComponent implements AfterViewInit {
 	
 	chartGain: Highcharts.Chart | undefined;
 	chartPhase: Highcharts.Chart | undefined;
-	chartsReady = signal(false);
+	readonly chartsReady = signal(false);
 	
 	wMin: number = 1e-2;
 	wMax: number = 1e1;
@@ -43,12 +52,14 @@ export class BodeGraphComponent implements AfterViewInit {
 				type: 'line',
 				name: 'Réponse',
 				color: Chart.colors.output,
+				id: SeriesType.Real,
 			},
 			{
 				data: [],
 				type: 'line',
 				name: 'Réponse asymptotique',
 				color: Chart.colors.asymptotic,
+				id: SeriesType.Asymptotic,
 				enableMouseTracking: false,
 			},
 			{
@@ -56,6 +67,7 @@ export class BodeGraphComponent implements AfterViewInit {
 				type: 'line',
 				name: 'Marges de stabilité',
 				color: Chart.colors.stability,
+				id: SeriesType.StabilityMargins,
 				lineWidth: 1,
 				visible: false
 			},
@@ -81,25 +93,16 @@ export class BodeGraphComponent implements AfterViewInit {
 		legend: {
 			events: {
 				itemClick: event => {
-					const index = (event.legendItem as Highcharts.Series).index;
-					this.chartGain!.series[index].setVisible(undefined, false);
-					this.chartPhase!.series[index].setVisible(undefined, false);
-					this.update();
-					// eslint-disable-next-line @typescript-eslint/no-unsafe-call
-					event.preventDefault();
+					this.state.toggleSeriesVisibility(this.graphOptions(), (event.legendItem as Highcharts.Series).options.id as SeriesType);
+					event.preventDefault(); // eslint-disable-line @typescript-eslint/no-unsafe-call
 				},
 			},
 		},
 		tooltip: {
 			formatter: function() {
-				const formatter = new Intl.NumberFormat(undefined, {
-					minimumFractionDigits: 2,
-					maximumFractionDigits: 2,
-				});
-
 				return [
 					`<span style="font-size:10px">${Chart.formatFrequency(this.x)}</span>`,
-					`<span style="color:${this.color as string}">\u25CF</span> ${this.series.name} : <b>${formatter.format(this.y as number)} ${this.series.chart.options.tooltip!.valueSuffix}</b>`,
+					`<span style="color:${this.color as string}">\u25CF</span> ${this.series.name} : <b>${formatter.format(this.y!)} ${this.series.chart.options.tooltip!.valueSuffix}</b>`,
 				].join('<br />');
 			},
 		},
@@ -150,7 +153,9 @@ export class BodeGraphComponent implements AfterViewInit {
 		},
 	};
 
-	constructor() {
+	constructor(
+		private readonly state: StateService,
+	) {
 		effect(() => this.update());
 	}
 	
@@ -158,8 +163,8 @@ export class BodeGraphComponent implements AfterViewInit {
 		this.chartGain = Highcharts.chart(this.chartGainElement!.nativeElement, deepmerge.all([Chart.options, this.optionsCommon, this.optionsGain]));
 		this.chartPhase = Highcharts.chart(this.chartPhaseElement!.nativeElement, deepmerge.all([Chart.options, this.optionsCommon, this.optionsPhase]));
 
-		this.chartGain.series[Data.StabilityMargins].setData([[wExtremeMin, 0], [wExtremeMax, 0]], false);
-		this.chartPhase.series[Data.StabilityMargins].setData([[wExtremeMin, -180], [wExtremeMax, -180]], false);
+		this.getSeries(this.chartGain, SeriesType.StabilityMargins).setData([[wExtremeMin, 0], [wExtremeMax, 0]], false);
+		this.getSeries(this.chartPhase, SeriesType.StabilityMargins).setData([[wExtremeMin, -180], [wExtremeMax, -180]], false);
 		
 		Chart.synchronize([this.chartGain, this.chartPhase]);
 		this.chartsReady.set(true);
@@ -171,7 +176,7 @@ export class BodeGraphComponent implements AfterViewInit {
 		new ResizeObserver(() => this.chartGain!.reflow()).observe(this.chartGainElement!.nativeElement);
 		new ResizeObserver(() => this.chartPhase!.reflow()).observe(this.chartPhaseElement!.nativeElement);
 	}
-	
+
 	update(animate = true, nbPoints = 1001): void {
 		if (!this.chartsReady()) {
 			return;
@@ -180,21 +185,27 @@ export class BodeGraphComponent implements AfterViewInit {
 		if (this.chartGain === undefined || this.chartPhase === undefined) {
 			return;
 		}
+
+		const visibleSeries = this.graphOptions().visibleSeries;
+		for (const type of this.optionsCommon.series!.map(x => x.id).filter(id => id !== undefined) as SeriesType[]) {
+			this.getSeries(this.chartGain, type).setVisible(visibleSeries.has(type), false);
+			this.getSeries(this.chartPhase, type).setVisible(visibleSeries.has(type), false);
+		}
 		
 		const response = this.frequentialResponseCalculator().getPolarResponse(this.wMin, this.wMax, nbPoints);
 		const asymptoticResponse = this.frequentialResponseCalculator().getAsymptoticPolarResponse(this.wMin, this.wMax);
 		
-		this.setLineData(this.chartGain, Data.Real, response.ws, response.gains);
-		this.setLineData(this.chartPhase, Data.Real, response.ws, response.phases);
+		this.setLineData(this.chartGain, SeriesType.Real, response.ws, response.gains);
+		this.setLineData(this.chartPhase, SeriesType.Real, response.ws, response.phases);
 		
-		this.setLineData(this.chartGain, Data.Asymptotic, asymptoticResponse.ws, asymptoticResponse.gains);
-		this.setLineData(this.chartPhase, Data.Asymptotic, asymptoticResponse.ws, asymptoticResponse.phases);
+		this.setLineData(this.chartGain, SeriesType.Asymptotic, asymptoticResponse.ws, asymptoticResponse.gains);
+		this.setLineData(this.chartPhase, SeriesType.Asymptotic, asymptoticResponse.ws, asymptoticResponse.phases);
 
 		this.chartGain.removeAnnotation('Marge de gain');
 		this.chartGain.removeAnnotation('Marge de phase');
 		this.chartPhase.removeAnnotation('Marge de gain');
 		this.chartPhase.removeAnnotation('Marge de phase');
-		if (this.chartGain.series[Data.StabilityMargins].visible) {
+		if (this.getSeries(this.chartGain, SeriesType.StabilityMargins).visible) {
 			this.addGainMarginAnnotation(this.frequentialResponseCalculator().getGainMargin(response));
 			this.addPhaseMarginAnnotation(this.frequentialResponseCalculator().getPhaseMargin(response));
 		}
@@ -239,11 +250,7 @@ export class BodeGraphComponent implements AfterViewInit {
 			],
 			labels: [{
 				point: {x: gainMargin.frequency, y: gainMargin.gain / 2, xAxis: 0, yAxis: 0},
-				text: new Intl.NumberFormat(undefined, {
-					minimumFractionDigits: 2,
-					maximumFractionDigits: 2,
-					signDisplay: 'always',
-				}).format(-gainMargin.gain) + ' dB',
+				text: marginFormatter.format(-gainMargin.gain) + ' dB',
 				align: 'left',
 				verticalAlign: 'middle',
 				x: 10,
@@ -316,11 +323,7 @@ export class BodeGraphComponent implements AfterViewInit {
 			],
 			labels: [{
 				point: {x: phaseMargin.frequency, y: (phaseMargin.phase - 180) / 2, xAxis: 0, yAxis: 0},
-				text: new Intl.NumberFormat(undefined, {
-					minimumFractionDigits: 2,
-					maximumFractionDigits: 2,
-					signDisplay: 'always',
-				}).format(phaseMargin.phase + 180) + ' °',
+				text: marginFormatter.format(phaseMargin.phase + 180) + ' °',
 				align: 'left',
 				verticalAlign: 'middle',
 				x: 10,
@@ -329,9 +332,14 @@ export class BodeGraphComponent implements AfterViewInit {
 		});
 	}
 	
-	setLineData(chart: Highcharts.Chart, dataType: Data, x: number[], y: number[]): void {
-		if (chart.series[dataType].visible) {
-			chart.series[dataType].setData(x.map((value, index) => [value, y[index]]), false);
+	setLineData(chart: Highcharts.Chart, type: SeriesType, x: number[], y: number[]): void {
+		const series = this.getSeries(chart, type);
+		if (series.visible) {
+			series.setData(x.map((value, index) => [value, y[index]]), false);
 		}
+	}
+
+	protected getSeries(chart: Highcharts.Chart, type: SeriesType) {
+		return chart.get(type) as Highcharts.Series;
 	}
 }

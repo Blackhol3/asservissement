@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BlackNicholsGraphComponent } from './black-nichols-graph.component';
 
+import { GraphOptions } from '../graph-options';
 import { TransferFunction } from '../transfer-function';
 
 describe('BlackNicholsGraphComponent', () => {
@@ -13,6 +14,7 @@ describe('BlackNicholsGraphComponent', () => {
 		});
 		fixture = TestBed.createComponent(BlackNicholsGraphComponent);
 		component = fixture.componentInstance;
+		fixture.componentRef.setInput('graphOptions', new GraphOptions());
 		fixture.componentRef.setInput('transferFunction', new TransferFunction());
 		await fixture.whenStable();
 	});
