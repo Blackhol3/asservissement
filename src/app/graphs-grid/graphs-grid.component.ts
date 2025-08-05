@@ -1,9 +1,8 @@
-import { ChangeDetectionStrategy, Component, ElementRef, HostBinding, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, HostBinding, computed } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 
 import { TilesModes } from '../common-type';
 import { StateService } from '../state.service';
-import { TransferFunction } from '../transfer-function';
 
 import { GraphComponent } from '../graph/graph.component';
 
@@ -17,8 +16,6 @@ import { GraphComponent } from '../graph/graph.component';
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GraphsGridComponent {
-	readonly transferFunction = input.required<TransferFunction>();
-	
 	readonly tilesStructure = computed(() => TilesModes[this.state.tilesMode()].structure);
 	readonly tilesList = computed(() => new Array<never>(this.tilesStructure()[0] * this.tilesStructure()[1]));
 	readonly #tilesStructure = toObservable(this.tilesStructure);

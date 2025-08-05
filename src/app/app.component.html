@@ -28,7 +28,7 @@
 			<span>Ajouter…</span>
 		</button>
 		<mat-menu #menu="matMenu">
-			@for (simpleElementType of state.simpleElementTypes; track $index) {
+			@for (simpleElementType of simpleElementTypes; track $index) {
 				<button mat-menu-item (click)="state.addSimpleElement(simpleElementType)">
 					{{simpleElementType.name}}
 				</button>
@@ -48,9 +48,9 @@
 	</mat-sidenav>
 	<mat-sidenav-content>
 		<div class="transfer-function-texs">
-			<div [appMath]="transferFunctionTex()"></div>
-			<div [appMath]="transferFunctionClosedLoopTex()"></div>
+			<div [appMath]="state.simpleElements().transferFunctionTex"></div>
+			<div [appMath]="state.simpleElements().transferFunctionClosedLoopTex"></div>
 		</div>
-		<app-graphs-grid [transferFunction]="transferFunction()" />
+		<app-graphs-grid />
 	</mat-sidenav-content>
 </mat-sidenav-container>

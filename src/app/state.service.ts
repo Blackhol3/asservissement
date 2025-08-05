@@ -5,16 +5,7 @@ import { type SeriesType, type TilesMode } from './common-type';
 import { type GraphOptions, GraphsOptions } from './graph-options';
 
 import { SimpleElement, type SimpleElementType } from './simple-element/simple-element';
-import { FirstOrder } from './simple-element/first-order';
-import { SecondOrder } from './simple-element/second-order';
-import { InverseFirstOrder } from './simple-element/inverse-first-order';
-import { InverseSecondOrder } from './simple-element/inverse-second-order';
-import { Integrator } from './simple-element/integrator';
-import { Differentiator } from './simple-element/differentiator';
-import { PController } from './simple-element/p-controller';
-import { PIController } from './simple-element/pi-controller';
-import { PIDController } from './simple-element/pid-controller';
-import { PhaseLeadCompensator } from './simple-element/phase-lead-compensator';
+import { SimpleElements } from './simple-elements';
 
 type JSONState = ReturnType<InstanceType<typeof StateService>['toJSON']>;
 
@@ -48,20 +39,7 @@ const localStorageKey = 'asservissement';
 	providedIn: 'root'
 })
 export class StateService {
-	readonly simpleElementTypes = [
-		new FirstOrder(),
-		new SecondOrder(),
-		new InverseFirstOrder(),
-		new InverseSecondOrder(),
-		new Integrator(),
-		new Differentiator(),
-		new PController(),
-		new PIController(),
-		new PIDController(),
-		new PhaseLeadCompensator(),
-	] as const;
-
-	#simpleElements = signal<readonly SimpleElement[]>([]);
+	#simpleElements = signal(new SimpleElements());
 	#tilesMode = signal<TilesMode>('HalfHorizontal');
 	#graphsOptions = signal(new GraphsOptions());
 
@@ -89,18 +67,15 @@ export class StateService {
 	}
 
 	addSimpleElement(type: SimpleElementType) {
-		this.#simpleElements.update(elements => [...elements, new SimpleElement(type)]);
+		this.#simpleElements.update(elements => elements.add(type));
 	}
 
 	updateSimpleElement(element: SimpleElement, characteristicIndex: number, characteristicValue: number) {
-		const index = this.#simpleElements().findIndex(x => x === element);
-		this.#simpleElements.update(produce(elements => {
-			elements[index].values[characteristicIndex] = characteristicValue;
-		}));
+		this.#simpleElements.update(elements => elements.update(element, characteristicIndex, characteristicValue));
 	}
 	
 	removeSimpleElement(element: SimpleElement) {
-		this.#simpleElements.update(elements => elements.filter(x => x !== element));
+		this.#simpleElements.update(elements => elements.remove(element));
 	}
 
 	setTilesMode(tilesMode: TilesMode) {
@@ -154,24 +129,14 @@ export class StateService {
 
 	protected toJSON() {
 		return {
-			simpleElements: this.#simpleElements().map(element => element.toJSON()),
+			simpleElements: this.#simpleElements().toJSON(),
 			tilesMode: this.#tilesMode(),
 			graphsOptions: this.#graphsOptions().toJSON(),
 		};
 	}
 
 	protected fromJSON(data: JSONState) {
-		const simpleElements: SimpleElement[] = [];
-		for (const element of data.simpleElements) {
-			const elementType = this.simpleElementTypes.find(type => type.shortName === element[0]);
-			if (elementType === undefined) {
-				throw new Error(`"${element[0]}" is not a valid element type.`);
-			}
-
-			simpleElements.push(new SimpleElement(elementType, element.slice(1) as number[]))
-		}
-		
-		this.#simpleElements.set(simpleElements);
+		this.#simpleElements.set(SimpleElements.fromJSON(data.simpleElements));
 		this.#tilesMode.set(data.tilesMode);
 		this.#graphsOptions.set(GraphsOptions.fromJSON(data.graphsOptions));
 	}

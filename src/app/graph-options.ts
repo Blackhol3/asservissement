@@ -1,6 +1,8 @@
 import { immerable } from 'immer';
 import { GraphType, InputType, LoopType, SeriesType, TilesModes, TilesModesList, VisualizationType } from './common-type';
 
+const maximalNumberOfGraphs = Math.max(...TilesModesList.map(mode => TilesModes[mode].structure[0] * TilesModes[mode].structure[1]));
+
 export class GraphOptions {
 	[immerable] = true;
 
@@ -27,7 +29,6 @@ export class GraphsOptions {
 	private readonly list: readonly GraphOptions[];
 
 	constructor(list?: readonly GraphOptions[]) {
-		const maximalNumberOfGraphs = Math.max(...TilesModesList.map(mode => TilesModes[mode].structure[0] * TilesModes[mode].structure[1]));
 		const defaultList: GraphOptions[] = [];
 		for (let i = 0; i < maximalNumberOfGraphs; ++i) {
 			defaultList.push(new GraphOptions());

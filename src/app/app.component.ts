@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, effect, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
 import { animate, style, trigger, transition } from '@angular/animations';
 import { DomSanitizer } from '@angular/platform-browser';
 
@@ -12,7 +12,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { TilesModes, TilesModesList } from './common-type';
-import { TransferFunction } from './transfer-function';
+import { SimpleElementTypes } from './simple-elements';
 
 import { type SimpleElementType } from './simple-element/simple-element';
 import { SecondOrder } from './simple-element/second-order';
@@ -64,22 +64,17 @@ import { StateService } from './state.service';
 })
 export class AppComponent {
 	protected readonly dividersAfter = [SecondOrder, InverseSecondOrder, Differentiator] as const;
-
-	readonly transferFunction = signal(new TransferFunction());
-	readonly transferFunctionTex = signal('');
-	readonly transferFunctionClosedLoopTex = signal('');
-
+	
+	readonly simpleElementTypes = SimpleElementTypes;
 	readonly tilesModes = TilesModes;
 	readonly tilesModesList = TilesModesList;
 
 	constructor(
 		readonly state: StateService,
 		readonly snackBar: MatSnackBar,
-		private readonly iconRegistry: MatIconRegistry,
-		private readonly sanitizer: DomSanitizer,
+		iconRegistry: MatIconRegistry,
+		sanitizer: DomSanitizer,
 	) {
-		effect(() => this.update());
-
 		for (const tilesMode of TilesModesList) {
 			iconRegistry.addSvgIconInNamespace('app', tilesMode, sanitizer.bypassSecurityTrustResourceUrl(`assets/tiles/${tilesMode}.svg`));
 		}
@@ -87,37 +82,6 @@ export class AppComponent {
 
 	shouldAddDividerAfter(simpleElementType: SimpleElementType) {
 		return this.dividersAfter.some(type => simpleElementType instanceof type);
-	}
-	
-	update(): void {
-		let transferFunction = new TransferFunction();
-		let transferFunctionTex = '\\begin{align}FTBO(p) &= ';
-		
-		this.state.simpleElements().forEach((element) => {
-			transferFunction = transferFunction.multiply(element.transferFunction);
-			transferFunctionTex += element.transferFunction.getTex();
-		});
-		
-		let transferFunctionClosedLoopTex = '\\begin{align}FTBF(p) &= ';
-		
-		if (this.state.simpleElements().length === 0) {
-			transferFunctionTex += '\\frac11';
-			transferFunctionClosedLoopTex += '\\frac12';
-		}
-		else {
-			transferFunctionClosedLoopTex += transferFunction.getClosedLoopTransferFunction().getTex();
-			
-			if (this.state.simpleElements().length > 1) {
-				transferFunctionTex += '\\\\&= ' + transferFunction.getExpandedTransferFunction().getTex();
-			}
-		}
-		
-		transferFunctionTex += '\\end{align}';
-		transferFunctionClosedLoopTex += '\\end{align}';
-
-		this.transferFunction.set(transferFunction);
-		this.transferFunctionTex.set(transferFunctionTex);
-		this.transferFunctionClosedLoopTex.set(transferFunctionClosedLoopTex);
 	}
 
 	async copyToClipboard() {

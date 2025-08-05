@@ -3,7 +3,6 @@ import { FormsModule } from '@angular/forms';
 
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
-import { TransferFunction } from '../transfer-function';
 import { LoopType, GraphType, InputType, VisualizationType } from '../common-type';
 import { GraphOptions } from '../graph-options';
 import { StateService } from '../state.service';
@@ -29,9 +28,9 @@ import { TimeGraphComponent } from '../time-graph/time-graph.component';
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GraphComponent {
-	readonly transferFunction = input.required<TransferFunction>();
 	readonly graphOptions = input.required<GraphOptions>();
-
+	
+	readonly transferFunction = computed(() => this.state.simpleElements().transferFunction);
 	readonly plottedTransferFunction = computed(() => {
 		return this.graphOptions().loopType === LoopType.Open ? this.transferFunction() : this.transferFunction().getClosedLoopTransferFunction();
 	});
