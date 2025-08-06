@@ -1,10 +1,10 @@
-import { SimpleElementType } from './simple-element';
+import { SimpleElementType } from './simple-element-type';
 import { Polynomial } from '../polynomial';
 import { TransferFunction } from '../transfer-function';
 
-export class InverseFirstOrder extends SimpleElementType {
+export class FirstOrder extends SimpleElementType {
 	constructor() {
-		super('Premier ordre inversé', '1i', [
+		super('Premier ordre', '1', [
 			{
 				name: 'Gain statique',
 				minValue: 0.1,
@@ -19,10 +19,10 @@ export class InverseFirstOrder extends SimpleElementType {
 			},
 		]);
 	}
-	
+
 	getTransferFunction([K, tau]: [number, number]) {
-		const numerator = new Polynomial([K, K * tau]);
-		const denominator = new Polynomial([1]);
+		const numerator = new Polynomial([K]);
+		const denominator = new Polynomial([1, tau]);
 		
 		return new TransferFunction([numerator], [denominator]);
 	}

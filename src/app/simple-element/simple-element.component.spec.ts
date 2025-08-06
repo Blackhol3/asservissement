@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { FirstOrder } from './first-order';
+import { FirstOrder } from '../simple-element-type/first-order';
 import { SimpleElement } from './simple-element';
 import { SimpleElementComponent } from './simple-element.component';
 

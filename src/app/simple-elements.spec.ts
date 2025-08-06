@@ -1,6 +1,6 @@
 import { SimpleElements } from './simple-elements';
 
-import { FirstOrder } from './simple-element/first-order';
+import { FirstOrder } from './simple-element-type/first-order';
 import { SimpleElement } from './simple-element/simple-element';
 
 const firstOrder = new FirstOrder();

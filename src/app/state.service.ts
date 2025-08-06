@@ -4,7 +4,8 @@ import { castDraft, produce } from 'immer';
 import { type SeriesType, type TilesMode } from './common-type';
 import { type GraphOptions, GraphsOptions } from './graph-options';
 
-import { SimpleElement, type SimpleElementType } from './simple-element/simple-element';
+import { SimpleElement } from './simple-element/simple-element';
+import { type SimpleElementType } from './simple-element-type/simple-element-type';
 import { SimpleElements } from './simple-elements';
 
 type JSONState = ReturnType<InstanceType<typeof StateService>['toJSON']>;

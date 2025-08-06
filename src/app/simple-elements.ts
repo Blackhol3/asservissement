@@ -1,16 +1,18 @@
 import { immerable, produce } from 'immer';
 
-import { SimpleElement, type SimpleElementType } from './simple-element/simple-element';
-import { FirstOrder } from './simple-element/first-order';
-import { SecondOrder } from './simple-element/second-order';
-import { InverseFirstOrder } from './simple-element/inverse-first-order';
-import { InverseSecondOrder } from './simple-element/inverse-second-order';
-import { Integrator } from './simple-element/integrator';
-import { Differentiator } from './simple-element/differentiator';
-import { PController } from './simple-element/p-controller';
-import { PIController } from './simple-element/pi-controller';
-import { PIDController } from './simple-element/pid-controller';
-import { PhaseLeadCompensator } from './simple-element/phase-lead-compensator';
+import { SimpleElement } from './simple-element/simple-element';
+
+import { type SimpleElementType } from './simple-element-type/simple-element-type';
+import { FirstOrder } from './simple-element-type/first-order';
+import { SecondOrder } from './simple-element-type/second-order';
+import { InverseFirstOrder } from './simple-element-type/inverse-first-order';
+import { InverseSecondOrder } from './simple-element-type/inverse-second-order';
+import { Integrator } from './simple-element-type/integrator';
+import { Differentiator } from './simple-element-type/differentiator';
+import { PController } from './simple-element-type/p-controller';
+import { PIController } from './simple-element-type/pi-controller';
+import { PIDController } from './simple-element-type/pid-controller';
+import { PhaseLeadCompensator } from './simple-element-type/phase-lead-compensator';
 
 import { TransferFunction } from './transfer-function';
 

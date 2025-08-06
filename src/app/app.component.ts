@@ -14,10 +14,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { TilesModes, TilesModesList } from './common-type';
 import { SimpleElementTypes } from './simple-elements';
 
-import { type SimpleElementType } from './simple-element/simple-element';
-import { SecondOrder } from './simple-element/second-order';
-import { InverseSecondOrder } from './simple-element/inverse-second-order';
-import { Differentiator } from './simple-element/differentiator';
+import { type SimpleElementType } from './simple-element-type/simple-element-type';
+import { SecondOrder } from './simple-element-type/second-order';
+import { InverseSecondOrder } from './simple-element-type/inverse-second-order';
+import { Differentiator } from './simple-element-type/differentiator';
 
 import { GraphsGridComponent } from './graphs-grid/graphs-grid.component';
 import { MathDirective } from './math/math.directive';

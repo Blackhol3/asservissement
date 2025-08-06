@@ -1,4 +1,4 @@
-import { SimpleElementType } from './simple-element';
+import { SimpleElementType } from './simple-element-type';
 import { Polynomial } from '../polynomial';
 import { TransferFunction } from '../transfer-function';
 
