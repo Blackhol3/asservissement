@@ -21,13 +21,30 @@ export const options: Highcharts.Options = {
 		},
 		spacing: [5, 20, 5, 10],
 		events: {
-			fullscreenClose: chart => {
-				chart.update({chart: {backgroundColor: 'transparent'}});
+			fullscreenClose: function (this: Highcharts.Chart) {
+				this.update({chart: {backgroundColor: 'transparent'}});
 			},
-			fullscreenOpen: chart => {
-				chart.update({chart: {backgroundColor: '#FAFAFA'}});
+			fullscreenOpen: function (this: Highcharts.Chart) {
+				this.update({chart: {backgroundColor: '#FAFAFA'}});
 			},
-		}
+		},
+	},
+	exporting: {
+		buttons: {
+			contextButton: {
+				menuItems: [
+					'viewFullscreen',
+					'printChart',
+					'separator',
+					'downloadPNG',
+					'downloadJPEG',
+					'downloadSVG',
+					'separator',
+					'downloadCSV',
+					'downloadXLS',
+				],
+			},
+		},
 	},
 	title: {
 		text: undefined,
