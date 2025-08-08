@@ -131,4 +131,18 @@ describe('Polynome', () => {
 			70000
 		]);
 	});
+
+	it('should calculate the characteristic frequency', () => {
+		let p = new Polynomial([10]);
+		expect(p.getCharacteristicFrequency()).toBe(null);
+
+		p = new Polynomial([0, 0, 30]);
+		expect(p.getCharacteristicFrequency()).toBe(null);
+
+		p = new Polynomial([10, 20]);
+		expect(p.getCharacteristicFrequency()).toBe(1/2);
+
+		p = new Polynomial([0, 0.1, 0.2, 2.5]);
+		expect(p.getCharacteristicFrequency()).toBe(1/5);
+	});
 });

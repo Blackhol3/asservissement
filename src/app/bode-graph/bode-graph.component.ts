@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, ViewChild, ElementRef, type AfterViewInit, computed, effect, input, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ViewChild, ElementRef, type AfterViewInit, computed, effect, input, linkedSignal, untracked, signal } from '@angular/core';
 
 import * as deepmerge from 'deepmerge';
 import Highcharts from 'highcharts/es-modules/masters/highcharts.src';
@@ -12,6 +12,9 @@ import * as Chart from '../chart';
 
 const wExtremeMin = 1e-12;
 const wExtremeMax = 1e12;
+
+const wDefaultMin = 1e-2;
+const wDefaultMax = 1e1;
 
 const formatter = new Intl.NumberFormat(undefined, {
 	minimumFractionDigits: 2,
@@ -33,7 +36,35 @@ const marginFormatter = new Intl.NumberFormat(undefined, {
 export class BodeGraphComponent implements AfterViewInit {
 	readonly transferFunction = input.required<TransferFunction>();
 	readonly graphOptions = input.required<GraphOptions>();
+
 	readonly frequentialResponseCalculator = computed(() => new FrequentialResponseCalculator(this.transferFunction()));
+	readonly frequencyRange = linkedSignal<[number, number]>(() => {
+		const ws = this.frequentialResponseCalculator().getAsymptoticChanges().map(change => change.w);
+
+		if (ws.length === 0) {
+			return [wDefaultMin, wDefaultMax];
+		}
+
+		const wMin = Math.pow(10, Math.floor(Math.log10(Math.min(...ws)) - 0.5));
+		const wMax = Math.pow(10, Math.ceil(Math.log10(Math.max(...ws)) + 0.5));
+		
+		if (this.chartGain !== undefined && this.chartPhase !== undefined) {
+			const options: Highcharts.Options = {
+				xAxis: {
+					min: wMin,
+					max: wMax,
+				},
+			};
+			
+			// Reset user zoom without triggering a redraw
+			(this.chartGain as any).transform({reset: true}); // eslint-disable-line
+
+			this.chartGain.update(options, false);
+			this.chartPhase.update(options, false);
+		}
+
+		return [wMin, wMax];
+	});
 	
 	@ViewChild('chartGainElement') chartGainElement: ElementRef<HTMLDivElement> | undefined;
 	@ViewChild('chartPhaseElement') chartPhaseElement: ElementRef<HTMLDivElement> | undefined;
@@ -41,9 +72,6 @@ export class BodeGraphComponent implements AfterViewInit {
 	chartGain: Highcharts.Chart | undefined;
 	chartPhase: Highcharts.Chart | undefined;
 	readonly chartsReady = signal(false);
-	
-	wMin: number = 1e-2;
-	wMax: number = 1e1;
 	
 	optionsCommon: Highcharts.Options = {
 		series: [
@@ -80,8 +108,8 @@ export class BodeGraphComponent implements AfterViewInit {
 		],
 		xAxis: {
 			title: {text : 'Pulsation (rad/s)'},
-			min: this.wMin,
-			max: this.wMax,
+			min: wDefaultMin,
+			max: wDefaultMax,
 			type: 'logarithmic',
 			
 			tickInterval: 1,
@@ -115,9 +143,10 @@ export class BodeGraphComponent implements AfterViewInit {
 		xAxis: {
 			events: {
 				afterSetExtremes: (event: Highcharts.AxisSetExtremesEventObject) => {
-					this.wMin = event.min;
-					this.wMax = event.max;
-					this.update(false);
+					if (event.trigger !== undefined) {
+						this.frequencyRange.set([event.min, event.max]);
+						this.update(false);
+					}
 				},
 			},
 			labels: {
@@ -169,10 +198,6 @@ export class BodeGraphComponent implements AfterViewInit {
 		Chart.synchronize([this.chartGain, this.chartPhase]);
 		this.chartsReady.set(true);
 		
-		setTimeout(() => {
-			this.chartGain!.reflow();
-			this.chartPhase!.reflow();
-		});
 		new ResizeObserver(() => this.chartGain!.reflow()).observe(this.chartGainElement!.nativeElement);
 		new ResizeObserver(() => this.chartPhase!.reflow()).observe(this.chartPhaseElement!.nativeElement);
 	}
@@ -192,20 +217,21 @@ export class BodeGraphComponent implements AfterViewInit {
 			this.getSeries(this.chartPhase, type).setVisible(visibleSeries.has(type), false);
 		}
 		
-		const response = this.frequentialResponseCalculator().getPolarResponse(this.wMin, this.wMax, nbPoints);
-		const asymptoticResponse = this.frequentialResponseCalculator().getAsymptoticPolarResponse(this.wMin, this.wMax);
-		
+		const response = this.frequentialResponseCalculator().getPolarResponse(...untracked(this.frequencyRange), nbPoints);
 		this.setLineData(this.chartGain, SeriesType.Real, response.ws, response.gains);
 		this.setLineData(this.chartPhase, SeriesType.Real, response.ws, response.phases);
 		
-		this.setLineData(this.chartGain, SeriesType.Asymptotic, asymptoticResponse.ws, asymptoticResponse.gains);
-		this.setLineData(this.chartPhase, SeriesType.Asymptotic, asymptoticResponse.ws, asymptoticResponse.phases);
+		if (visibleSeries.has(SeriesType.Asymptotic)) {
+			const asymptoticResponse = this.frequentialResponseCalculator().getAsymptoticPolarResponse(...untracked(this.frequencyRange));
+			this.setLineData(this.chartGain, SeriesType.Asymptotic, asymptoticResponse.ws, asymptoticResponse.gains);
+			this.setLineData(this.chartPhase, SeriesType.Asymptotic, asymptoticResponse.ws, asymptoticResponse.phases);
+		}
 
 		this.chartGain.removeAnnotation('Marge de gain');
 		this.chartGain.removeAnnotation('Marge de phase');
 		this.chartPhase.removeAnnotation('Marge de gain');
 		this.chartPhase.removeAnnotation('Marge de phase');
-		if (this.getSeries(this.chartGain, SeriesType.StabilityMargins).visible) {
+		if (visibleSeries.has(SeriesType.StabilityMargins)) {
 			this.addGainMarginAnnotation(this.frequentialResponseCalculator().getGainMargin(response));
 			this.addPhaseMarginAnnotation(this.frequentialResponseCalculator().getPhaseMargin(response));
 		}

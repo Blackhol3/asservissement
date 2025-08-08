@@ -111,6 +111,15 @@ export class Polynomial {
 		
 		return polynomial;
 	}
+
+	getCharacteristicFrequency(): number | null {
+		const realOrder = this.order - this.smallerNonZeroCoefficient;
+		if (realOrder === 0) {
+			return null;
+		}
+		
+		return Math.pow(this.at(this.smallerNonZeroCoefficient) / this.at(this.order), 1/realOrder);
+	}
 	
 	getTex(laplaceVariable: string = 'p', maximumSignificantDigits: number = 3, maximumDigits: number = 4): string {
 		let tex = '';

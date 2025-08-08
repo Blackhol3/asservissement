@@ -100,69 +100,57 @@ export class FrequentialResponseCalculator {
 			phases: unwrap(phases.map(phase => phase + phaseShift)),
 		};
 	}
-	
-	getAsymptoticPolarResponse(wMin: number, wMax: number): {ws: number[], gains: number[], phases: number[]} {
-		let asymptoticLowFrequencyOrder = 0;
-		const asymptoticChanges: {w: number, order: number}[] = [];
+
+	getAsymptoticChanges() {
+		const asymptoticChanges = new Map<number, number>();
 		
 		const calculateChange = (polynomial: Polynomial, factor: number) => {
-			asymptoticLowFrequencyOrder += factor * polynomial.smallerNonZeroCoefficient;
-			if (polynomial.smallerNonZeroCoefficient === polynomial.order) {
+			const w = polynomial.getCharacteristicFrequency();
+			if (w === null) {
 				return;
 			}
 			
 			const realOrder = polynomial.order - polynomial.smallerNonZeroCoefficient;
-			const asymptoticChange = {
-				w : Math.pow(polynomial.at(polynomial.smallerNonZeroCoefficient) / polynomial.at(polynomial.order), 1/realOrder),
-				order : factor * realOrder,
-			};
-			
-			const index = asymptoticChanges.findIndex(change => change.w === asymptoticChange.w);
-			if (index === -1) {
-				asymptoticChanges.push(asymptoticChange);
-			}
-			else {
-				asymptoticChanges[index].order += asymptoticChange.order;
-			}
+			const previousOrder = asymptoticChanges.get(w) ?? 0;
+			asymptoticChanges.set(w, previousOrder + factor * realOrder);
 		};
 		
 		this.transferFunction.numerators.forEach(polynomial => calculateChange(polynomial, +1));
 		this.transferFunction.denominators.forEach(polynomial => calculateChange(polynomial, -1));
 		
-		const ws: number[] = [];
-		const gains: number[] = [];
-		const phases: number[] = [];
+		return [...asymptoticChanges].map(([w, order]) => ({w, order})).sort((a, b) => a.w - b.w);
+	}
+	
+	getAsymptoticPolarResponse(wMin: number, wMax: number): {ws: number[], gains: number[], phases: number[]} {
+		const asymptoticLowFrequencyOrder = -this.transferFunction.zeroMultiplicity;
+		const asymptoticChanges = this.getAsymptoticChanges();
 		
-		if (asymptoticChanges.length > 0) {
-			asymptoticChanges.sort((a, b) => a.w - b.w);
-			
-			const wInitial = Math.min(wMin, asymptoticChanges[0].w);
-			const staticGain = this.expandedTransferFunction.numerator.at(this.expandedTransferFunction.numerator.smallerNonZeroCoefficient) / this.expandedTransferFunction.denominator.at(this.expandedTransferFunction.denominator.smallerNonZeroCoefficient);
-			
-			ws.push(wInitial);
-			gains.push(20*Math.log10(wInitial)*asymptoticLowFrequencyOrder + 20*Math.log10(staticGain));
-			phases.push(90 * asymptoticLowFrequencyOrder);
-			
-			let currentAsymptoticOrder = asymptoticLowFrequencyOrder;
-			for (const asymptoticChange of asymptoticChanges) {
-				const index = ws.length - 1;
-				ws.push(asymptoticChange.w);
-				gains.push(20*Math.log10(asymptoticChange.w / ws[index])*currentAsymptoticOrder + gains[index]);
-				phases.push(90 * currentAsymptoticOrder);
-				
-				currentAsymptoticOrder += asymptoticChange.order;
-				
-				ws.push(asymptoticChange.w);
-				gains.push(gains[gains.length - 1]);
-				phases.push(90 * currentAsymptoticOrder);
-			}
-			
+		const wInitial = asymptoticChanges.length > 0 ? Math.min(wMin, asymptoticChanges[0].w) : wMin;
+		const staticGain = this.expandedTransferFunction.numerator.at(this.expandedTransferFunction.numerator.smallerNonZeroCoefficient) / this.expandedTransferFunction.denominator.at(this.expandedTransferFunction.denominator.smallerNonZeroCoefficient);
+		
+		const ws = [wInitial];
+		const gains = [20*Math.log10(wInitial)*asymptoticLowFrequencyOrder + 20*Math.log10(staticGain)];
+		const phases = [90 * asymptoticLowFrequencyOrder];
+		
+		let currentAsymptoticOrder = asymptoticLowFrequencyOrder;
+		for (const asymptoticChange of asymptoticChanges) {
 			const index = ws.length - 1;
-			if (wMax > ws[index]) {
-				ws.push(wMax);
-				gains.push(20*Math.log10(wMax / ws[index])*currentAsymptoticOrder + gains[index]);
-				phases.push(90 * currentAsymptoticOrder);
-			}
+			ws.push(asymptoticChange.w);
+			gains.push(20*Math.log10(asymptoticChange.w / ws[index])*currentAsymptoticOrder + gains[index]);
+			phases.push(90 * currentAsymptoticOrder);
+			
+			currentAsymptoticOrder += asymptoticChange.order;
+			
+			ws.push(asymptoticChange.w);
+			gains.push(gains[gains.length - 1]);
+			phases.push(90 * currentAsymptoticOrder);
+		}
+		
+		const index = ws.length - 1;
+		if (wMax > ws[index]) {
+			ws.push(wMax);
+			gains.push(20*Math.log10(wMax / ws[index])*currentAsymptoticOrder + gains[index]);
+			phases.push(90 * currentAsymptoticOrder);
 		}
 		
 		return {
