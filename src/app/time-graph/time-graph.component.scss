@@ -3,33 +3,25 @@
 :host {
 	display: block;
 	height: 100%;
+
+	--highcharts-color-0: #{chart.$input};
+	--highcharts-color-1: #{chart.$output};
+	--highcharts-color-4: #{chart.$rapidity};
 	
 	::ng-deep {
-		.highcharts-color-0 {
-			stroke: chart.$input;
-			fill: chart.$input;
-		}
-
-		.highcharts-color-1 {
-			stroke: chart.$output;
-			fill: chart.$output;
-		}
-
 		.highcharts-color-2, .highcharts-color-3 {
 			.highcharts-graph {
 				stroke: chart.$output;
-				stroke-dasharray: 8, 3, 1, 3;
-				stroke-width: 1px;
+				stroke-dasharray: var(--app-long-dash-dot);
+				stroke-width: var(--app-thin-width);
 			}
 		}
 
 		.highcharts-color-4 {
 			.highcharts-graph {
-				stroke: chart.$rapidity;
-				stroke-width: 1px;
+				stroke-width: var(--app-thin-width);
 			}
 			.highcharts-area {
-				fill: chart.$rapidity;
 				fill-opacity: 0.5;
 			}
 		}

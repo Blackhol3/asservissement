@@ -4,22 +4,15 @@
 	display: block;
 	height: 100%;
 
+	--highcharts-color-0: #{chart.$output};
+	--highcharts-color-1: #{chart.$asymptotic};
+	--highcharts-color-2: #{chart.$stability};
+
 	::ng-deep {
 		@include chart.stability-margin-annotations;
 
-		.highcharts-color-0 {
-			stroke: chart.$output;
-			fill: chart.$output;
-		}
-
-		.highcharts-color-1 {
-			stroke: chart.$asymptotic;
-			fill: chart.$asymptotic;
-		}
-
 		.highcharts-color-2 .highcharts-graph {
-			stroke: chart.$stability;
-			stroke-width: 1px;
+			stroke-width: var(--app-thin-width);
 		}
 
 		.highcharts-color-3 {
@@ -27,8 +20,7 @@
 		}
 
 		.highcharts-xaxis-grid {
-			.highcharts-grid-line { stroke-width: 2px; }
-			.highcharts-minor-grid-line { stroke-width: 1px; }
+			@include chart.major-and-minor-grid;
 		}
 	}
 }
@@ -51,8 +43,7 @@
 
 	::ng-deep {
 		.highcharts-yaxis-grid {
-			.highcharts-grid-line { stroke-width: 2px; }
-			.highcharts-minor-grid-line { stroke-width: 1px; }
+			@include chart.major-and-minor-grid;
 		}
 	}
 }

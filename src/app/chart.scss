@@ -4,6 +4,11 @@ $rapidity: #2ca02c;
 $asymptotic: #d62728;
 $stability: #9467bd;
 
+@mixin major-and-minor-grid {
+	.highcharts-grid-line { stroke-width: 2px; }
+	.highcharts-minor-grid-line { stroke-width: 1px; }
+}
+
 @mixin stability-margin-annotations {
 	.highcharts-annotation-shapes {
 		pointer-events: none;
@@ -12,12 +17,17 @@ $stability: #9467bd;
 
 		.line {
 			fill: none;
-			stroke-dasharray: 8, 3, 1, 3;
+			stroke-dasharray: var(--app-long-dash-dot);
+			stroke-width: var(--app-thin-width);
 		}
 
 		.arrow-line {
 			fill: none;
-			stroke-width: 3px;
+			stroke-width: var(--app-thick-width);
+		}
+
+		.arrow-head {
+			stroke-width: var(--app-thin-width);
 		}
 	}
 }

@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, ElementRef, computed, effect, input } from '@angular/core';
 
-import * as deepmerge from 'deepmerge';
+import deepmerge from 'deepmerge';
 import Highcharts from 'highcharts/es-modules/masters/highcharts.src';
 
 import { SeriesType } from '../common-type';
@@ -111,6 +111,8 @@ export class NyquistGraphComponent {
 	}
 
 	update(animate = true, nbPoints = 1001): void {
+		this.state.projectionMode();
+
 		const visibleSeries = this.graphOptions().visibleSeries;
 		for (const type of this.options.series!.map(x => x.id).filter(id => id !== undefined) as SeriesType[]) {
 			this.getSeries(type).setVisible(visibleSeries.has(type), false);

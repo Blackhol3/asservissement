@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, ElementRef, computed, effect, input } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import * as deepmerge from 'deepmerge';
+import deepmerge from 'deepmerge';
 import Highcharts from 'highcharts/es-modules/masters/highcharts.src';
 
 import { SeriesType } from '../common-type';
@@ -145,6 +145,8 @@ export class TimeGraphComponent {
 			this.state.hideSeries(this.graphOptions(), SeriesType.Tangent);
 			return;
 		}
+
+		this.state.projectionMode();
 
 		const response = this.timeResponseCalculator().getResponse(this.tMin, this.tMax, dt, nbPoints);
 		

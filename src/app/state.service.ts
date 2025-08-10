@@ -43,10 +43,12 @@ export class StateService {
 	#simpleElements = signal(new SimpleElements());
 	#tilesMode = signal<TilesMode>('HalfHorizontal');
 	#graphsOptions = signal(new GraphsOptions());
+	#projectionMode = signal(false);
 
 	simpleElements = this.#simpleElements.asReadonly();
 	tilesMode = this.#tilesMode.asReadonly();
 	graphsOptions = this.#graphsOptions.asReadonly();
+	projectionMode = this.#projectionMode.asReadonly();
 
 	constructor() {
 		effect(() => localStorage.setItem(localStorageKey, JSON.stringify(this.toJSON())));
@@ -117,6 +119,11 @@ export class StateService {
 		this.#graphsOptions.update(produce(graphsOptions => {
 			castDraft(graphsOptions.at(index)).visibleSeries.delete(type);
 		}));
+	}
+
+	async toggleProjectionMode() {
+		this.#projectionMode.update(projectorMode => !projectorMode);
+		return this.#projectionMode() ? document.body.requestFullscreen() : document.exitFullscreen();
 	}
 
 	async copyToClipboard() {

@@ -9,6 +9,14 @@
 	>
 		<mat-icon>link</mat-icon>
 	</button>
+	<button
+		class="thickness-button"
+		mat-icon-button
+		[matTooltip]="`${state.projectionMode() ? 'Désactiver' : 'Activer'} le mode projection`"
+		(click)="state.toggleProjectionMode()"
+	>
+		<mat-icon>format_size</mat-icon>
+	</button>
 	@for (tilesMode of tilesModesList; track $index) {
 		<button
 			class="tiles-mode-button"
@@ -22,7 +30,7 @@
 	}
 </mat-toolbar>
 
-<mat-sidenav-container fullscreen>
+<mat-sidenav-container fullscreen [class.projection-mode]="state.projectionMode()">
 	<mat-sidenav mode="side" disableClose="true" opened>
 		<button mat-raised-button [matMenuTriggerFor]="menu">
 			<span>Ajouter…</span>

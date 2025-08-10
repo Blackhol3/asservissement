@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, ViewChild, ElementRef, type AfterViewInit, computed, effect, input, linkedSignal, untracked, signal } from '@angular/core';
 
-import * as deepmerge from 'deepmerge';
+import deepmerge from 'deepmerge';
 import Highcharts from 'highcharts/es-modules/masters/highcharts.src';
 
 import { SeriesType } from '../common-type';
@@ -130,7 +130,7 @@ export class BodeGraphComponent implements AfterViewInit {
 		},
 		chart: {
 			marginLeft: 60,
-		}
+		},
 	};
 	
 	optionsGain: Highcharts.Options = {
@@ -199,6 +199,8 @@ export class BodeGraphComponent implements AfterViewInit {
 		if (this.chartGain === undefined || this.chartPhase === undefined) {
 			return;
 		}
+		
+		this.state.projectionMode();
 
 		const visibleSeries = this.graphOptions().visibleSeries;
 		for (const type of this.optionsCommon.series!.map(x => x.id).filter(id => id !== undefined) as SeriesType[]) {
