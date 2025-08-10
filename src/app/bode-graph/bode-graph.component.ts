@@ -79,14 +79,12 @@ export class BodeGraphComponent implements AfterViewInit {
 				data: [],
 				type: 'line',
 				name: 'Réponse',
-				color: Chart.colors.output,
 				id: SeriesType.Real,
 			},
 			{
 				data: [],
 				type: 'line',
 				name: 'Réponse asymptotique',
-				color: Chart.colors.asymptotic,
 				id: SeriesType.Asymptotic,
 				enableMouseTracking: false,
 			},
@@ -94,16 +92,15 @@ export class BodeGraphComponent implements AfterViewInit {
 				data: [],
 				type: 'line',
 				name: 'Marges de stabilité',
-				color: Chart.colors.stability,
 				id: SeriesType.StabilityMargins,
-				lineWidth: 1,
-				visible: false
+				visible: false,
+				enableMouseTracking: false,
 			},
 			{
 				data: [[wExtremeMin, 0], [wExtremeMax, 0]],
 				type: 'line',
-				color: 'rgba(0, 0, 0, 0)',
 				showInLegend: false,
+				enableMouseTracking: false,
 			},
 		],
 		xAxis: {
@@ -113,10 +110,7 @@ export class BodeGraphComponent implements AfterViewInit {
 			type: 'logarithmic',
 			
 			tickInterval: 1,
-			gridLineWidth: 2,
-			
 			minorTickInterval: 0.1,
-			minorGridLineWidth: 1,
 		},
 		legend: {
 			events: {
@@ -130,7 +124,7 @@ export class BodeGraphComponent implements AfterViewInit {
 			formatter: function() {
 				return [
 					`<span style="font-size:10px">${Chart.formatFrequency(this.x)}</span>`,
-					`<span style="color:${this.color as string}">\u25CF</span> ${this.series.name} : <b>${formatter.format(this.y!)} ${this.series.chart.options.tooltip!.valueSuffix}</b>`,
+					`<span class="highcharts-color-${this.colorIndex}">\u25CF</span> ${this.series.name} : <b>${formatter.format(this.y!)} ${this.series.chart.options.tooltip!.valueSuffix}</b>`,
 				].join('<br />');
 			},
 		},
@@ -152,7 +146,6 @@ export class BodeGraphComponent implements AfterViewInit {
 			labels: {
 				enabled: false,
 			},
-			lineWidth: 0,
 			tickLength: 0,
 			title: undefined,
 		},
@@ -170,12 +163,8 @@ export class BodeGraphComponent implements AfterViewInit {
 		},
 		yAxis: {
 			title: {text : 'Phase (°)'},
-			
 			tickInterval: 90,
-			gridLineWidth: 2,
-			
 			minorTickInterval: 15,
-			minorGridLineWidth: 1,
 		},
 		tooltip: {
 			valueSuffix: '°',
@@ -250,23 +239,24 @@ export class BodeGraphComponent implements AfterViewInit {
 			draggable: '',
 			shapeOptions: {
 				type: 'path',
-				stroke: Chart.colors.stability,
-				fill: Chart.colors.stability,
+				stroke: 'context-stroke',
+				fill: 'context-fill',
 			},
 			shapes: [
 				{
-					dashStyle: 'LongDashDot',
+					className: 'line',
 					points: [
 						{x: gainMargin.frequency, y: -1e6, xAxis: 0, yAxis: 0},
 						{x: gainMargin.frequency, y: gainMargin.gain, xAxis: 0, yAxis: 0},
 					],
 				}, {
-					strokeWidth: 3,
+					className: 'arrow-line',
 					points: [
 						{x: gainMargin.frequency, y: gainMargin.gain, xAxis: 0, yAxis: 0},
 						{x: gainMargin.frequency, y: 0, xAxis: 0, yAxis: 0},
 					],
 				}, {
+					className: 'arrow-head',
 					points: [
 						{x: gainMargin.frequency, y: gainMargin.gain, xAxis: 0, yAxis: 0},
 						{x: gainMargin.frequency, y: 0, xAxis: 0, yAxis: 0},
@@ -289,8 +279,7 @@ export class BodeGraphComponent implements AfterViewInit {
 			draggable: '',
 			shapes: [{
 				type: 'path',
-				stroke: Chart.colors.stability,
-				dashStyle: 'LongDashDot',
+				className: 'line',
 				points: [
 					{x: gainMargin.frequency, y: -180, xAxis: 0, yAxis: 0},
 					{x: gainMargin.frequency, y: +1e6, xAxis: 0, yAxis: 0},
@@ -309,8 +298,7 @@ export class BodeGraphComponent implements AfterViewInit {
 			draggable: '',
 			shapes: [{
 				type: 'path',
-				stroke: Chart.colors.stability,
-				dashStyle: 'LongDashDot',
+				className: 'line',
 				points: [
 					{x: phaseMargin.frequency, y: 0, xAxis: 0, yAxis: 0},
 					{x: phaseMargin.frequency, y: -1e6, xAxis: 0, yAxis: 0},
@@ -323,23 +311,24 @@ export class BodeGraphComponent implements AfterViewInit {
 			draggable: '',
 			shapeOptions: {
 				type: 'path',
-				stroke: Chart.colors.stability,
-				fill: Chart.colors.stability,
+				stroke: 'context-stroke',
+				fill: 'context-fill',
 			},
 			shapes: [
 				{
-					dashStyle: 'LongDashDot',
+					className: 'line',
 					points: [
 						{x: phaseMargin.frequency, y: 1e6, xAxis: 0, yAxis: 0},
 						{x: phaseMargin.frequency, y: phaseMargin.phase, xAxis: 0, yAxis: 0},
 					],
 				}, {
-					strokeWidth: 3,
+					className: 'arrow-line',
 					points: [
 						{x: phaseMargin.frequency, y: -180, xAxis: 0, yAxis: 0},
 						{x: phaseMargin.frequency, y: phaseMargin.phase, xAxis: 0, yAxis: 0},
 					],
 				}, {
+					className: 'arrow-head',
 					points: [
 						{x: phaseMargin.frequency, y: -180, xAxis: 0, yAxis: 0},
 						{x: phaseMargin.frequency, y: phaseMargin.phase, xAxis: 0, yAxis: 0},

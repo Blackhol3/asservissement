@@ -44,25 +44,21 @@ export class NyquistGraphComponent {
 				data: [],
 				type: 'scatter',
 				name: 'Réponse',
-				color: Chart.colors.output,
 				id: SeriesType.Real,
-				lineWidth: 2,
 				turboThreshold: 0,
+				lineWidth: 2,
 			},
 			{
 				data: [[0, 0]],
 				type: 'line',
 				name: 'Marges de stabilité',
-				color: Chart.colors.stability,
 				id: SeriesType.StabilityMargins,
 				enableMouseTracking: false,
 				marker: {
 					enabled: true,
 					symbol: 'plus',
-					lineColor: undefined,
-					lineWidth: 2,
 				},
-				visible: false
+				visible: false,
 			},
 		],
 		xAxis: {
@@ -83,15 +79,10 @@ export class NyquistGraphComponent {
 				},
 			},
 		},
-		plotOptions: {
-			series: {
-				lineWidth: 2,
-			},
-		},
 		tooltip: {
 			formatter: function() {
 				return [
-					`<span style="color:${this.color as string}">\u25CF</span> <span style="font-size:10px;">${this.series.name}</span>`,
+					`<span class="highcharts-color-${this.colorIndex}">\u25CF</span> <span style="font-size:10px;">${this.series.name}</span>`,
 					`Pulsation : <b>${Chart.formatFrequency((this as any).w)}</b>`, // eslint-disable-line
 					`Réel : <b>${formatter.format(this.x)}</b>`,
 					`Imaginaire : <b>${formatter.format(this.y!)}</b>`,
@@ -133,7 +124,7 @@ export class NyquistGraphComponent {
 		this.stabilityMarginsGroup?.destroy();
 		this.stabilityMarginsGroup = undefined;
 		if (this.getSeries(SeriesType.StabilityMargins).visible) {
-			this.stabilityMarginsGroup = this.chart.renderer.g().add();
+			this.stabilityMarginsGroup = this.chart.renderer.g('annotation-shapes').add();
 
 			const clipRectangle = this.chart.renderer.clipRect(this.chart.plotLeft, this.chart.plotTop, this.chart.plotWidth, this.chart.plotHeight);
 			this.stabilityMarginsGroup.clip(clipRectangle);
@@ -143,12 +134,7 @@ export class NyquistGraphComponent {
 				this.chart.xAxis[0].toPixels(0, false),
 				this.chart.yAxis[0].toPixels(0, false),
 				radius,
-			).attr({
-				fill: 'none',
-				stroke: Chart.colors.stability,
-				'stroke-width': 1,
-				'stroke-dasharray': [8, 3, 1, 3].join(','),
-			}).add(this.stabilityMarginsGroup);
+			).addClass('line').add(this.stabilityMarginsGroup);
 
 			const polarResponse = this.frequentialResponseCalculator().getPolarResponse(this.wMin, this.wMax, nbPoints);
 			this.addGainMarginAnnotation(this.frequentialResponseCalculator().getGainMargin(polarResponse));
@@ -170,17 +156,18 @@ export class NyquistGraphComponent {
 			draggable: '',
 			shapeOptions: {
 				type: 'path',
-				stroke: Chart.colors.stability,
-				fill: Chart.colors.stability,
+				stroke: 'context-stroke',
+				fill: 'context-fill',
 			},
 			shapes: [
 				{
-					strokeWidth: 3,
+					className: 'arrow-line',
 					points: [
 						{x: -1, y: 0, xAxis: 0, yAxis: 0},
 						{x: realValue, y: 0, xAxis: 0, yAxis: 0},
 					],
 				}, {
+					className: 'arrow-head',
 					points: [
 						{x: -1, y: 0, xAxis: 0, yAxis: 0},
 						{x: realValue, y: 0, xAxis: 0, yAxis: 0},
@@ -213,19 +200,18 @@ export class NyquistGraphComponent {
 			radius, radius,
 			0, Math.abs(phaseMargin.phase + 180) % 360 > 180 ? 1 : 0, phaseMargin.phase + 180 > 0 ? 0 : 1,
 			this.chart.xAxis[0].toPixels(Math.cos(phaseRadians), false), this.chart.yAxis[0].toPixels(Math.sin(phaseRadians), false),
-		] as const).attr({
-			fill: 'none',
-			stroke: Chart.colors.stability,
-			'stroke-width': 3,
-		}).add(this.stabilityMarginsGroup);
+		] as const).addClass('arrow-line').add(this.stabilityMarginsGroup);
 
 		this.chart.addAnnotation({
 			id: 'Marge de phase',
 			draggable: '',
-			shapes: [{
+			shapeOptions: {
 				type: 'path',
-				stroke: Chart.colors.stability,
-				fill: Chart.colors.stability,
+				stroke: 'context-stroke',
+				fill: 'context-fill',
+			},
+			shapes: [{
+				className: 'arrow-head',
 				points: [
 					{x: Math.cos(phaseRadians * (phaseMargin.phase + 180 > 0 ? 1.001 : 0.999)), y: Math.sin(phaseRadians * (phaseMargin.phase + 180 > 0 ? 1.001 : 0.999)), xAxis: 0, yAxis: 0},
 					{x: Math.cos(phaseRadians), y: Math.sin(phaseRadians), xAxis: 0, yAxis: 0},

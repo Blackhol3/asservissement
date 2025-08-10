@@ -1,4 +1,28 @@
+@use '../chart';
+
 :host {
 	display: block;
 	height: 100%;
+
+	::ng-deep {
+		@include chart.stability-margin-annotations;
+		
+		.highcharts-color-0 {
+			stroke: chart.$output;
+			fill: chart.$output;
+		}
+		
+		.highcharts-color-1 {
+			stroke: chart.$stability;
+			fill: chart.$stability;
+			
+			.highcharts-point {
+				stroke-width: 2px;
+			}
+		}
+
+		.highcharts-xaxis-grid .highcharts-grid-line {
+			stroke-width: 1px;
+		}
+	}
 }

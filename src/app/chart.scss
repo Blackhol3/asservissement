@@ -1,0 +1,23 @@
+$input: #1f77b4;
+$output: #ff7f0e;
+$rapidity: #2ca02c;
+$asymptotic: #d62728;
+$stability: #9467bd;
+
+@mixin stability-margin-annotations {
+	.highcharts-annotation-shapes {
+		pointer-events: none;
+		stroke: $stability;
+		fill: $stability;
+
+		.line {
+			fill: none;
+			stroke-dasharray: 8, 3, 1, 3;
+		}
+
+		.arrow-line {
+			fill: none;
+			stroke-width: 3px;
+		}
+	}
+}

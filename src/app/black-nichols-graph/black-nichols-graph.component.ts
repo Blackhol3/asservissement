@@ -43,24 +43,21 @@ export class BlackNicholsGraphComponent {
 				data: [],
 				type: 'scatter',
 				name: 'Réponse',
-				color: Chart.colors.output,
 				id: SeriesType.Real,
 				turboThreshold: 0,
+				lineWidth: 2,
 			},
 			{
 				data: [[-180, 0]],
 				type: 'line',
 				name: 'Marges de stabilité',
-				color: Chart.colors.stability,
 				id: SeriesType.StabilityMargins,
 				enableMouseTracking: false,
 				marker: {
 					enabled: true,
 					symbol: 'plus',
-					lineColor: undefined,
-					lineWidth: 2,
 				},
-				visible: false
+				visible: false,
 			},
 		],
 		xAxis: {
@@ -69,10 +66,7 @@ export class BlackNicholsGraphComponent {
 			softMax: 5,
 			
 			tickInterval: 90,
-			gridLineWidth: 2,
-			
 			minorTickInterval: 15,
-			minorGridLineWidth: 1,
 			
 			events: {
 				afterSetExtremes: () => {
@@ -94,15 +88,10 @@ export class BlackNicholsGraphComponent {
 				},
 			},
 		},
-		plotOptions: {
-			series: {
-				lineWidth: 2,
-			},
-		},
 		tooltip: {
 			formatter: function() {
 				return [
-					`<span style="color:${this.color as string}">\u25CF</span> <span style="font-size:10px;">${this.series.name}</span>`,
+					`<span class="highcharts-color-${this.colorIndex}">\u25CF</span> <span style="font-size:10px;">${this.series.name}</span>`,
 					`Pulsation : <b>${Chart.formatFrequency((this as any).w)}</b>`, // eslint-disable-line
 					`Phase : <b>${formatter.format(this.x)} °</b>`,
 					`Gain : <b>${formatter.format(this.y!)} dB</b>`,
@@ -150,17 +139,18 @@ export class BlackNicholsGraphComponent {
 			draggable: '',
 			shapeOptions: {
 				type: 'path',
-				stroke: Chart.colors.stability,
-				fill: Chart.colors.stability,
+				stroke: 'context-stroke',
+				fill: 'context-fill',
 			},
 			shapes: [
 				{
-					strokeWidth: 3,
+					className: 'arrow-line',
 					points: [
 						{x: -180, y: gainMargin.gain, xAxis: 0, yAxis: 0},
 						{x: -180, y: 0, xAxis: 0, yAxis: 0},
 					],
 				}, {
+					className: 'arrow-head',
 					points: [
 						{x: -180, y: gainMargin.gain, xAxis: 0, yAxis: 0},
 						{x: -180, y: 0, xAxis: 0, yAxis: 0},
@@ -189,17 +179,18 @@ export class BlackNicholsGraphComponent {
 			draggable: '',
 			shapeOptions: {
 				type: 'path',
-				stroke: Chart.colors.stability,
-				fill: Chart.colors.stability,
+				stroke: 'context-stroke',
+				fill: 'context-fill',
 			},
 			shapes: [
 				{
-					strokeWidth: 3,
+					className: 'arrow-line',
 					points: [
 						{x: -180, y: 0, xAxis: 0, yAxis: 0},
 						{x: phaseMargin.phase, y: 0, xAxis: 0, yAxis: 0},
 					],
 				}, {
+					className: 'arrow-head',
 					points: [
 						{x: -180, y: 0, xAxis: 0, yAxis: 0},
 						{x: phaseMargin.phase, y: 0, xAxis: 0, yAxis: 0},

@@ -10,7 +10,6 @@ export const colors = {
 
 export const options: Highcharts.Options = {
 	chart: {
-		backgroundColor: 'transparent',
 		panKey: 'ctrl',
 		panning: {
 			enabled: true,
@@ -22,12 +21,13 @@ export const options: Highcharts.Options = {
 		spacing: [5, 20, 5, 10],
 		events: {
 			fullscreenClose: function (this: Highcharts.Chart) {
-				this.update({chart: {backgroundColor: 'transparent'}});
+				this.container.querySelector<HTMLElement>('.highcharts-background')!.style.removeProperty('display');
 			},
 			fullscreenOpen: function (this: Highcharts.Chart) {
-				this.update({chart: {backgroundColor: '#FAFAFA'}});
+				this.container.querySelector<HTMLElement>('.highcharts-background')!.style.display = 'block';
 			},
 		},
+		styledMode: true,
 	},
 	exporting: {
 		buttons: {
@@ -50,13 +50,6 @@ export const options: Highcharts.Options = {
 		text: undefined,
 	},
 	legend: {
-		itemStyle: {
-			fontWeight: 'bold',
-		},
-		itemHiddenStyle: {
-			color: '#cccccc',
-			textDecoration: 'none',
-		},
 		verticalAlign: 'top',
 	},
 	credits: {
@@ -67,31 +60,10 @@ export const options: Highcharts.Options = {
 			marker: {
 				enabled: false,
 			},
-			states: {
-				inactive: {
-					opacity: 0.5,
-				},
-			},
 		},
 	},
 	xAxis: {
 		crosshair: true,
-		labels: {
-			style: {
-				color: '#666666',
-				fontSize: '11px',
-			}
-		},
-		lineColor: '#ccd6eb',
-		tickColor: '#ccd6eb',
-	},
-	yAxis: {
-		labels: {
-			style: {
-				color: '#666666',
-				fontSize: '11px',
-			}
-		}
 	},
 };
 

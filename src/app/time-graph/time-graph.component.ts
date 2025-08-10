@@ -40,57 +40,46 @@ export class TimeGraphComponent {
 				data: [],
 				type: 'line',
 				name: 'Commande',
-				color: Chart.colors.input,
 				id: SeriesType.Input,
 			},
 			{
 				data: [],
 				type: 'line',
 				name: 'Réponse',
-				color: Chart.colors.output,
 				id: SeriesType.Output,
 			},
 			{
 				data: [],
 				type: 'line',
 				name: 'Asymptote',
-				color: Chart.colors.output,
 				id: SeriesType.Asymptote,
-				dashStyle: 'LongDashDot',
-				lineWidth: 1,
 				enableMouseTracking: false,
 			},
 			{
 				data: [],
 				type: 'line',
 				name: "Tangente à l'origine",
-				color: Chart.colors.output,
 				id: SeriesType.Tangent,
-				dashStyle: 'LongDashDot',
-				lineWidth: 1,
+				enableMouseTracking: false,
 			},
 			{
 				data: [],
 				type: 'arearange',
 				name: 'Temps de réponse à 5 %',
-				color: Chart.colors.rapidity,
 				id: SeriesType.Rapidity,
-				lineWidth: 1,
-				fillOpacity: 0.5,
+				enableMouseTracking: false,
 			},
 			{
 				data: [[0, 0], [100, 0]],
 				type: 'line',
-				color: 'rgba(0, 0, 0, 0)',
 				showInLegend: false,
+				enableMouseTracking: false,
 			},
 		],
 		xAxis: {
 			title: {text : 'Temps (s)'},
 			min: this.tMin,
 			max: this.tMax,
-			gridLineWidth: 1,
-			crosshair: true,
 			events: {
 				afterSetExtremes: (event: Highcharts.AxisSetExtremesEventObject) => {
 					this.tMin = event.min;
@@ -108,7 +97,7 @@ export class TimeGraphComponent {
 			formatter: function() {
 				return [
 					`<span style="font-size:10px">${formatter.format(this.x)} s</span>`,
-					`<span style="color:${this.color as string}">\u25CF</span> ${this.series.name} : <b>${formatter.format(this.y!)}</b>`,
+					`<span class="highcharts-color-${this.colorIndex}">\u25CF</span> ${this.series.name} : <b>${formatter.format(this.y!)}</b>`,
 				].join('<br />');
 			},
 		},

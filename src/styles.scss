@@ -1,4 +1,43 @@
-/* You can add global styles to this file, and also import other style files */
+@use '../node_modules/highcharts/css/highcharts';
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.highcharts-background {
+	display: none;
+	fill: #fafafa;
+}
+
+.highcharts-legend-item {
+	font-weight: bold;
+}
+
+.highcharts-legend-item-hidden * {
+	fill: #cccccc !important;
+	stroke: #cccccc !important;
+	text-decoration: none;
+}
+
+.highcharts-graph {
+	stroke-linecap: butt;
+}
+
+.highcharts-series-inactive {
+	opacity: 0.5;
+}
+
+.highcharts-axis-labels {
+	fill: #666666;
+	font-size: 11px;
+}
+
+.highcharts-xaxis {
+	.highcharts-axis-line, .highcharts-tick {
+		stroke: #ccd6eb;
+	}
+}
+
+.highcharts-annotation-label text {
+	color: #fafafa;
+	font-size: 0.7em;
+}

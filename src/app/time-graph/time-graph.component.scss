@@ -1,4 +1,45 @@
+@use '../chart';
+
 :host {
 	display: block;
 	height: 100%;
+	
+	::ng-deep {
+		.highcharts-color-0 {
+			stroke: chart.$input;
+			fill: chart.$input;
+		}
+
+		.highcharts-color-1 {
+			stroke: chart.$output;
+			fill: chart.$output;
+		}
+
+		.highcharts-color-2, .highcharts-color-3 {
+			.highcharts-graph {
+				stroke: chart.$output;
+				stroke-dasharray: 8, 3, 1, 3;
+				stroke-width: 1px;
+			}
+		}
+
+		.highcharts-color-4 {
+			.highcharts-graph {
+				stroke: chart.$rapidity;
+				stroke-width: 1px;
+			}
+			.highcharts-area {
+				fill: chart.$rapidity;
+				fill-opacity: 0.5;
+			}
+		}
+
+		.highcharts-color-5 {
+			visibility: hidden;
+		}
+
+		.highcharts-xaxis-grid .highcharts-grid-line {
+			stroke-width: 1px;
+		}
+	}
 }
