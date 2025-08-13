@@ -19,6 +19,12 @@ Highcharts.SVGRenderer.prototype.symbols.plus = function (x: number, y: number, 
 	return ['M', x + w/2, y, 'v', h, 'm', -w/2, -h/2, 'h', w, 'z'];
 };
 
+/** @link https://github.com/highcharts/highcharts/issues/21915 */
+Highcharts.wrap(Highcharts.Series.prototype, 'drawPoints', function (this: Highcharts.Series, proceed: (...args: unknown[]) => unknown, ...args: unknown[]) {
+	Highcharts.merge(true, this.options, {marker: {enabled: false}});
+	return proceed.apply(this, args);
+});
+
 enableMapSet();
 
 if (environment.production) {

@@ -1,6 +1,5 @@
 import { Component, ChangeDetectionStrategy, ViewChild, ElementRef, type AfterViewInit, computed, effect, input, linkedSignal, untracked, signal } from '@angular/core';
 
-import deepmerge from 'deepmerge';
 import Highcharts from 'highcharts/es-modules/masters/highcharts.src';
 
 import { SeriesType } from '../common-type';
@@ -178,17 +177,14 @@ export class BodeGraphComponent implements AfterViewInit {
 	}
 	
 	ngAfterViewInit(): void {
-		this.chartGain = Highcharts.chart(this.chartGainElement!.nativeElement, deepmerge.all([Chart.options, this.optionsCommon, this.optionsGain]));
-		this.chartPhase = Highcharts.chart(this.chartPhaseElement!.nativeElement, deepmerge.all([Chart.options, this.optionsCommon, this.optionsPhase]));
+		this.chartGain = Highcharts.chart(this.chartGainElement!.nativeElement, Highcharts.merge(Chart.options, this.optionsCommon, this.optionsGain));
+		this.chartPhase = Highcharts.chart(this.chartPhaseElement!.nativeElement, Highcharts.merge(Chart.options, this.optionsCommon, this.optionsPhase));
 
 		this.getSeries(this.chartGain, SeriesType.StabilityMargins).setData([[wExtremeMin, 0], [wExtremeMax, 0]], false);
 		this.getSeries(this.chartPhase, SeriesType.StabilityMargins).setData([[wExtremeMin, -180], [wExtremeMax, -180]], false);
 		
 		Chart.synchronize([this.chartGain, this.chartPhase]);
 		this.chartsReady.set(true);
-		
-		new ResizeObserver(() => this.chartGain!.reflow()).observe(this.chartGainElement!.nativeElement);
-		new ResizeObserver(() => this.chartPhase!.reflow()).observe(this.chartPhaseElement!.nativeElement);
 	}
 
 	update(animate = true, nbPoints = 1001): void {

@@ -1,6 +1,5 @@
 import { Component, ChangeDetectionStrategy, ElementRef, computed, effect, input } from '@angular/core';
 
-import deepmerge from 'deepmerge';
 import Highcharts from 'highcharts/es-modules/masters/highcharts.src';
 
 import { SeriesType } from '../common-type';
@@ -99,7 +98,7 @@ export class NyquistGraphComponent {
 		private readonly state: StateService,
 	) {
 		const element = this.chartElement.nativeElement;
-		this.chart = Highcharts.chart(element, deepmerge.all([Chart.options, this.options]));
+		this.chart = Highcharts.chart(element, Highcharts.merge(Chart.options, this.options));
 		new ResizeObserver(() => {
 			this.chart.reflow();
 			this.updateAxes();

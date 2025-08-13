@@ -1,4 +1,4 @@
-import { SimpleElements } from './simple-elements';
+import { SimpleElements, SimpleElementTypes } from './simple-elements';
 
 import { FirstOrder } from './simple-element-type/first-order';
 import { SimpleElement } from './simple-element/simple-element';
@@ -12,6 +12,16 @@ const e3 = new SimpleElement(firstOrder, [5, 6]);
 function getAlignedTex(tex: string) {
 	return `\\begin{align}${tex}\\end{align}`;
 }
+
+describe('SimpleElementTypes', () => {
+	it('should have unique names and short names', () => {
+		const names = SimpleElementTypes.map(type => type.name);
+		const shortNames = SimpleElementTypes.map(type => type.shortName);
+		
+		expect(names).toEqual([...new Set(names)]);
+		expect(shortNames).toEqual([...new Set(shortNames)]);
+	});
+});
 
 describe('SimpleElements', () => {
 	it('should calculate the global transfer function', () => {
