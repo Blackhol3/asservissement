@@ -80,7 +80,7 @@ export class TimeGraphComponent {
 			min: this.tMin,
 			max: this.tMax,
 			events: {
-				afterSetExtremes: (event: Highcharts.AxisSetExtremesEventObject) => {
+				afterSetExtremes: event => {
 					this.tMin = event.min;
 					this.tMax = event.max;
 					this.update(false);
@@ -180,6 +180,7 @@ export class TimeGraphComponent {
 			if (response.rapidity.wasInStabilizedArea) {
 				this.chart.addAnnotation({
 					id: 'Temps de réponse à 5 %',
+					animation: animate,
 					labels: [{
 						point: {
 							x: response.rapidity.time,
@@ -191,7 +192,7 @@ export class TimeGraphComponent {
 						text: 't<sub>5%</sub>',
 						useHTML: true,
 					}],
-				});
+				}, false);
 			}
 		}
 		

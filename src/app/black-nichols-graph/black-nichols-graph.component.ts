@@ -68,8 +68,10 @@ export class BlackNicholsGraphComponent {
 			minorTickInterval: 15,
 			
 			events: {
-				afterSetExtremes: () => {
-					this.update(false);
+				afterSetExtremes: event => {
+					if (event.trigger !== undefined) {
+						this.update(false);
+					}
 				},
 			},
 		},
@@ -122,20 +124,21 @@ export class BlackNicholsGraphComponent {
 		this.chart.removeAnnotation('Marge de gain');
 		this.chart.removeAnnotation('Marge de phase');
 		if (this.getSeries(SeriesType.StabilityMargins).visible) {
-			this.addGainMarginAnnotation(this.frequentialResponseCalculator().getGainMargin(response));
-			this.addPhaseMarginAnnotation(this.frequentialResponseCalculator().getPhaseMargin(response));
+			this.addGainMarginAnnotation(animate, this.frequentialResponseCalculator().getGainMargin(response));
+			this.addPhaseMarginAnnotation(animate, this.frequentialResponseCalculator().getPhaseMargin(response));
 		}
 
 		this.chart.redraw(animate);
 	}
 
-	addGainMarginAnnotation(gainMargin: GainMargin): void {
+	addGainMarginAnnotation(animate: boolean, gainMargin: GainMargin): void {
 		if (gainMargin === null) {
 			return;
 		}
 
 		this.chart.addAnnotation({
 			id: 'Marge de gain',
+			animation: animate,
 			draggable: '',
 			shapeOptions: {
 				type: 'path',
@@ -166,16 +169,17 @@ export class BlackNicholsGraphComponent {
 				x: -gainMargin.gain > 0 ? -10 : 10,
 				y: 0,
 			}],
-		});
+		}, false);
 	}
 
-	addPhaseMarginAnnotation(phaseMargin: PhaseMargin): void {
+	addPhaseMarginAnnotation(animate: boolean, phaseMargin: PhaseMargin): void {
 		if (phaseMargin === null) {
 			return;
 		}
 
 		this.chart.addAnnotation({
 			id: 'Marge de phase',
+			animation: animate,
 			draggable: '',
 			shapeOptions: {
 				type: 'path',
@@ -206,7 +210,7 @@ export class BlackNicholsGraphComponent {
 				x: 0,
 				y: (phaseMargin.phase + 180) > 0 ? -10 : 10,
 			}],
-		});
+		}, false);
 	}
 	
 	setLineData(type: SeriesType, x: number[], y: number[], w: number[]): void {

@@ -12,8 +12,15 @@ import * as Chart from '../chart';
 const wExtremeMin = 1e-12;
 const wExtremeMax = 1e12;
 
-const wDefaultMin = 1e-2;
+const wDefaultMin = 1e-2 * 0.999;
 const wDefaultMax = 1e1;
+
+const xAxisDefaultOptions: Highcharts.XAxisOptions = {
+	type: 'logarithmic',
+	tickInterval: 1,
+	minorTicks: true,
+	minorTicksPerMajor: 8,
+};
 
 const formatter = new Intl.NumberFormat(undefined, {
 	minimumFractionDigits: 2,
@@ -48,18 +55,17 @@ export class BodeGraphComponent implements AfterViewInit {
 		const wMax = Math.pow(10, Math.ceil(Math.log10(Math.max(...ws)) + 0.5));
 		
 		if (this.chartGain !== undefined && this.chartPhase !== undefined) {
-			const options: Highcharts.Options = {
-				xAxis: {
-					min: wMin,
-					max: wMax,
-				},
+			const options: Highcharts.XAxisOptions = {
+				...xAxisDefaultOptions,
+				min: wMin * 0.999,
+				max: wMax,
 			};
-			
+
 			// Reset user zoom without triggering a redraw
 			(this.chartGain as any).transform({reset: true}); // eslint-disable-line
-
-			this.chartGain.update(options, false);
-			this.chartPhase.update(options, false);
+			
+			this.chartGain.update({xAxis: options}, false);
+			this.chartPhase.update({xAxis: options}, false);
 		}
 
 		return [wMin, wMax];
@@ -106,10 +112,7 @@ export class BodeGraphComponent implements AfterViewInit {
 			title: {text : 'Pulsation (rad/s)'},
 			min: wDefaultMin,
 			max: wDefaultMax,
-			type: 'logarithmic',
-			
-			tickInterval: 1,
-			minorTickInterval: 0.1,
+			...xAxisDefaultOptions,
 		},
 		legend: {
 			events: {
@@ -131,12 +134,21 @@ export class BodeGraphComponent implements AfterViewInit {
 			marginLeft: 60,
 		},
 	};
-	
+
 	optionsGain: Highcharts.Options = {
 		xAxis: {
 			events: {
-				afterSetExtremes: (event: Highcharts.AxisSetExtremesEventObject) => {
+				afterSetExtremes: event => {
 					if (event.trigger !== undefined) {
+						const options: Highcharts.XAxisOptions = event.max > 10*event.min ? xAxisDefaultOptions : {
+							type: 'linear',
+							tickInterval: 10 ** Math.floor(Math.log10(event.max - event.min)),
+							minorTicksPerMajor: 5,
+						};
+
+						this.chartGain!.update({xAxis: options}, false);
+						this.chartPhase!.update({xAxis: options}, false);
+						
 						this.frequencyRange.set([event.min, event.max]);
 						this.update(false);
 					}
@@ -219,21 +231,22 @@ export class BodeGraphComponent implements AfterViewInit {
 		this.chartPhase.removeAnnotation('Marge de gain');
 		this.chartPhase.removeAnnotation('Marge de phase');
 		if (visibleSeries.has(SeriesType.StabilityMargins)) {
-			this.addGainMarginAnnotation(this.frequentialResponseCalculator().getGainMargin(response));
-			this.addPhaseMarginAnnotation(this.frequentialResponseCalculator().getPhaseMargin(response));
+			this.addGainMarginAnnotation(animate, this.frequentialResponseCalculator().getGainMargin(response));
+			this.addPhaseMarginAnnotation(animate, this.frequentialResponseCalculator().getPhaseMargin(response));
 		}
-
+		
 		this.chartGain.redraw(animate);
 		this.chartPhase.redraw(animate);
 	}
 
-	addGainMarginAnnotation(gainMargin: GainMargin): void {
+	addGainMarginAnnotation(animate: boolean, gainMargin: GainMargin): void {
 		if (gainMargin === null) {
 			return;
 		}
 
 		this.chartGain!.addAnnotation({
 			id: 'Marge de gain',
+			animation: animate,
 			draggable: '',
 			shapeOptions: {
 				type: 'path',
@@ -270,10 +283,11 @@ export class BodeGraphComponent implements AfterViewInit {
 				x: 10,
 				y: 0,
 			}],
-		});
+		}, false);
 
 		this.chartPhase!.addAnnotation({
 			id: 'Marge de gain',
+			animation: animate,
 			draggable: '',
 			shapes: [{
 				type: 'path',
@@ -283,16 +297,17 @@ export class BodeGraphComponent implements AfterViewInit {
 					{x: gainMargin.frequency, y: +1e6, xAxis: 0, yAxis: 0},
 				],
 			}],
-		});
+		}, false);
 	}
 
-	addPhaseMarginAnnotation(phaseMargin: PhaseMargin): void {
+	addPhaseMarginAnnotation(animate: boolean, phaseMargin: PhaseMargin): void {
 		if (phaseMargin === null) {
 			return;
 		}
 
 		this.chartGain!.addAnnotation({
 			id: 'Marge de phase',
+			animation: animate,
 			draggable: '',
 			shapes: [{
 				type: 'path',
@@ -302,10 +317,11 @@ export class BodeGraphComponent implements AfterViewInit {
 					{x: phaseMargin.frequency, y: -1e6, xAxis: 0, yAxis: 0},
 				],
 			}],
-		});
+		}, false);
 
 		this.chartPhase!.addAnnotation({
 			id: 'Marge de phase',
+			animation: animate,
 			draggable: '',
 			shapeOptions: {
 				type: 'path',
@@ -342,7 +358,7 @@ export class BodeGraphComponent implements AfterViewInit {
 				x: 10,
 				y: 0,
 			}],
-		});
+		}, false);
 	}
 	
 	setLineData(chart: Highcharts.Chart, type: SeriesType, x: number[], y: number[]): void {

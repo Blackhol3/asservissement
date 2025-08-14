@@ -154,6 +154,7 @@ export class NyquistGraphComponent {
 
 		this.chart.addAnnotation({
 			id: 'Marge de gain',
+			animation: false,
 			draggable: '',
 			shapeOptions: {
 				type: 'path',
@@ -184,7 +185,7 @@ export class NyquistGraphComponent {
 				x: 0,
 				y: -gainMargin.gain > 0 ? -10 : 10,
 			}],
-		});
+		}, false);
 	}
 
 	addPhaseMarginAnnotation(phaseMargin: PhaseMargin): void {
@@ -205,6 +206,7 @@ export class NyquistGraphComponent {
 
 		this.chart.addAnnotation({
 			id: 'Marge de phase',
+			animation: false,
 			draggable: '',
 			shapeOptions: {
 				type: 'path',
@@ -227,7 +229,7 @@ export class NyquistGraphComponent {
 				x: -10,
 				y: 0,
 			}],
-		});
+		}, false);
 	}
 	
 	updateAxes(): void {
