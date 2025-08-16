@@ -32,7 +32,7 @@ export class GraphComponent {
 	
 	readonly transferFunction = computed(() => this.state.simpleElements().transferFunction);
 	readonly plottedTransferFunction = computed(() => {
-		return this.graphOptions().loopType === LoopType.Open ? this.transferFunction() : this.transferFunction().getClosedLoopTransferFunction();
+		return this.graphOptions().loopType === LoopType.Open ? this.transferFunction() : this.transferFunction().getClosedLoopTransferFunction().factorize();
 	});
 
 	readonly LoopType = LoopType;

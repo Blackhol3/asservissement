@@ -54,6 +54,10 @@ export class TransferFunction {
 		
 		return new TransferFunction(numerators, denominators);
 	}
+
+	factorize(tolerance?: number): TransferFunction {
+		return new TransferFunction(this.numerator.factorize(tolerance), this.denominator.factorize(tolerance));
+	}
 	
 	getExpandedTransferFunction(): TransferFunction {
 		let expandedNumerator = new Polynomial([1]);

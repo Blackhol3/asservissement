@@ -1,5 +1,14 @@
 import { Polynomial } from './polynomial';
 
+import { Complex } from './complex';
+
+function expectArrayCloseTo(array1: readonly unknown[], array2: readonly number[], precision?: number) {
+	expect(array1.length).toBe(array2.length);
+	for (let i = 0; i < array1.length; ++i) {
+		expect(array1[i]).toBeCloseTo(array2[i], precision);
+	}
+}
+
 describe('Polynome', () => {
 	it('should create an instance', () => {
 		expect(new Polynomial()).toBeTruthy();
@@ -93,13 +102,41 @@ describe('Polynome', () => {
 		expect(() => { p.power(-1); }).toThrowError();
 		expect(() => { p.power(1.2); }).toThrowError();
 	});
+
+	it('should evaluate', () => {
+		const p = new Polynomial([1, 2, 3, 4, 5]);
+		const c = new Complex(3, 9);
+		const result = p.evaluate(c);
+		
+		expect(result.real).toBe(8323);
+		expect(result.imag).toBe(-40644);
+	});
+
+	it('should factorize', () => {
+		const p1 = new Polynomial([2, 2, 1])
+		const p2 = new Polynomial([10, 20]);
+		const p3 = new Polynomial([0, 1, 2]);
+		let result = p1.multiply(p2).multiply(p3).factorize();
+
+		expect(result).toHaveSize(4);
+		expectArrayCloseTo(result[0].coefficients, [0, 20], 6);
+		expectArrayCloseTo(result[1].coefficients, [1, 2], 6);
+		expectArrayCloseTo(result[2].coefficients, [1, 2], 6);
+		expectArrayCloseTo(result[3].coefficients, [1, 1, 0.5], 6);
+
+		result = p1.factorize();
+
+		expect(result).toHaveSize(2);
+		expectArrayCloseTo(result[0].coefficients, [2], 6);
+		expectArrayCloseTo(result[1].coefficients, [1, 1, 0.5], 6);
+	});
 	
 	it('should calculate the complex value', () => {
 		const p = new Polynomial([1, 2, 3, 4, 5, 6]);
 		const result = p.getComplexValue(10);
 		
-		expect(result[0]).toBe(1 - 300 + 50000);
-		expect(result[1]).toBe(20 - 4000 + 600000);
+		expect(result.real).toBe(1 - 300 + 50000);
+		expect(result.imag).toBe(20 - 4000 + 600000);
 	});
 
 	it('should calculate the multiplicative factor with another polynome', () => {
@@ -144,5 +181,31 @@ describe('Polynome', () => {
 
 		p = new Polynomial([0, 0.1, 0.2, 2.5]);
 		expect(p.getCharacteristicFrequency()).toBe(1/5);
+	});
+
+	it('should calculate the roots', () => {
+		const p1 = new Polynomial([2, 2, 1])
+		const p2 = new Polynomial([10, 20]);
+		const p3 = new Polynomial([0, 1, 2]);
+		const p = p1.multiply(p2).multiply(p3);
+		const result = p.getRoots().sort((a, b) => {
+			const realDiff = a.real - b.real;
+			return Math.abs(realDiff) > 1e-6 ? realDiff : a.imag - b.imag;
+		});
+
+		expect(result[0].real).toBeCloseTo(-1, 6);
+		expect(result[0].imag).toBeCloseTo(-1, 6);
+
+		expect(result[1].real).toBeCloseTo(-1, 6);
+		expect(result[1].imag).toBeCloseTo(+1, 6);
+
+		expect(result[2].real).toBeCloseTo(-0.5, 6);
+		expect(result[2].imag).toBeCloseTo(0, 6);
+
+		expect(result[3].real).toBeCloseTo(-0.5, 6);
+		expect(result[3].imag).toBeCloseTo(0, 6);
+
+		expect(result[4].real).toBeCloseTo(0, 6);
+		expect(result[4].imag).toBeCloseTo(0, 6);
 	});
 });

@@ -71,12 +71,12 @@ export class FrequentialResponseCalculator {
 			const w = Math.pow(10, wLog);
 			
 			let complexValue = this.expandedTransferFunction.numerator.getComplexValue(w);
-			let gain = 20*Math.log10(Math.hypot(complexValue[0], complexValue[1]));
-			let phase = Math.atan2(complexValue[1], complexValue[0]);
+			let gain = 20*Math.log10(complexValue.abs);
+			let phase = complexValue.theta;
 			
 			complexValue = this.expandedTransferFunction.denominator.getComplexValue(w);
-			gain -= 20*Math.log10(Math.hypot(complexValue[0], complexValue[1]));
-			phase -= Math.atan2(complexValue[1], complexValue[0]);
+			gain -= 20*Math.log10(complexValue.abs);
+			phase -= complexValue.theta;
 			
 			ws.push(w);
 			gains.push(gain);
