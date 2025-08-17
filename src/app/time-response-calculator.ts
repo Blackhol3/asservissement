@@ -1,15 +1,23 @@
 import { InputType } from './common-type';
 import { TransferFunction } from './transfer-function';
 
+function floorToPowerOfTwo(x: number) {
+	return Math.pow(2, Math.floor(Math.log2(x)));
+}
+
 export class TimeResponseCalculator {
+	readonly characteristicTime;
+
 	constructor(
 		protected transferFunction: TransferFunction,
 		protected inputType: InputType,
-	) {}
+	) {
+		this.characteristicTime = Math.hypot(...this.transferFunction.getExpandedTransferFunction().denominator.getRoots().map(root => -1/root.real));
+	}
 
-	getResponse(tMin: number, tMax: number, dt: number, nbPoints: number) {
+	getResponse(tMin: number, tMax: number, nbPoints: number) {
 		const dtMin = (tMax - tMin)/(nbPoints - 1);
-		dt = Math.min(dt, dtMin);
+		const dt = floorToPowerOfTwo(Math.min(this.characteristicTime / 5e3, dtMin));
 		
 		const recursiveTransferFunction = this.transferFunction.getRecursiveTransferFunction(dt);
 		const horizontalAsymptote = this.getAsymptote(tMin, tMax)[0];

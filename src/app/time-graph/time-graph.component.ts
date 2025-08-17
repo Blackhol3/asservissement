@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, ElementRef, computed, effect, input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ElementRef, computed, effect, input, linkedSignal, untracked } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import Highcharts from 'highcharts/es-modules/masters/highcharts.src';
@@ -27,11 +27,9 @@ export class TimeGraphComponent {
 
 	readonly inputType = computed(() => this.graphOptions().inputType);
 	readonly timeResponseCalculator = computed(() => new TimeResponseCalculator(this.transferFunction(), this.inputType()));
+	readonly timeRange = linkedSignal(() => this.getDefaultExtremes());
 	
 	readonly chart: Highcharts.Chart;
-	
-	tMin: number = -0.05;
-	tMax: number = 5;
 	
 	options: Highcharts.Options = {
 		series: [
@@ -69,7 +67,7 @@ export class TimeGraphComponent {
 				enableMouseTracking: false,
 			},
 			{
-				data: [[0, 0], [100, 0]],
+				data: [[0, 0], [Number.POSITIVE_INFINITY, 0]],
 				type: 'line',
 				showInLegend: false,
 				enableMouseTracking: false,
@@ -77,13 +75,14 @@ export class TimeGraphComponent {
 		],
 		xAxis: {
 			title: {text : 'Temps (s)'},
-			min: this.tMin,
-			max: this.tMax,
+			min: 0,
+			max: 5,
 			events: {
 				afterSetExtremes: event => {
-					this.tMin = event.min;
-					this.tMax = event.max;
-					this.update(false);
+					if (event.trigger !== undefined) {
+						this.timeRange.set(event.userMin !== undefined ? [event.min, event.max] : this.getDefaultExtremes());
+						this.update(false);
+					}
 				},
 			},
 		},
@@ -120,7 +119,7 @@ export class TimeGraphComponent {
 		effect(() => this.update());
 	}
 
-	update(animate = true, dt = 1e-3, nbPoints = 1001): void {
+	update(animate = true, nbPoints = 1001): void {
 		const visibleSeries = this.graphOptions().visibleSeries;
 		for (const type of this.options.series!.map(x => x.id).filter(id => id !== undefined) as SeriesType[]) {
 			this.getSeries(type).setVisible(visibleSeries.has(type), false);
@@ -146,7 +145,8 @@ export class TimeGraphComponent {
 
 		this.state.projectionMode();
 
-		const response = this.timeResponseCalculator().getResponse(this.tMin, this.tMax, dt, nbPoints);
+		const [tMin, tMax] = untracked(this.timeRange);
+		const response = this.timeResponseCalculator().getResponse(tMin, tMax, nbPoints);
 		
 		this.setLineData(SeriesType.Input, response.input.x, response.input.y);
 		this.setLineData(SeriesType.Output, response.output.x, response.output.y);
@@ -154,16 +154,16 @@ export class TimeGraphComponent {
 		if (this.getSeries(SeriesType.Asymptote).visible) {
 			this.setLineData(
 				SeriesType.Asymptote,
-				[this.tMin, this.tMax],
-				this.timeResponseCalculator().getAsymptote(this.tMin, this.tMax),
+				[tMin, tMax],
+				this.timeResponseCalculator().getAsymptote(tMin, tMax),
 			);
 		}
 		
 		if (this.getSeries(SeriesType.Tangent).visible) {
 			this.setLineData(
 				SeriesType.Tangent,
-				[this.tMin, this.tMax],
-				this.timeResponseCalculator().getTangent(this.tMin, this.tMax),
+				[tMin, tMax],
+				this.timeResponseCalculator().getTangent(tMin, tMax),
 			);
 		}
 		
@@ -171,8 +171,8 @@ export class TimeGraphComponent {
 		if (this.getSeries(SeriesType.Rapidity).visible) {
 			this.getSeries(SeriesType.Rapidity).setData(
 				[
-					[this.tMin, ...response.rapidity.stabilizedArea],
-					[this.tMax, ...response.rapidity.stabilizedArea],
+					[tMin, ...response.rapidity.stabilizedArea],
+					[tMax, ...response.rapidity.stabilizedArea],
 				],
 				false
 			);
@@ -214,5 +214,23 @@ export class TimeGraphComponent {
 		if (this.snackBar._openedSnackBarRef === null) {
 			this.snackBar.open(message, undefined, {duration: 3000});
 		}
+	}
+
+	protected getDefaultExtremes(): [number, number] {
+		const min = -0.05;
+
+		const rawMax = 5 * this.timeResponseCalculator().characteristicTime;
+		const roundedMax = Math.pow(10, Math.ceil(Math.log10(rawMax)));
+		const max = (roundedMax / 2 >= rawMax) ? roundedMax / 2 : roundedMax;
+
+		if (this.chart.resetZoomButton) {
+			this.chart.resetZoomButton.destroy();
+			this.chart.resetZoomButton = undefined;
+		}
+
+		this.chart.xAxis[0].setExtremes(min, max, false);
+		this.chart.yAxis[0].setExtremes(undefined, undefined, false);
+
+		return [min, max];
 	}
 }
