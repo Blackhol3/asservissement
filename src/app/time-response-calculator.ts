@@ -14,8 +14,8 @@ export class TimeResponseCalculator {
 		const recursiveTransferFunction = this.transferFunction.getRecursiveTransferFunction(dt);
 		const horizontalAsymptote = this.getAsymptote(tMin, tMax)[0];
 		
-		const input_memory = new Array(recursiveTransferFunction.numerator.order + 1).fill(0);
-		const output_memory = new Array(recursiveTransferFunction.denominator.order).fill(0);
+		const input_memory = new Array<number>(recursiveTransferFunction.numerator.order + 1).fill(0);
+		const output_memory = new Array<number>(recursiveTransferFunction.denominator.order).fill(0);
 		
 		const ts = [];
 		const inputs = [];

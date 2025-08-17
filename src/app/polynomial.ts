@@ -1,4 +1,5 @@
 import { Complex } from './complex';
+import { config } from './misc';
 
 function productOfDifferences(values: Complex[], index: number) {
 	let result = new Complex(1, 0);
@@ -41,7 +42,7 @@ export class Polynomial {
 		return this.coefficients.reduce((accumulator, coefficient) => accumulator + (coefficient !== 0 ? 1 : 0), 0);
 	}
 	
-	get smallerNonZeroCoefficient(): number {
+	get zeroMultiplicity(): number {
 		return this.coefficients.findIndex((coefficient) => coefficient !== 0);
 	}
 	
@@ -93,29 +94,38 @@ export class Polynomial {
 		return result;
 	}
 
+	/** Factorize the zero root, with the first factor as a monomial and the second with a unit constant term */
+	factorizeZero(): [Polynomial, Polynomial] {
+		return [
+			new Polynomial(this.coefficients.slice(0, this.zeroMultiplicity + 1)),
+			new Polynomial(this.coefficients.slice(this.zeroMultiplicity)).multiply(1 / this.at(this.zeroMultiplicity)),
+		];
+	}
+
 	/** Factorize the polynomial, in ascending order of root moduli, with the first factor as a monomial and the others with a unit constant term */
-	factorize(tolerance: number = 1e-6): Polynomial[] {
-		const coefficient = this.at(this.smallerNonZeroCoefficient);
-		if (this.smallerNonZeroCoefficient > 0) {
+	factorize(): Polynomial[] {
+		const coefficient = this.at(this.zeroMultiplicity);
+		if (this.zeroMultiplicity > 0) {
 			return [
-				new Polynomial(this.coefficients.slice(0, this.smallerNonZeroCoefficient + 1)),
-				...new Polynomial(this.coefficients.slice(this.smallerNonZeroCoefficient)).multiply(1 / coefficient).factorize().slice(1),
+				new Polynomial(this.coefficients.slice(0, this.zeroMultiplicity + 1)),
+				...new Polynomial(this.coefficients.slice(this.zeroMultiplicity)).multiply(1 / coefficient).factorize().slice(1),
 			];
 		}
 
-		const roots = this.getRoots().sort((a, b) => a.abs - b.abs);
-		const result = [new Polynomial([coefficient])];
+		const [monomial, polynomial] = this.factorizeZero();
+		const result = [monomial];
+		const roots = polynomial.getRoots().sort((a, b) => a.abs - b.abs);
 		
 		while (roots.length > 0) {
 			const root = roots.shift()!;
-			if (Math.abs(root.imag/root.real) < tolerance) {
+			if (Math.abs(root.imag/root.real) < config.roots.tolerance) {
 				result.push(new Polynomial([1, -1/root.real]));
 			}
 			else {
 				const inverseSquaredAbs = 1/(root.real**2 + root.imag**2);
 				result.push(new Polynomial([1, -2*root.real*inverseSquaredAbs, inverseSquaredAbs]));
 				
-				const conjugateIndex = roots.findIndex(other => Math.abs((root.imag + other.imag)/root.real) < tolerance);
+				const conjugateIndex = roots.findIndex(other => Math.abs((root.imag + other.imag)/root.real) < config.roots.tolerance);
 				roots.splice(conjugateIndex, 1);
 			}
 		}
@@ -146,7 +156,7 @@ export class Polynomial {
 			return null;
 		}
 
-		const factor = this.at(this.smallerNonZeroCoefficient) / polynome.at(polynome.smallerNonZeroCoefficient);
+		const factor = this.at(this.zeroMultiplicity) / polynome.at(polynome.zeroMultiplicity);
 		return this.coefficients.every((value, order) => value === factor * polynome.at(order)) ? factor : null;
 	}
 	
@@ -161,16 +171,16 @@ export class Polynomial {
 	}
 
 	getCharacteristicFrequency(): number | null {
-		const realOrder = this.order - this.smallerNonZeroCoefficient;
+		const realOrder = this.order - this.zeroMultiplicity;
 		if (realOrder === 0) {
 			return null;
 		}
 		
-		return Math.pow(this.at(this.smallerNonZeroCoefficient) / this.at(this.order), 1/realOrder);
+		return Math.pow(this.at(this.zeroMultiplicity) / this.at(this.order), 1/realOrder);
 	}
 
 	/** Find the polynomial's roots using the Durand–Kerner algorithm */
-	getRoots(tolerance: number = 1e-6, maximumIterations: number = 30): Complex[] {
+	getRoots(): Complex[] {
 		const leadingCoefficient = this.at(this.order);
 		if (leadingCoefficient !== 1) {
 			return this.multiply(1 / leadingCoefficient).getRoots();
@@ -182,7 +192,7 @@ export class Polynomial {
 			roots.push(initial.power(i));
 		}
 
-		for (let j = 0; j < maximumIterations; ++j) {
+		for (let j = 0; j < config.roots.maximumIterations; ++j) {
 			let maximumError = 0;
 
 			for (let i = 0; i < roots.length; ++i) {
@@ -195,7 +205,7 @@ export class Polynomial {
 				}
 			}
 
-			if (maximumError < tolerance) {
+			if (maximumError < config.roots.tolerance) {
 				break;
 			}
 		}
@@ -203,7 +213,7 @@ export class Polynomial {
 		return roots;
 	}
 	
-	getTex(laplaceVariable: string = 'p', maximumSignificantDigits: number = 3, maximumDigits: number = 4): string {
+	getTex(): string {
 		let tex = '';
 		this.coefficients.forEach((value, order) => {
 			if (value === 0) {
@@ -212,21 +222,21 @@ export class Polynomial {
 			
 			let valueText = '';
 			if (value !== 1) {
-				const localeString = value.toLocaleString('en-US', {useGrouping: false, minimumSignificantDigits: 1, maximumSignificantDigits: maximumSignificantDigits});
-				if (localeString.length > maximumDigits + (localeString.includes('.') ? 1 : 0)) {
-					const exponent = Math.floor(Math.log10(value));
-					valueText += (value / Math.pow(10, exponent)).toLocaleString(undefined, {minimumSignificantDigits: 1, maximumSignificantDigits: maximumSignificantDigits});
+				const localeString = value.toLocaleString('en-US', {useGrouping: false, minimumSignificantDigits: 1, maximumSignificantDigits: config.tex.maximumSignificantDigits});
+				if (localeString.length > config.tex.maximumDigits + (localeString.includes('.') ? 1 : 0)) {
+					const exponent = Math.floor(Math.log10(Math.abs(value)));
+					valueText += (value / Math.pow(10, exponent)).toLocaleString(undefined, {minimumSignificantDigits: 1, maximumSignificantDigits: config.tex.maximumSignificantDigits});
 					valueText += ' \\cdot 10^{' + exponent + '}';
 				}
 				else {
-					valueText += value.toLocaleString(undefined, {minimumSignificantDigits: 1, maximumSignificantDigits: maximumSignificantDigits});
+					valueText += value.toLocaleString(undefined, {minimumSignificantDigits: 1, maximumSignificantDigits: config.tex.maximumSignificantDigits});
 				}
 			}
 			
 			const orderText =
 				(order === 0) ? '' :
-				(order === 1) ? laplaceVariable :
-				laplaceVariable + '^{' + order + '}'
+				(order === 1) ? config.tex.laplaceVariable :
+				config.tex.laplaceVariable + '^{' + order + '}'
 			;
 			
 			if (value > 0) {

@@ -1,5 +1,17 @@
 import { Polynomial } from './polynomial';
 
+function getTexFromPolynomials(polynomials: readonly Polynomial[]) {
+	polynomials = polynomials.filter(value => value.order > 0 || value.at(0) !== 1);
+	return polynomials.length === 0 ? '1' : polynomials.map(value => {
+		let tex = value.getTex();
+		if (polynomials.length > 1 && value.numberOfNonZeroCoefficients > 1) {
+			tex = '( ' + tex + ' )';
+		}
+		
+		return tex;
+	}).join(' ');
+}
+
 export class TransferFunction {
 	constructor(readonly numerators: readonly Polynomial[] = [], readonly denominators: readonly Polynomial[] = []) {}
 	
@@ -31,32 +43,40 @@ export class TransferFunction {
 	get zeroMultiplicity(): number {
 		let zeroMultiplicity = 0;
 		
-		this.numerators.forEach((value) => { zeroMultiplicity -= value.smallerNonZeroCoefficient; });
-		this.denominators.forEach((value) => { zeroMultiplicity += value.smallerNonZeroCoefficient; });
+		this.numerators.forEach((value) => { zeroMultiplicity -= value.zeroMultiplicity; });
+		this.denominators.forEach((value) => { zeroMultiplicity += value.zeroMultiplicity; });
 		
 		return zeroMultiplicity;
+	}
+
+	get staticGain(): number {
+		let staticGain = 1;
+		
+		this.numerators.forEach((value) => { staticGain *= value.at(value.zeroMultiplicity); });
+		this.denominators.forEach((value) => { staticGain /= value.at(value.zeroMultiplicity); });
+		
+		return staticGain;
 	}
 	
 	multiply(factor: TransferFunction): TransferFunction {
 		const numerators = [...this.numerators, ...factor.numerators];
 		const denominators = [...this.denominators, ...factor.denominators];
 
-		for (let i = 0; i < numerators.length; ++i) {
-			for (let j = 0; j < denominators.length; ++j) {
-				const factor = numerators[i].getFactor(denominators[j]);
-				if (factor !== null) {
-					numerators[i] = new Polynomial([factor]);
-					denominators.splice(j, 1);
-					break;
-				}
-			}
-		}
-		
-		return new TransferFunction(numerators, denominators);
+		return new TransferFunction(numerators, denominators).simplify();
 	}
 
-	factorize(tolerance?: number): TransferFunction {
-		return new TransferFunction(this.numerator.factorize(tolerance), this.denominator.factorize(tolerance));
+	factorizeZero(): [TransferFunction, TransferFunction] {
+		const numerators = this.numerator.factorizeZero();
+		const denominators = this.denominator.factorizeZero();
+
+		return [
+			new TransferFunction([numerators[0]], [denominators[0]]),
+			new TransferFunction([numerators[1]], [denominators[1]]),
+		];
+	}
+
+	factorize(): TransferFunction {
+		return new TransferFunction(this.numerator.factorize(), this.denominator.factorize()).simplify();
 	}
 	
 	getExpandedTransferFunction(): TransferFunction {
@@ -66,7 +86,7 @@ export class TransferFunction {
 		this.numerators.forEach((value) => { expandedNumerator = expandedNumerator.multiply(value); });
 		this.denominators.forEach((value) => { expandedDenominator = expandedDenominator.multiply(value); });
 		
-		const simplificationOrder = Math.min(expandedNumerator.smallerNonZeroCoefficient, expandedDenominator.smallerNonZeroCoefficient);
+		const simplificationOrder = Math.min(expandedNumerator.zeroMultiplicity, expandedDenominator.zeroMultiplicity);
 		if (simplificationOrder > 0) {
 			expandedNumerator = new Polynomial(expandedNumerator.coefficients.slice(simplificationOrder));
 			expandedDenominator = new Polynomial(expandedDenominator.coefficients.slice(simplificationOrder));
@@ -96,27 +116,28 @@ export class TransferFunction {
 		return new TransferFunction([numerator], [denominator]);
 	}
 	
-	getTex(laplaceVariable?: string, maximumSignificantDigits?: number, maximumDigits?: number): string {
-		const numeratorsTexs: string[] = [];
-		this.numerators.forEach((value) => {
-			let tex = value.getTex(laplaceVariable, maximumSignificantDigits, maximumDigits);
-			if (this.numerators.length > 1 && value.numberOfNonZeroCoefficients > 1) {
-				tex = '\\( ' + tex + ' \\)';
+	getTex(keepFractionIfUnitDenominator = true): string {
+		const numeratorTex = getTexFromPolynomials(this.numerators);
+		const denominatorTex = getTexFromPolynomials(this.denominators);
+
+		return (keepFractionIfUnitDenominator || denominatorTex !== '1') ? `\\frac{${numeratorTex}}{${denominatorTex}}` : numeratorTex;
+	}
+
+	protected simplify(): TransferFunction {
+		const numerators = [...this.numerators];
+		const denominators = [...this.denominators];
+
+		for (let i = 0; i < numerators.length; ++i) {
+			for (let j = 0; j < denominators.length; ++j) {
+				const factor = numerators[i].getFactor(denominators[j]);
+				if (factor !== null) {
+					numerators[i] = new Polynomial([factor]);
+					denominators.splice(j, 1);
+					break;
+				}
 			}
-			
-			numeratorsTexs.push(tex);
-		});
-		
-		const denominatorsTexs: string[] = [];
-		this.denominators.forEach((value) => {
-			let tex = value.getTex(laplaceVariable, maximumSignificantDigits, maximumDigits);
-			if (this.denominators.length > 1 && value.numberOfNonZeroCoefficients > 1) {
-				tex = '\\( ' + tex + ' \\)';
-			}
-			
-			denominatorsTexs.push(tex);
-		});
-		
-		return '\\frac{' + numeratorsTexs.join(' \\cdot ') + '}{' + denominatorsTexs.join(' \\cdot ') + '}';
+		}
+
+		return new TransferFunction(numerators, denominators);
 	}
 }

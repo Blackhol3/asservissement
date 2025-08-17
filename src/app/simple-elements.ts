@@ -96,7 +96,22 @@ export class SimpleElements {
 			transferFunctionTex += '\\frac11';
 		}
 		else if (this.list.length > 1) {
-			transferFunctionTex += '\\\\&= ' + this.transferFunction.getExpandedTransferFunction().getTex();
+			const [monomial, expandedTransferFunction] = this.transferFunction.getExpandedTransferFunction().factorizeZero();
+			const isUnitMonomial = monomial.order === 0 && monomial.staticGain === 1;
+			const isUnitExpandedTransferFunction = expandedTransferFunction.order === 0 && expandedTransferFunction.staticGain === 1;
+
+			transferFunctionTex += '\\\\&= ';
+			if (isUnitMonomial && isUnitExpandedTransferFunction) {
+				transferFunctionTex += '1';
+			}
+			else {
+				if (!isUnitMonomial) {
+					transferFunctionTex += monomial.getTex(false);
+				}
+				if (!isUnitExpandedTransferFunction) {
+					transferFunctionTex += expandedTransferFunction.getTex();
+				}
+			}
 		}
 		
 		transferFunctionTex += '\\end{align}';
@@ -111,6 +126,7 @@ export class SimpleElements {
 		}
 		else {
 			transferFunctionClosedLoopTex += this.transferFunction.getClosedLoopTransferFunction().getTex();
+			transferFunctionClosedLoopTex += '\\\\&= ' + this.transferFunction.getClosedLoopTransferFunction().factorize().getTex();
 		}
 		
 		transferFunctionClosedLoopTex += '\\end{align}';

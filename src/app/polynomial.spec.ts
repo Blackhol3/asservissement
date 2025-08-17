@@ -36,15 +36,15 @@ describe('Polynome', () => {
 		expect(p.numberOfNonZeroCoefficients).toBe(0);
 	});
 	
-	it('should calculate the smaller non-zero coefficient', () => {
+	it('should calculate the zero multiplicity', () => {
 		let p = new Polynomial([10, 0, 30]);
-		expect(p.smallerNonZeroCoefficient).toBe(0);
+		expect(p.zeroMultiplicity).toBe(0);
 		
 		p = new Polynomial([0, 0, 30, 0, 0, 60, 0]);
-		expect(p.smallerNonZeroCoefficient).toBe(2);
+		expect(p.zeroMultiplicity).toBe(2);
 		
 		p = new Polynomial([]);
-		expect(p.smallerNonZeroCoefficient).toBe(-1);
+		expect(p.zeroMultiplicity).toBe(-1);
 	});
 	
 	it('should change the coefficients', () => {
@@ -110,6 +110,26 @@ describe('Polynome', () => {
 		
 		expect(result.real).toBe(8323);
 		expect(result.imag).toBe(-40644);
+	});
+
+	it('should factorize the zero root', () => {
+		const p1 = new Polynomial([0, 0, 10, 20, 30])
+		const p2 = new Polynomial([100, 500]);
+		const p3 = new Polynomial([0, 2, 3]);
+		let result = p1.multiply(p2).multiply(p3).factorizeZero();
+
+		const q1 = new Polynomial([1, 2, 3])
+		const q2 = new Polynomial([1, 5]);
+		const q3 = new Polynomial([1, 1.5]);
+		const expectedResult = q1.multiply(q2).multiply(q3);
+
+		expect(result[0].coefficients).toEqual([0, 0, 0, 10*100*2]);
+		expect(result[1].coefficients).toEqual(expectedResult.coefficients);
+
+		result = p2.factorizeZero();
+
+		expect(result[0].coefficients).toEqual([100]);
+		expect(result[1].coefficients).toEqual([1, 5]);
 	});
 
 	it('should factorize', () => {

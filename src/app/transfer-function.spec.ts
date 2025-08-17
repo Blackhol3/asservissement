@@ -31,6 +31,19 @@ describe('TransferFunction', () => {
 		
 		expect(tf.zeroMultiplicity).toEqual(2);
 	});
+
+	it('should calculate the static gain', () => {
+		const n1 = new Polynomial([10, 20, 30]);
+		const n2 = new Polynomial([5, 7]);
+		const n3 = new Polynomial([0, 5, 5, 7]);
+		
+		const d1 = new Polynomial([0, 0, 30]);
+		const d2 = new Polynomial([0, 5, 7]);
+		
+		const tf = new TransferFunction([n1, n2, n3], [d1, d2]);
+		
+		expect(tf.staticGain).toEqual(5/3);
+	});
 	
 	it('should multiply by another transfer function', () => {
 		const p1 = new Polynomial([Math.random(), Math.random(), Math.random()]);

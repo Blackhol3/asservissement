@@ -110,7 +110,7 @@ export class FrequentialResponseCalculator {
 				return;
 			}
 			
-			const realOrder = polynomial.order - polynomial.smallerNonZeroCoefficient;
+			const realOrder = polynomial.order - polynomial.zeroMultiplicity;
 			const previousOrder = asymptoticChanges.get(w) ?? 0;
 			asymptoticChanges.set(w, previousOrder + factor * realOrder);
 		};
@@ -126,7 +126,7 @@ export class FrequentialResponseCalculator {
 		const asymptoticChanges = this.getAsymptoticChanges();
 		
 		const wInitial = asymptoticChanges.length > 0 ? Math.min(wMin, asymptoticChanges[0].w) : wMin;
-		const staticGain = this.expandedTransferFunction.numerator.at(this.expandedTransferFunction.numerator.smallerNonZeroCoefficient) / this.expandedTransferFunction.denominator.at(this.expandedTransferFunction.denominator.smallerNonZeroCoefficient);
+		const staticGain = this.expandedTransferFunction.staticGain;
 		
 		const ws = [wInitial];
 		const gains = [20*Math.log10(wInitial)*asymptoticLowFrequencyOrder + 20*Math.log10(staticGain)];
